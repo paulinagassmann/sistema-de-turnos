@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+ <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Página principal de pacientes, organiza 
+    tus turnos en Pausa de manera sencilla.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Paciente </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+ </head>
+
+    <body>
+    
+        <header>
+            <p> <strong> Pausa </strong> </p>
+        </header>
+
+        <main class = "main-paciente">
+            <section class = "seccion-turnos">
+
+                <header>
+                    <h1> Bienvenido, Enzo </h1> <!-- me gustaría poner el nombre específico del paciente aquí -->
+                    <p> Aquí puedes gestionar tus turnos y acceder a tu información personal. </p>
+                </header>
+
+                <!-- Tarjeta de próximo turno -->
+                <article class = "tarjeta-turnos">
+                    <h2> Próximo turno </h2>
+                    <p> Profesional: Lic Roberto </p>
+                    <p> Terapia Cognitivo Conductual </p>
+                    <p> Fecha: 15/12/2026 </p>
+                    <p> Hora: 10:00 AM </p>
+                    <button type="button"> Cancelar sesión </button> 
+                </article>
+
+                <button type="button" class="btn-agendar">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                   <span>Agendar nuevo turno</span>
+                </button>
+
+            </section>
+
+            <section class = "seccion-perfil">
+
+                <article class = "tarjeta-perfil">
+
+                    <h2> Mi perfil </h2>
+
+                    <p class="perfil-nombre"> Enzo Murguia </p>
+                    <p class="perfil-dni">DNI: 12.345.678</p>
+
+                    <div class="campo-perfil">
+                     <label for="obra-social">Obra social:</label>
+                     <input type="text" id="obra-social" value="PAMI" readonly>
+                    </div>
+
+                    <div class="campo-perfil">
+                     <label for="telefono">Teléfono:</label>
+                     <input type="tel" id="telefono" value="343-1222111" readonly>
+                    </div>
+
+                    <div class="campo-perfil">
+                     <label for="email">Correo electrónico:</label>
+                     <input type="email" id="email" value="enzo.murguia@example.com" readonly>
+                    </div>
+
+                    <div class="campo-perfil">
+                     <label for="password">Contraseña:</label>
+                     <input type="password" id="password" value="********" readonly>
+                    </div>
+
+                    <button type="button" class="btn-editar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil-minus"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /><path d="M16 19h6" /></svg>
+                        <span>Editar información</span>
+                    </button>
+                    
+                </article>
+
+            </section>
+        </main>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>
+    </footer>
+
+    </body>
+
+    </html>
