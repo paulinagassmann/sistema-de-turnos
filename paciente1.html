@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Primer paso para agendar un turno en Pausa.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Agendar Turno </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body>
+    
+    <header class="header-paciente">
+        <div class="bloque-marca">
+            <span class="logo-texto">Pausa</span>
+            <span class="subtitulo-logo">Clínica de Salud Mental</span>
+        </div>
+    </header>
+    
+    <main class="main-paciente1">
+        <header class="encabezado-pasos">
+            <h1> Agendar Turno </h1>
+            <p> Siga los pasos para programar su sesión de terapia.</p>
+        </header>
+        
+        <!-- Barra de progreso de 3 pasos -->
+        <div class="indicador-pasos">
+            <div class="paso activo">
+                <span class="circulo-paso">1</span>
+                <span class="etiqueta-paso">Profesional</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso">
+                <span class="circulo-paso">2</span>
+                <span class="etiqueta-paso">Fecha y Hora</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso">
+                <span class="circulo-paso">3</span>
+                <span class="etiqueta-paso">Confirmación</span>
+            </div>
+        </div>
+
+        <section class="contenedor-profesional">
+            
+            <header>
+                <h2> Seleccione un profesional </h2>
+            </header>
+
+            <!-- Contenedor con las 3 tarjetas de profesionales -->
+            <div class="grilla-profesionales">
+                
+                <!-- Profesional 1 -->
+                <button type="button" class="tarjeta-profesional">
+                    <img src="img/psicologo1.jpg" alt="Foto Lic. Martín Garabal" class="avatar-profesional">
+                    <div class="info-profesional">
+                        <h3>Lic. Martín Garabal</h3>
+                        <p>Especialista en Terapia Cognitivo Conductual</p>
+                    </div>
+                </button>
+
+                <!-- Profesional 2 -->
+                <button type="button" class="tarjeta-profesional">
+                    <img src="img/psicologo2.jpg" alt="Foto Lic. Sofia Calvo" class="avatar-profesional">
+                    <div class="info-profesional">
+                        <h3>Lic. Sofia Calvo</h3>
+                        <p>Psicoanálisis</p>
+                    </div>
+                </button>
+
+                <!-- Profesional 3 -->
+                <button type="button" class="tarjeta-profesional">
+                    <img src="img/psicologo3.jpg" alt="Foto Lic. Alejandro Wiebe" class="avatar-profesional">
+                    <div class="info-profesional">
+                        <h3>Lic. Alejandro Wiebe</h3>
+                        <p>Terapia Infantil</p>
+                    </div>
+                </button>
+
+            </div>
+
+            <footer class ="footer-pasos">
+               <a href="paciente.html" class="btn-cancelar-paso">Volver al inicio</a>
+               <a href="agendar-paso2.html" class="btn-siguiente-paso">Siguiente &rarr;</a>
+            </footer>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
+    </footer>
+
+</body>
