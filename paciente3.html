@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Tercer paso para agendar un turno en Pausa.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Agendar Turno </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body>
+    
+    <header class="header-paciente">
+        <div class="bloque-marca">
+            <span class="logo-texto">Pausa</span>
+            <span class="subtitulo-logo">Clínica de Salud Mental</span>
+        </div>
+    </header>
+     
+    <main class="main-paciente-turno">
+        <header class="encabezado-pasos">
+            <h1> Confirmar turno </h1>
+            <p> Revisá los detalles del turno antes de confirmarlo.</p>
+        </header>
+        
+        <!-- Barra de progreso de 3 pasos -->
+        <div class="indicador-pasos">
+            <div class="paso">
+                <span class="circulo-paso">1</span>
+                <span class="etiqueta-paso">Profesional</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso">
+                <span class="circulo-paso">2</span>
+                <span class="etiqueta-paso">Fecha y Hora</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso activo"> <!-- para pintar este paso de azul -->
+                <span class="circulo-paso">3</span>
+                <span class="etiqueta-paso">Confirmación</span>
+            </div>
+        </div>
+
+
+        <section class="contenedor-profesional">
+            
+            <div class="grilla-confirmacion">
+                
+                <!-- COLUMNA IZQUIERDA: DETALLES DE LA RESERVA -->
+                <div class="panel-resumen">
+                    <h2>Detalles del turno</h2>
+                    
+                    <div class="item-resumen">
+                        <div class="texto-resumen">
+                            <span class="subtitulo-campo">PROFESIONAL</span>
+                            <strong>Lic. Martín Garabal</strong>
+                        </div>
+                    </div>
+
+                    <div class="item-resumen">
+                        <div class="texto-resumen">
+                            <span class="subtitulo-campo">FECHA</span>
+                            <strong>Miércoles, 15 de Diciembre 2026</strong>
+                        </div>
+                    </div>
+
+                    <div class="item-resumen">
+                        <div class="texto-resumen">
+                            <span class="subtitulo-campo">HORA</span>
+                            <strong>11:00 hs</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: INFORMACIÓN IMPORTANTE -->
+                <div class="panel-aviso-importante">
+                    <div class="cabecera-aviso">
+                        <h3>Información Importante</h3>
+                    </div>
+                    <ul class="lista-avisos">
+                        <li>Por favor, presentate <strong>5 minutos antes</strong> del horario acordado.</li>
+                        <li>Las cancelaciones deben realizarse con al menos <strong>24 horas de anticipación.</strong></li>
+                        <li>En caso de cancelación dentro de las 24 horas previas al turno, <strong>se deberá abonar una penalidad.</strong></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        <footer class ="footer-pasos">
+               <a href="paciente2.html" class="btn-cancelar-paso">Volver</a>
+               <button type="button" class="btn-siguiente-paso" onclick="mostrarModal()">Confirmar sesión &rarr;</button>
+        </footer>
+
+        </section>
+
+    </main>
+
+    <!-- VENTANITA FLOTANTE (MODAL DE ÉXITO) -->
+    <div id="modalExito" class="modal-fondo">
+        <div class="modal-caja">
+            <div class="modal-icono-check">✓</div>
+            <h3>¡Turno Confirmado con Éxito!</h3>
+            <a href="paciente.html" class="btn-siguiente-paso">Ir al Inicio</a>
+        </div>
+    </div>
+
+    <!-- función para abrir el cartelito -->
+    <script>
+        function mostrarModal() {
+            document.getElementById('modalExito').classList.add('mostrar');
+        }
+    </script>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
+    </footer>
+
+</body>

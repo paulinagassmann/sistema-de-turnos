@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Segundo paso para agendar un turno en Pausa.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Agendar Turno </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body>
+    
+    <header class="header-paciente">
+        <div class="bloque-marca">
+            <span class="logo-texto">Pausa</span>
+            <span class="subtitulo-logo">Clínica de Salud Mental</span>
+        </div>
+    </header>
+     
+    <main class="main-paciente-turno">
+        <header class="encabezado-pasos">
+            <h1> Fecha y Hora </h1>
+            <p> Elegí la fecha y hora que mejor se adapte a tu agenda.</p>
+        </header>
+        
+        <!-- Barra de progreso de 3 pasos -->
+        <div class="indicador-pasos">
+            <div class="paso">
+                <span class="circulo-paso">1</span>
+                <span class="etiqueta-paso">Profesional</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso activo"> <!-- para pintar este paso de azul -->
+                <span class="circulo-paso">2</span>
+                <span class="etiqueta-paso">Fecha y Hora</span>
+            </div>
+            <div class="linea-paso"></div>
+            <div class="paso">
+                <span class="circulo-paso">3</span>
+                <span class="etiqueta-paso">Confirmación</span>
+            </div>
+        </div>
+
+        <section class="contenedor-profesional">
+            <!-- Contenedor de las dos columnas: Calendario a la izquierda, Horarios a la derecha -->
+            <div class="grilla-seleccion-turno">
+                
+                <!-- COLUMNA 1: CALENDARIO -->
+                <div class="panel-calendario">
+
+                    <div class="cabecera-mes">
+                        <h3>Diciembre 2026</h3>
+
+                        <!--botones para ir hacia atras o adelante en los meses-->
+                        <div class="nav-mes">
+                            <button type="button" class="btn-nav-mes">&lt;</button>
+                            <button type="button" class="btn-nav-mes">&gt;</button>
+                        </div>
+
+                    </div>
+
+                    <!-- Días de la semana -->
+                    <div class="dias-semana">
+                        <span>Dom</span>
+                        <span>Lun</span>
+                        <span>Mar</span>
+                        <span>Mié</span>
+                        <span>Jue</span>
+                        <span>Vie</span>
+                        <span>Sáb</span>
+                    </div>
+
+                    <!-- Grilla con los números de los días -->
+                    <div class="grilla-dias">
+                        <!-- Días vacíos para acomodar el inicio del mes -->
+                        <span></span><span></span><span></span>
+                        
+                        <button type="button" class="dia-inactivo" disabled>1</button>
+                        <button type="button" class="dia-inactivo" disabled>2</button>
+                        <button type="button" class="dia-inactivo" disabled>3</button>
+                        <button type="button" class="dia-inactivo" disabled>4</button>
+                        
+                        <button type="button" class="dia-inactivo" disabled>5</button>
+                        <button type="button" class="dia-inactivo" disabled>6</button>
+                        <button type="button" class="dia-inactivo" disabled>7</button>
+                        <button type="button" class="dia-inactivo" disabled>8</button>
+                        <button type="button" class="dia-inactivo" disabled>9</button>
+                        <button type="button" class="dia-disponible">10</button>
+                        <button type="button" class="dia-inactivo" disabled>11</button>
+                        
+                        <button type="button" class="dia-inactivo" disabled>12</button>
+                        <button type="button" class="dia-disponible">13</button>
+                        <button type="button" class="dia-disponible">14</button>
+                        <button type="button" class="dia-seleccionado">15</button>
+                        <button type="button" class="dia-disponible">16</button>
+                        <button type="button" class="dia-disponible">17</button>
+                        <button type="button" class="dia-inactivo" disabled>18</button>
+                        
+                        <button type="button" class="dia-inactivo" disabled>19</button>
+                        <button type="button" class="dia-disponible">20</button>
+                        <button type="button" class="dia-disponible">21</button>
+                        <button type="button" class="dia-disponible">22</button>
+                        <button type="button" class="dia-disponible">23</button>
+                        <button type="button" class="dia-disponible">24</button>
+                        <button type="button" class="dia-inactivo" disabled>25</button>
+
+                        <button type="button" class="dia-inactivo" disabled>26</button>
+                        <button type="button" class="dia-disponible">27</button>
+                        <button type="button" class="dia-disponible">28</button>
+                        <button type="button" class="dia-disponible">29</button>
+                        <button type="button" class="dia-disponible">30</button>
+                        <button type="button" class="dia-disponible">31</button>
+
+                    </div>
+                </div>
+
+                <!-- COLUMNA 2: HORARIOS DISPONIBLES -->
+                <div class="panel-horarios">
+
+                    <div class="cabecera-horarios">
+                        <h3>Miércoles, 15 de Noviembre</h3>
+                    </div>
+
+                    <div class="lista-horas">
+                        <button type="button" class="btn-hora">09:00</button>
+                        <button type="button" class="btn-hora">09:45</button>
+                        <button type="button" class="btn-hora">10:30</button>
+                        <button type="button" class="btn-hora hora-seleccionada">11:00</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <footer class ="footer-pasos">
+               <a href="paciente1.html" class="btn-cancelar-paso">Volver</a>
+               <a href="paciente3.html" class="btn-siguiente-paso">Siguiente &rarr;</a>
+            </footer>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
+    </footer>
+
+</body>

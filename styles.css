@@ -443,11 +443,14 @@ body > footer {
    ======================================= */
 
 /* Contenedor central de la pantalla */
-.main-paciente1 {
+.main-paciente-turno {
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
     padding: 20px 20px 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     box-sizing: border-box;
 }
 
@@ -528,13 +531,6 @@ body > footer {
 .paso.activo .etiqueta-paso {
     color: #0052cc;
     font-weight: 700;
-}
-
-/* 1. Forzar a que este main apile sus elementos verticalmente */
-.main-paciente1 {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
 }
 
 /* 2. Tarjeta blanca contenedora */
@@ -660,4 +656,326 @@ body > footer {
 
 .btn-siguiente-paso:hover {
     background-color: #0041a8;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* =======================================
+   ESTILOS: SEGUNDO PASO PARA AGENDAR TURNO
+   ======================================= */
+
+/* Contenedor de 2 columnas principales */
+.grilla-seleccion-turno {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+
+/*ESTILOS PARA EL CALENDARIOOOOOOOOOOOOOOOO*/
+/* 1. Cabecera del mes y flechas */
+.cabecera-mes {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cabecera-mes h3 {
+    font-size: 1.1rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0;
+}
+
+.nav-mes {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-nav-mes {
+    background-color: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.btn-nav-mes:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* 2. Días de la semana (Dom, Lun, ...) */
+.dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+/* 3. Grilla de números del mes (7 columnas) */
+.grilla-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    align-items: center;
+    justify-items: center;
+}
+
+/* Estilo base de los botones de días */
+.grilla-dias button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Día no disponible / deshabilitado */
+.dia-inactivo {
+    color: #cbd5e1;
+    cursor: not-allowed !important;
+}
+
+/* Día con turnos disponibles (Verde suave) */
+.dia-disponible {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    font-weight: 600 !important;
+}
+
+.dia-disponible:hover {
+    background-color: #a7f3d0 !important;
+}
+
+/* Día seleccionado por el paciente (Azul) */
+.dia-seleccionado {
+    background-color: #0052cc !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 82, 204, 0.3);
+}
+
+
+
+
+/*ESTILOS PARA LOS BOTONES DE HORARIOSSSSSSSSSSSSSSSSSSS*/
+/* Cabecera del panel de horarios */
+.cabecera-horarios h3 {
+    font-size: 1.1rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+/* Grilla para los botones de hora (2 columnas) */
+.lista-horas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* Botón individual de horario */
+.btn-hora {
+    background-color: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.btn-hora:hover {
+    border-color: #0052cc;
+    background-color: #f8fafc;
+}
+
+/* Horario seleccionado actualmente */
+.btn-hora.hora-seleccionada {
+    border-color: #0052cc;
+    background-color: #eff6ff;
+    color: #0052cc;
+    font-weight: 700;
+}
+
+
+
+
+
+
+
+
+
+
+/* =======================================
+   ESTILOS: TERCER PASO PARA AGENDAR TURNO
+   ======================================= */
+
+/* Contenedor de 2 columnas para el resumen y los avisos */
+.grilla-confirmacion {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+/* Columna Izquierda: Lista de detalles */
+.panel-resumen h2 {
+    font-size: 1.2rem;
+    color: #0f172a;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.item-resumen {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.item-resumen:last-child {
+    border-bottom: none;
+}
+
+.texto-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.subtitulo-campo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.texto-resumen strong {
+    font-size: 1rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Columna Derecha: Tarjeta azul suave con avisos */
+.panel-aviso-importante {
+    background-color: #f0fdf4; /* Tono verde/azul muy suave */
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 24px;
+    height: fit-content;
+}
+
+.cabecera-aviso h3 {
+    font-size: 1rem;
+    color: #166534;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.lista-avisos {
+    margin: 0;
+    padding-left: 20px;
+    color: #15803d;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.lista-avisos li {
+    margin-bottom: 8px;
+}
+
+
+
+
+
+/*CARTELITO DE QUE SE AGENDÓ EL TURNO CON ÉXITOOOOOOOOOOOO*/
+
+/* Fondo oscuro translúcido que cubre toda la pantalla (oculto por defecto) */
+.modal-fondo {
+    display: none; /* Oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.6); /* Oscurece el fondo */
+    backdrop-filter: blur(4px);               /* Efecto de desenfoque */
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Clase que activa JavaScript para mostrar el modal */
+.modal-fondo.mostrar {
+    display: flex;
+}
+
+/* La tarjeta blanca central del cartelito */
+.modal-caja {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 36px 30px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Círculo verde con el tilde de éxito */
+.modal-icono-check {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #dcfce7;
+    color: #16a34a;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.modal-caja h3 {
+    font-size: 1.25rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0;
 }
