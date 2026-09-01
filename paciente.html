@@ -24,7 +24,7 @@
         <main class = "main-paciente">
             <section class = "seccion-turnos">
 
-                <header>
+                <header class="encabezado-seccion">
                     <h1> Bienvenido, Enzo </h1> <!-- me gustaría poner el nombre específico del paciente aquí -->
                     <p> Aquí puedes gestionar tus turnos de terapia y acceder a tu 
                         información personal. </p>
@@ -33,7 +33,7 @@
                 <!-- Tarjeta de próximo turno -->
                 <article class = "tarjeta-turnos">
                     <h2> Próxima sesión </h2>
-                    <p> <strong>Profesional: Lic Roberto</strong> </p>
+                    <p> <strong>Profesional: Lic. Martín Garabal</strong> </p>
                     <p> Terapia Cognitivo Conductual </p>
 
                     <!-- fecha y horario para ponerlos dentro de esas cajitas -->
@@ -51,7 +51,7 @@
 
                     </div>
 
-                    <button type="button"> Cancelar sesión </button> 
+                    <button type="button" class="btn-cancelar" onclick="abrirModalCancelar()"> Cancelar sesión </button> 
                 </article>
 
                 <a href="paciente1.html" class="btn-agendar">
@@ -90,10 +90,10 @@
                      <input type="password" id="password" value="********" readonly>
                     </div>
 
-                    <button type="button" class="btn-editar">
+                    <a href="perfil-paciente.html" class="btn-editar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil-minus"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /><path d="M16 19h6" /></svg>
                         <span>Editar información</span>
-                    </button>
+                    </a>
 
                 </article>
 
@@ -105,5 +105,53 @@
     </footer>
 
     </body>
+
+    <!-- MODAL 1: PREGUNTA DE CONFIRMACIÓN -->
+<div id="modalCancelar" class="modal-fondo">
+    <div class="modal-caja">
+        <div class="modal-icono-alerta">⚠️</div>
+        <h3>¿Cancelar turno?</h3>
+        <p>¿Estás seguro de que querés cancelar tu sesión? Esta acción no se puede deshacer.</p>
+        
+        <div class="modal-acciones">
+            <button type="button" class="btn-secundario-modal" onclick="cerrarModalCancelar()">No, mantener turno</button>
+            <button type="button" class="btn-peligro-modal" onclick="confirmarCancelacion()">Sí, cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: AVISO DE CANCELADO CON ÉXITO -->
+<div id="modalCanceladoExito" class="modal-fondo">
+    <div class="modal-caja">
+        <div class="modal-icono-check">✓</div>
+        <h3>Turno cancelado</h3>
+        <p>Tu turno fue cancelado correctamente. Podés agendar uno nuevo cuando lo necesites.</p>
+        <button type="button" class="btn-siguiente-paso" onclick="cerrarModalExito()">Aceptar</button>
+    </div>
+</div>
+
+<!--JavaScript para la apertura y cierre de los cartelitos-->
+<script>
+    // Función para abrir el modal de cancelación
+    function abrirModalCancelar() {
+        document.getElementById('modalCancelar').classList.add('mostrar');
+    }
+
+    // Función para cerrar el modal de cancelación
+    function cerrarModalCancelar() {
+        document.getElementById('modalCancelar').classList.remove('mostrar');
+    }
+
+    // Función para confirmar la cancelación del turno
+    function confirmarCancelacion() {
+        cerrarModalCancelar(); // Cierra el modal de confirmación
+        document.getElementById('modalCanceladoExito').classList.add('mostrar'); // Abre el modal de éxito
+    }
+
+    // Función para cerrar el modal de éxito
+    function cerrarModalExito() {
+        document.getElementById('modalCanceladoExito').classList.remove('mostrar');
+    }
+</script>
 
     </html>

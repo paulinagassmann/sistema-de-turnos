@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+ <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Página para que el paciente pueda 
+    editar su información personal en Pausa.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Editar Perfil </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+ </head>
+
+    <body>
+    
+        <header class = "header-paciente">
+            <div class="bloque-marca">
+                <span class="logo-texto">Pausa</span>
+                <span class="subtitulo-logo">Clínica de Salud Mental</span>
+            </div>
+            <div class="usuario-header">
+                <a href="paciente.html" class="btn-cancelar-paso">&larr; Volver al inicio</a>
+            </div>
+        </header>
+
+        <main class = "main-perfil-paciente">
+            <header class="encabezado-seccion">
+                <h1> Mi perfil </h1>
+                <p> Gestioná tus datos de contacto y la seguridad de tu cuenta. </p>
+            </header>
+
+            <div class = "grilla-perfil">
+
+            <section class="tarjeta-blanca">
+                <h2>Editar información personal</h2>
+
+                <form class="form-perfil">
+
+                <div class="grupo-campo">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" value="enzo.murguia@example.com">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="telefono">Teléfono de contacto</label>
+                    <input type="tel" id="telefono" value="+54 343 1222111">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="obra-social">Obra Social / Prepaga</label>
+                    <input type="text" id="obra-social" value="PAMI">
+                </div>
+
+                <div class="footer-pasos">
+                    <button type="button" class="btn-siguiente-paso" onclick="mostrarModalPerfil()">Guardar cambios</button>
+                </div>
+
+                </form>
+            </section>
+
+            <section class="tarjeta-blanca">
+                <h2>Cambiar contraseña</h2>
+
+                <form class="form-perfil">
+
+                <div class="grupo-campo">
+                    <label for="contra-actual">Contraseña actual</label>
+                    <input type="password" id="contra-actual" placeholder="••••••••">
+                </div>
+
+                <div class="grilla-seleccion-turno">
+                    <div class="grupo-campo">
+                        <label for="contra-nueva">Nueva contraseña</label>
+                        <input type="password" id="contra-nueva" placeholder="Nueva contraseña">
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="contra-confirmar">Confirmar nueva contraseña</label>
+                        <input type="password" id="contra-confirmar" placeholder="Repetir nueva contraseña">
+                    </div>
+                </div>
+
+                <div class="footer-pasos">
+                    <button type="button" class="btn-siguiente-paso" onclick="mostrarModalPerfil()">Actualizar contraseña</button>
+                </div>
+            </form>
+            </section>
+
+            </div>
+
+        </main>
+
+        <!-- Modal de confirmación rápida -->
+        <div id="modalPerfilExito" class="modal-fondo">
+            <div class="modal-caja">
+                <div class="modal-icono-check">✓</div>
+                <h3>Cambios guardados</h3>
+                <p>La información de tu perfil fue actualizada con éxito.</p>
+                <button type="button" class="btn-siguiente-paso" onclick="cerrarModalPerfil()">Aceptar</button>
+            </div>
+        </div>
+
+        <footer>
+            <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
+        </footer>
+
+        <script>
+        function mostrarModalPerfil() {
+            document.getElementById('modalPerfilExito').classList.add('mostrar');
+        }
+        function cerrarModalPerfil() {
+            document.getElementById('modalPerfilExito').classList.remove('mostrar');
+        }
+    </script>
+
+    </body>
+</html>
