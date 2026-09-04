@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Página principal de los profesionales de la salud mental, 
+    organiza tus turnos en Pausa de manera sencilla.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Profesional </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body class="body-dashboard">
+
+    <div class="layout-profesional">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar-profesional">
+            <div class="bloque-marca">
+                <span class="logo-texto">Pausa</span>
+                <span class="subtitulo-logo">Panel Profesional</span>
+            </div>
+
+            <!-- Navegación lateral -->
+            <nav class="menu-lateral">
+                <a href="profesional.html" class="item-menu activo">
+                    <span>Inicio / Hoy</span>
+                </a>
+                <a href="#" class="item-menu">
+                    <span>Mis Pacientes</span>
+                </a>
+                <a href="profesional-agenda.html" class="item-menu">
+                    <span>Agenda </span>
+                </a>
+                <a href="#" class="item-menu">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+
+            <!-- Botón de cerrar sesión al pie del menú -->
+            <div class="sidebar-footer">
+                <a href="index.html" class="btn-logout">
+                    <span>Cerrar sesión</span>
+                </a>
+            </div>
+
+        </aside>
+    
+
+    <main class="main-profesional">
+        
+        <header class="header-dashboard">
+            <div class="espaciador-header"></div>
+
+            <div class="texto-bienvenida-prof">
+                <p><strong> Bienvenido, Lic. Martín Garabal</strong></p>
+                <h1> Tus turnos de hoy </h1>
+            </div>
+
+            <div class = "fecha-hoy">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                <time datetime="2026-12-19">19 dic, 2026</time>
+            </div>
+
+        </header>
+
+    <div class="grilla-cuerpo-profesional">
+
+        <section class="tarjeta-blanca">
+
+            <div class="lista-turnos-hoy">
+                    
+                    <!-- Turno 1 -->
+                    <article class="fila-turno">
+                        <div class="info-paciente-turno">
+                            <div>
+                                <strong>Enzo Murguía</strong>
+                            </div>
+                        </div>
+
+                        <div class="detalles-turno-badges">
+                            <span class="chip-horario">10:00 AM</span>
+                            <span class="chip-estado estado-pendiente">Pendiente</span>
+                        </div>
+
+                    </article>
+
+                    <!-- Turno 2 -->
+                    <article class="fila-turno">
+                        <div class="info-paciente-turno">
+                            <div>
+                                <strong>Paulina Gassmann</strong>
+                            </div>
+                        </div>
+
+                        <div class="detalles-turno-badges">
+                            <span class="chip-horario">11:00 AM</span>
+                            <span class="chip-estado estado-pendiente">Pendiente</span>
+                        </div>
+
+                    </article>
+
+            </div>
+
+        </section>
+
+        <section class="resumen-dia">
+            <h3> Resumen del día </h3>
+
+            <div class="tarjeta-resumen">
+                <span class="titulo-resumen">Total Turnos</span>
+                <strong class="valor-resumen">2</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span class="titulo-resumen">Completados</span>
+                <strong class="valor-resumen valor-completado">0</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span class="titulo-resumen">Pendientes</span>
+                <strong class="valor-resumen valor-pendiente">2</strong>
+            </div>
+
+            <div class="bloque-agenda-lateral">
+                <a href="profesional-agenda.html" class="btn-siguiente-paso">
+                    Consultar agenda
+                </a>
+            </div>
+
+        </section>
+    
+    </div> <!-- Cierra esto que contiene la parte de los proximos turnos y el resumen de turnos -->
+
+    </main>
+
+    </div>
+
+<footer>
+    <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
+</footer>
+
+</body>
+    

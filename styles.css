@@ -1144,3 +1144,567 @@ body > footer {
     font-weight: 700;
     margin: 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =======================================
+   ESTILOS: PARA LA INTERFAZ DE PROFESIONAL (DASHBOARD)
+   ======================================= */
+
+/* Estructura general de 2 columnas (Sidebar + Contenido) */
+.body-dashboard {
+    background-color: #f8fafc;
+    margin: 0;
+}
+
+.layout-profesional {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 1. Barra Lateral (Sidebar) */
+.sidebar-profesional {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.menu-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 32px;
+    flex-grow: 1;
+}
+
+.item-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #475569;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.item-menu:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.item-menu.activo {
+    background-color: #eff6ff;
+    color: #0052cc;
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: #ef4444;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #fef2f2;
+}
+
+/* 2. Área de Contenido Principal */
+.main-profesional {
+    flex-grow: 1;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+/* Encabezado: Título centrado y fecha a la derecha */
+.header-dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.espaciador-header {
+    width: 140px; /* Equilibra el ancho de la fecha para que el centro sea exacto */
+}
+
+.texto-bienvenida-prof {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.fecha-hoy {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #334155;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 3. Grilla Principal: Turnos a la izquierda y Resumen a la derecha */
+.grilla-cuerpo-profesional {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+    width: 100%;
+}
+
+/* 4. Lista de Turnos */
+.lista-turnos-hoy {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fila-turno {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.info-paciente-turno strong {
+    font-size: 1.05rem;
+    color: #0f172a;
+}
+
+.detalles-turno-badges {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chip-horario {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.chip-estado {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.estado-pendiente {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* 5. Tarjetas de Resumen (Columna derecha) */
+.resumen-dia {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tarjeta-resumen {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.titulo-resumen {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.valor-resumen {
+    font-size: 1.6rem;
+    color: #0f172a;
+}
+
+.valor-completado {
+    color: #16a34a;
+}
+
+.valor-pendiente {
+    color: #d97706;
+}
+
+/* 6. Diseño Responsivo */
+@media (max-width: 900px) {
+    .grilla-cuerpo-profesional {
+        grid-template-columns: 1fr;
+    }
+
+    .espaciador-header {
+        display: none;
+    }
+
+    .header-dashboard {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout-profesional {
+        flex-direction: column;
+    }
+
+    .sidebar-profesional {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .main-profesional {
+        padding: 20px;
+    }
+}
+
+/* Espaciado y tamaño para el botón bajo las métricas */
+.bloque-agenda-lateral {
+    margin-top: 8px;
+    width: 100%;
+}
+
+.bloque-agenda-lateral .btn-siguiente-paso {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.bloque-agenda-lateral .btn-siguiente-paso svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =======================================
+   ESTILOS: PROFESIONAL-AGENDA (AGENDA COMPLETA DEL PROFESIONAL)
+   ======================================= */
+
+/* Contenedor principal de la agenda */
+.main-profesional-agenda {
+    flex-grow: 1;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+/* Botón 'Volver a Hoy' en el encabezado */
+.btn-volver-dashboard {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-volver-dashboard:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* Grilla de dos columnas: Calendario (izquierda) y Detalle (derecha) */
+.grilla-agenda-profesional {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+    width: 100%;
+}
+
+/* --- COLUMNA 1: CALENDARIO MENSUAL --- */
+.cabecera-mes {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cabecera-mes h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+}
+
+.nav-mes {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-nav-mes {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-nav-mes:hover {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+/* Nombres de los días de la semana */
+.dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+/* Cuadrícula de 7 columnas para los días */
+.grilla-dias-agenda {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.dia-vacio {
+    visibility: hidden;
+}
+
+/* Botón individual de cada día */
+.btn-dia {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 64px;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.btn-dia:hover {
+    border-color: #0052cc;
+    background-color: #f8fafc;
+}
+
+.num-dia {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Pastilla con contador de turnos */
+.badge-turnos-dia {
+    background-color: #eff6ff;
+    color: #0052cc;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+/* Día seleccionado */
+.btn-dia.dia-seleccionado {
+    border: 2px solid #0052cc;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.15);
+}
+
+.btn-dia.dia-seleccionado .num-dia {
+    color: #ffffff; /* Número 19 EN BLANCOOP */
+    font-weight: 800;
+}
+
+.btn-dia.dia-seleccionado .badge-turnos-dia {
+    background-color: #0052cc; /* Pastilla en azul sólido */
+    color: #ffffff; /* Texto blanco para alto contraste */
+}
+
+/* --- COLUMNA 2: DETALLE DE TURNOS DEL DÍA --- */
+.encabezado-detalle-dia {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.encabezado-detalle-dia h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+}
+
+.subtitulo-detalle {
+    font-size: 0.88rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.lista-turnos-dia-agenda {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tarjeta individual de turno en la columna derecha */
+.item-turno-agenda {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    gap: 12px;
+}
+
+.hora-turno-agenda strong {
+    font-size: 0.9rem;
+    color: #0f172a;
+    background-color: #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap; /* Impide que 'AM' caiga abajo */
+    display: inline-block;
+}
+
+.datos-paciente-agenda {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1; /* Ocupa el resto de la fila */
+}
+
+.nombre-paciente {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Adaptación a pantallas chicas */
+@media (max-width: 900px) {
+    .grilla-agenda-profesional {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Vista de la agenda completa de los 
+    profesionales de Pausa.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Profesional </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body class="body-dashboard">
+
+    <div class="layout-profesional">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar-profesional">
+            <div class="bloque-marca">
+                <span class="logo-texto">Pausa</span>
+                <span class="subtitulo-logo">Panel Profesional</span>
+            </div>
+
+            <!-- Navegación lateral -->
+            <nav class="menu-lateral">
+                <a href="profesional.html" class="item-menu activo">
+                    <span>Inicio / Hoy</span>
+                </a>
+                <a href="" class="item-menu">
+                    <span>Mis Pacientes</span>
+                </a>
+                <a href="#" class="item-menu">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+
+        </aside>
+
+    <main class = "main-profesional-agenda">
+
+        <header class="header-dashboard">
+            <div class="espaciador-header"></div>
+
+            <div class="texto-bienvenida-prof">
+                <p>Lic. Martín Garabal</p>
+                <h1> Agenda completa </h1>
+            </div>
+
+            <a href="profesional.html" class="btn-volver-dashboard">
+                <span>Volver a Hoy</span>
+            </a>
+        </header>
+
+        <!-- CONTENEDOR DE LAS 2 TARJETAS:  Calendario a la izquierda, detalle de turnos
+         a la derecha -->
+        <div class="grilla-agenda-profesional">
+
+        <section class="tarjeta-blanca">
+        <!-- TARJETA 1 (IZQUIERDA): CALENDARIO -->
+
+            <div class="cabecera-mes">
+                <h3>Diciembre 2026</h3>
+
+                <!--botones para ir hacia atras o adelante en los meses-->
+                <div class="nav-mes">
+                    <button type="button" class="btn-nav-mes">&lt;</button>
+                    <button type="button" class="btn-nav-mes">&gt;</button>
+                </div>
+
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="dias-semana">
+                <span>Dom</span>
+                <span>Lun</span>
+                <span>Mar</span>
+                <span>Mié</span>
+                <span>Jue</span>
+                <span>Vie</span>
+                <span>Sáb</span>
+            </div>
+
+            <!-- Grilla con los números de los días -->
+            <div class="grilla-dias-agenda">
+                <!-- Días vacíos para acomodar el inicio del mes -->
+                <span class="dia-vacio"></span>
+                <span class="dia-vacio"></span>
+                <span class="dia-vacio"></span>
+                
+                <!-- Días del mes (ejemplo: 1 al 18 normales o con turnos) -->
+                        <button type="button" class="btn-dia"><span class="num-dia">1</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">2</span></button>
+                        <button type="button" class="btn-dia">
+                            <span class="num-dia">3</span>
+                            <span class="badge-turnos-dia">1 turno</span>
+                        </button>
+                        <button type="button" class="btn-dia"><span class="num-dia">4</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">5</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">6</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">7</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">8</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">9</span></button>
+                        <button type="button" class="btn-dia">
+                            <span class="num-dia">10</span>
+                            <span class="badge-turnos-dia">3 turnos</span>
+                        </button>
+                        <button type="button" class="btn-dia"><span class="num-dia">11</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">12</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">13</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">14</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">15</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">16</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">17</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">18</span></button>
+
+                        <!-- Día 19: El que está SELECCIONADO actualmente -->
+                        <button type="button" class="btn-dia dia-seleccionado">
+                            <span class="num-dia">19</span>
+                            <span class="badge-turnos-dia">2 turnos</span>
+                        </button>
+
+                        <button type="button" class="btn-dia"><span class="num-dia">20</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">21</span></button>
+                        <button type="button" class="btn-dia">
+                            <span class="num-dia">22</span>
+                            <span class="badge-turnos-dia">4 turnos</span>
+                        </button>
+                        <button type="button" class="btn-dia"><span class="num-dia">23</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">24</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">25</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">26</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">27</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">28</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">29</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">30</span></button>
+                        <button type="button" class="btn-dia"><span class="num-dia">31</span></button>
+                    </div>
+        </section>
+
+        <!-- TARJETA 2 (DERECHA): DETALLE DE TURNOS DEL DÍA SELECCIONADO -->
+        <section class="tarjeta-blanca">
+            <div class="encabezado-detalle-dia">
+                <h2>Sábado, 19 de Diciembre</h2>
+                <span class="subtitulo-detalle">2 turnos programados</span>
+            </div>
+
+            <div class="lista-turnos-dia-agenda">
+                        
+                <!-- Turno 1 -->
+                <article class="item-turno-agenda">
+                    <div class="hora-turno-agenda">
+                        <strong>10:00 AM</strong>
+                    </div>
+
+                    <div class="datos-paciente-agenda">
+                            <span class="nombre-paciente">Enzo Murguía</span>
+                            <span class="chip-estado estado-pendiente">Pendiente</span>
+                    </div>
+                </article>
+
+                <!-- Turno 2 -->
+                <article class="item-turno-agenda">
+                    <div class="hora-turno-agenda">
+                        <strong>11:00 AM</strong>
+                    </div>
+
+                    <div class="datos-paciente-agenda">
+                        <span class="nombre-paciente">Paulina Gassmann</span>
+                        <span class="chip-estado estado-pendiente">Pendiente</span>
+                    </div>
+                </article>
+
+            </div>
+            
+        </section>
+
+        </div>
+
+    </main>
+
+    </div>
+
+<footer>
+    <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>
+</footer>
+
+</body>
