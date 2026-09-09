@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Vista de la configuración del profesional.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Profesional </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body class="body-dashboard">
+
+    <div class="layout-profesional">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar-profesional">
+            <div class="bloque-marca">
+                <span class="logo-texto">Pausa</span>
+                <span class="subtitulo-logo">Panel Profesional</span>
+            </div>
+
+            <!-- Navegación lateral -->
+            <nav class="menu-lateral">
+                <a href="profesional.html" class="item-menu">
+                    <span>Inicio / Hoy</span>
+                </a>
+                <a href="profesional-pacientes.html" class="item-menu">
+                    <span>Mis Pacientes</span>
+                </a>
+                <a href="profesional-agenda.html" class="item-menu">
+                    <span>Agenda </span>
+                </a>
+                <a href="profesional-configuracion.html" class="item-menu activo">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+
+        </aside>
+
+        <main class = "main-profesional-menu">
+
+            <header class="header-dashboard">
+                <div class="texto-bienvenida-prof">
+                    <h1> Configuración </h1>
+                </div>
+
+                <div class="espaciador-header"></div>
+
+                <a href="profesional.html" class="btn-volver-dashboard">
+                    <span>Volver a Hoy</span>
+                </a>
+            </header>
+
+            <div class = "grilla-perfil">
+
+                <section class = "tarjeta-blanca">
+                    <h2>Información de la cuenta</h2>
+
+                    <form class="form-perfil">
+
+                        <div class="grupo-campo">
+                            <label for="nombre-profesional">Nombre y Apellido</label>
+                            <!-- disabled porque no se debería cambiar sin trámite en la clínica -->
+                            <input type="text" id="nombre-profesional" value="Lic. Martín Garabal" disabled>
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="matricula">Matrícula Profesional</label>
+                            <input type="text" id="matricula" value="M.P. 4821" disabled>
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="email">Correo electrónico de acceso</label>
+                            <input type="email" id="email" value="martin.garabal@pausa.com">
+                        </div>
+
+                        <div class="footer-pasos">
+                            <button type="button" class="btn-siguiente-paso">Guardar cambios</button>
+                        </div>
+
+                    </form>
+                </section>
+
+                <section class = "tarjeta-blanca">
+                    <h2>Cambiar contraseña</h2>
+
+                    <form class="form-perfil">
+
+                        <div class="grupo-campo">
+                            <label for="contra-actual">Contraseña actual</label>
+                            <input type="password" id="contra-actual" placeholder="••••••••">
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="contra-nueva">Nueva contraseña</label>
+                            <input type="password" id="contra-nueva" placeholder="Ingresá la nueva contraseña">
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="contra-confirmar">Confirmar nueva contraseña</label>
+                            <input type="password" id="contra-confirmar" placeholder="Repetí la nueva contraseña">
+                        </div>
+
+                        <div class="footer-pasos">
+                            <button type="button" class="btn-siguiente-paso">Actualizar contraseña</button>
+                        </div>
+
+                    </form>
+                </section>
+            </div>
+
+        </main>
+
+    </div>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>
+    </footer>
+
+</body>
+</html>

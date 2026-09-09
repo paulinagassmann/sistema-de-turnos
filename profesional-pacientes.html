@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Vista de los pacientes atendidos por el profesional.">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <title> Pausa - Profesional </title>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+</head>
+
+<body class="body-dashboard">
+
+    <div class="layout-profesional">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar-profesional">
+            <div class="bloque-marca">
+                <span class="logo-texto">Pausa</span>
+                <span class="subtitulo-logo">Panel Profesional</span>
+            </div>
+
+            <!-- Navegación lateral -->
+            <nav class="menu-lateral">
+                <a href="profesional.html" class="item-menu">
+                    <span>Inicio / Hoy</span>
+                </a>
+                <a href="profesional-pacientes.html" class="item-menu activo">
+                    <span>Mis Pacientes</span>
+                </a>
+                <a href="profesional-agenda.html" class="item-menu">
+                    <span>Agenda </span>
+                </a>
+                <a href="profesional-configuracion.html" class="item-menu">
+                    <span>Configuración</span>
+                </a>
+            </nav>
+
+        </aside>
+
+        <main class = "main-profesional-menu">
+
+            <header class="header-dashboard">
+                <div class="texto-bienvenida-prof">
+                    <h1> Lista de pacientes </h1>
+                </div>
+
+                <div class="espaciador-header"></div>
+
+                <a href="profesional.html" class="btn-volver-dashboard">
+                    <span>Volver a Hoy</span>
+                </a>
+            </header>
+
+            <!-- CONTENEDOR DE LAS 2 TARJETAS:  Lista de pacientes a la izquierda, 
+             detalle de paciente a la derecha -->
+
+            <div class="contenedor-tarjetas-pacientes">
+
+                <!-- TARJETA IZQUIERDA (LISTA DE LOS PACIENTES) -->
+                <section class = "tarjeta-blanca">
+
+                    <!--buscador-->
+                    <div class="bloque-buscador-pacientes">
+                        <input type="search" placeholder="Buscar por nombre o DNI..." class="input-busqueda-paciente">
+                    </div>
+
+                    <!-- Lista vertical de pacientes -->
+                    <div class="lista-pacientes-resumen">
+
+                        <!-- Paciente 1 (Seleccionado actualmente) -->
+                        <button type="button" class="tarjeta-paciente-item paciente-seleccionado">
+                            <div class="avatar-paciente-mini">E</div>
+                            <div class="info-paciente-mini">
+                                <strong>Enzo Murguia</strong>
+                                <span>Próximo turno: 19 dic, 2026</span>
+                            </div>
+                        </button>
+
+                        <!-- Paciente 2 -->
+                        <button type="button" class="tarjeta-paciente-item">
+                            <div class="avatar-paciente-mini">P</div>
+                            <div class="info-paciente-mini">
+                                <strong>Paulina Gassmann</strong>
+                                <span>Próximo turno: 19 dic, 2026</span>
+                            </div>
+                        </button>
+
+                        <!-- Paciente 2 -->
+                        <button type="button" class="tarjeta-paciente-item">
+                            <div class="avatar-paciente-mini">M</div>
+                            <div class="info-paciente-mini">
+                                <strong>Martina Gassmann</strong>
+                                <span>Próximo turno: 26 dic, 2026</span>
+                            </div>
+                        </button>
+
+                        <!-- Paciente 2 -->
+                        <button type="button" class="tarjeta-paciente-item">
+                            <div class="avatar-paciente-mini">F</div>
+                            <div class="info-paciente-mini">
+                                <strong>Fulanito Fulano</strong>
+                                <span>Próximo turno: 27 dic, 2026</span>
+                            </div>
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <!-- TARJETA DERECHA: DETALLE DEL PACIENTE SELECCIONADO -->
+                <section class="tarjeta-blanca">
+
+                    <h2>Detalle del paciente</h2>
+
+                    <!-- Datos básicos de contacto agrupados -->
+                    <div class="ficha-datos-contacto">
+                        <p><strong>Nombre:</strong> Enzo Murguia</p>
+                        <p><strong>Correo:</strong> enzo.murguia@example.com</p>
+                        <p><strong>Teléfono:</strong> 343-1222111</p>
+                        <p><strong>Obra social:</strong> PAMI</p>
+                    </div>
+
+                    <h3>Próximo turno</h3>
+                    <div class="item-turno-agenda">
+                        <strong>19 dic, 2026 - 10:00 hs</strong>
+                        <span class="chip-estado estado-pendiente">Pendiente</span>
+                    </div>
+
+                    <h3>Historial de turnos</h3>
+                    <div class="lista-historial-paciente">
+                        <div class="item-turno-agenda">
+                            <span>12 dic, 2026 - 10:00 hs</span>
+                            <span class="chip-estado estado-atendido">Atendido</span>
+                        </div>
+                        <div class="item-turno-agenda">
+                            <span>05 dic, 2026 - 10:00 hs</span>
+                            <span class="chip-estado estado-atendido">Atendido</span>
+                        </div>
+                        <div class="item-turno-agenda">
+                            <span>28 nov, 2026 - 10:00 hs</span>
+                            <span class="chip-estado estado-ausente">Ausente</span>
+                        </div>
+                    </div>
+
+                </section>
+            
+            </div>
+        
+        </main>
+    </div>
+
+    <footer>
+        <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>
+    </footer>
+
+</body>
