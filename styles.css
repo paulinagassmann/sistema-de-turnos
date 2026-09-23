@@ -394,6 +394,19 @@ body > footer {
     box-sizing: border-box;     
 }   
 
+.header-paciente .btn-logout {
+    background-color: #ffe4e6;
+    color: #be123c;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.header-paciente .btn-logout:hover {
+    background-color: #fecdd3;
+    color: #9f1239;
+}
+
 /* Enlace / Botón Cerrar Sesión */
 .btn-logout {
     color: #be123c;
@@ -1888,4 +1901,740 @@ body > footer {
     .ficha-datos-contacto {
         grid-template-columns: 1fr;
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: PANTALLA SECRETARIO
+   =================================================== */
+
+.layout-secretario {
+    display: flex;
+    min-height: 100vh;
+    align-items: flex-start;
+    background-color: #f1f5f9;
+}
+
+/* 1. Barra Lateral (Sidebar) del Secretario */
+.sidebar-secretario {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.bloque-accion-sidebar {
+    margin: 20px 0;
+}
+
+.btn-dar-turno {
+    display: block;
+    width: 100%;
+    background-color: #0052cc;
+    color: #ffffff;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s;
+}
+
+.btn-dar-turno:hover {
+    background-color: #004099;
+}
+
+/* 2. Contenido Principal del Secretario */
+.main-secretario {
+    flex: 1;
+    padding: 32px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1200px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.main-secretario:has(.grilla-dar-turno) {
+    max-width: 1050px;
+    padding: 20px 32px 32px;
+}
+
+.main-secretario:has(.grilla-dar-turno) .header-dashboard {
+    margin-bottom: 20px;
+}
+
+.main-secretario:has(.contenedor-formulario-paciente) {
+    max-width: none;
+    padding-top: 12px;
+}
+
+.main-secretario:has(.contenedor-formulario-paciente) .header-dashboard {
+    margin-bottom: 12px;
+}
+
+.main-secretario:has(.contenedor-formulario-paciente) form {
+    gap: 10px;
+}
+
+.main-secretario section {
+    max-width: none;
+    text-align: left;
+}
+
+/* 3. Título y sección de la fecha */
+.main-secretario .header-dashboard,
+.titulo-secretario {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    gap: 24px;
+    align-items: center;
+}
+
+.main-secretario .header-dashboard {
+    margin-bottom: 16px;
+}
+
+.main-secretario .texto-bienvenida-secretario {
+    min-width: 0;
+}
+
+.main-secretario .input-busqueda-paciente {
+    display: block;
+}
+
+.main-secretario > .bloque-buscador-pacientes {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.texto-bienvenida-secretario h1 {
+    color: #0f172a;
+    text-align: left;
+    flex-grow: 1;
+}
+
+/* 4. Grilla del Dashboard del Secretario */
+.grilla-dashboard-secretario {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.contenedor-tarjetas-resumen-sec {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Tarjeta Métrica Azul ("Turnos Hoy") */
+.tarjeta-metrica-azul {
+    background: linear-gradient(135deg, #0052cc, #2563eb) !important;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta-metrica-azul:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 82, 204, 0.2);
+}
+
+.tarjeta-metrica-azul .header-metrica {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tarjeta-metrica-azul h3 {
+    margin: 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: #93c5fd;
+}
+
+.tarjeta-metrica-azul .icono-metrica {
+    font-size: 1.2rem;
+}
+
+.tarjeta-metrica-azul .cuerpo-metrica {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+
+.tarjeta-metrica-azul .numero-grande {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.tarjeta-metrica-azul .subtexto-metrica {
+    font-size: 0.9rem;
+    color: #bfdbfe;
+}
+
+/* Tarjetas de Acción Rápida */
+.tarjeta-accion {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tarjeta-accion h3 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.tarjeta-accion p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.btn-accion-card {
+    align-self: flex-start;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0052cc;
+    text-decoration: none;
+    margin-top: 16px;
+}
+
+.btn-accion-card:hover {
+    text-decoration: underline;
+}
+
+/* Responsividad para pantallas medianas/pequeñas */
+@media (max-width: 900px) {
+    .contenedor-tarjetas-resumen-sec {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout-secretario {
+        flex-direction: column;
+    }
+
+    .sidebar-secretario {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .main-secretario {
+        padding: 20px;
+    }
+}
+
+.tarjeta-accion.enlace-tarjeta-metrica {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.tarjeta-accion.enlace-tarjeta-metrica:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 82, 204, 0.2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: SECRETARIO - DAR TURNO (INTERFAZ DE AGENDAR TURNO)
+   =================================================== */
+
+/* Contenedor general en grilla para los pasos */
+.grilla-dar-turno {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Las tarjetas de los pasos */
+.paso-turno {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+/* El paso 3 ocupa todo el ancho de la grilla */
+.paso-ancho-completo {
+    grid-column: span 2;
+}
+
+/* Encabezado de cada paso con su número en círculo */
+.header-paso {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.header-paso h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #0f172a;
+}
+
+.badge-numero {
+    width: 28px;
+    height: 28px;
+    background-color: #eff6ff;
+    color: #0052cc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* Lista rápida de especialistas (Paso 2) */
+.lista-especialistas-rapida {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.item-especialista-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+}
+
+.item-especialista-btn:hover {
+    border-color: #0052cc;
+    background-color: #f8fafc;
+}
+
+.avatar-esp {
+    width: 36px;
+    height: 36px;
+    background-color: #e2e8f0;
+    color: #0052cc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.item-especialista-btn span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Responsividad para pantallas chicas */
+@media (max-width: 900px) {
+    .grilla-dar-turno {
+        grid-template-columns: 1fr;
+    }
+    .paso-ancho-completo {
+        grid-column: span 1;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: SECRETARIO - REGISTRAR - PACIENTE 
+   =================================================== */
+
+.contenedor-formulario-paciente {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.tarjeta-formulario {
+    width: 100%;
+    padding: 24px;
+}
+
+.seccion-formulario {
+    margin-bottom: 8px;
+}
+
+.titulo-seccion-form {
+    font-size: 1rem;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.divisor-form {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 8px 0;
+}
+
+/* Grillas de campos adaptables */
+.grilla-campos-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.grilla-campos-form.dos-columnas {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grilla-campos-form.tres-columnas {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Estilos de los inputs y labels */
+.grupo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.grupo-input label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.input-form {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background-color: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-form:focus {
+    border-color: #0052cc;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Acciones del formulario (Botones al pie) */
+.acciones-formulario {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.btn-cancelar-form {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-cancelar-form:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.btn-guardar-form {
+    display: inline-flex;
+    align-items: center;
+    background-color: #0052cc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-guardar-form:hover {
+    background-color: #004099;
+}
+
+/* Responsividad para pantallas chicas */
+@media (max-width: 768px) {
+    .grilla-campos-form,
+    .grilla-campos-form.dos-columnas,
+    .grilla-campos-form.tres-columnas {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: CARTELITO DE EXITO EN EL REGISTRO DE PACIENTE POR EL SECRETARIO
+   =================================================== */
+/* Por defecto, el dialog nativo viene oculto y sin estilos */
+.modal-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* El fondo oscuro translúcido que trae el navegador por defecto cuando se abre */
+.modal-dialog::backdrop {
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* La tarjeta blanca central del cartelito */
+.modal-card {
+    background-color: #ffffff;
+    width: 440px;
+    border-radius: 20px;
+    padding: 32px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Círculo superior con el ícono de check */
+.modal-icono-exito {
+    width: 56px;
+    height: 56px;
+    background-color: #ccfbf1;
+    color: #0d9488;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.modal-titulo {
+    margin: 0 0 6px 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.modal-subtitulo {
+    margin: 0 0 24px 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Caja interior de credenciales */
+.modal-credenciales-box {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+}
+
+.fila-credencial {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label-cred {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.valor-cred {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0052cc;
+}
+
+.divisor-cred {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 12px 0;
+}
+
+/* Botones al pie del modal */
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-imprimir-cred {
+    flex: 1;
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-imprimir-cred:hover {
+    background-color: #e2e8f0;
+}
+
+.btn-finalizar-modal {
+    flex: 1;
+    background-color: #0052cc;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-finalizar-modal:hover {
+    background-color: #004099;
 }
