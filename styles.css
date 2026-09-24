@@ -2638,3 +2638,558 @@ body > footer {
 .btn-finalizar-modal:hover {
     background-color: #004099;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: SECRETARIO - PACIENTES
+   =================================================== */
+
+.grilla-gestion-pacientes {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.contenedor-filtro-profesional {
+    margin-bottom: 16px;
+}
+
+.label-filtro {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.contenedor-buscador-sec {
+    margin-bottom: 16px;
+}
+
+.lista-pacientes-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-paciente-lista {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.item-paciente-lista:hover {
+    border-color: #0052cc;
+    background-color: #f8fafc;
+}
+
+.item-seleccionado-sec {
+    border: 2px solid #0052cc;
+    background-color: #f8fafc;
+}
+
+.info-item-lista {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-item-lista .avatar-mini-sec {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    color: #0052cc;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.avatar-activo {
+    background-color: #0052cc !important;
+    color: #ffffff !important;
+}
+
+.nombre-paciente-lista {
+    display: block;
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+.dni-paciente-lista {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.titulo-seccion-detalle {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+/* Panel de datos administrativos del detalle */
+.panel-datos-administrativos {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.campo-detalle-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.label-admin {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.valor-admin {
+    font-size: 0.9rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.subtitulo-detalle {
+    font-size: 0.95rem;
+    color: #0f172a;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.item-turno-proximo-sec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.texto-turno-sec {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.lista-historial-sec {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.item-historial-sec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #0f172a;
+}
+
+.chip-estado.estado-atendido,
+.chip-estado.estado-ausente,
+.texto-atendido,
+.texto-ausente {
+    color: #0f172a;
+    font-weight: 400;
+}
+
+/* Responsividad para pantallas chicas */
+@media (max-width: 900px) {
+    .grilla-gestion-pacientes {
+        grid-template-columns: 1fr;
+    }
+    .panel-datos-administrativos {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: SECRETARIO TURNOS DE HOY
+   =================================================== */
+
+/* Cabecera superior con título y selector de profesional */
+.header-gestion-turnos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.titulo-con-fecha {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.titulo-con-fecha h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #0f172a;
+}
+
+.badge-fecha-hoy {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.filtro-profesional-top {
+    width: 260px;
+}
+
+/* Grilla principal de dos columnas */
+.grilla-turnos-hoy {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Columna Izquierda: Filtros por Estado */
+.titulo-filtro-estado {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    margin: 0 0 16px 0;
+}
+
+.lista-botones-estado {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-estado-filtro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 14px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    text-align: left;
+}
+
+.btn-estado-filtro:hover {
+    background-color: #f1f5f9;
+}
+
+.btn-estado-filtro.estado-activo {
+    background-color: #0052cc;
+    color: #ffffff;
+}
+
+.contador-estado {
+    background-color: rgba(0, 0, 0, 0.06);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.estado-activo .contador-estado {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.texto-alerta {
+    color: #dc2626;
+}
+
+/* Columna Derecha: Agenda del Día */
+.cabecera-agenda-dia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cabecera-agenda-dia h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #0f172a;
+}
+
+.acciones-agenda {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icono-agenda {
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-icono-agenda:hover {
+    background-color: #f1f5f9;
+}
+
+/* Lista de turnos operativos */
+.lista-turnos-operativa {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.item-turno-operativo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    gap: 16px;
+}
+
+/* Bloque izquierdo de la tarjeta (Hora y Estado) */
+.bloque-hora-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 90px;
+}
+
+.hora-turno-op {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+/* Chips de estado personalizados */
+.chip-estado {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+}
+
+.estado-pendiente {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.estado-cancelado {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.estado-asistio {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+/* Detalles del paciente */
+.detalles-turno-op {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nombre-paciente-op {
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.info-secundaria-op {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.badge-obra-social {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Botones de acción rápida en cada turno */
+.botones-accion-turno {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-accion-turno {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+    background-color: #ffffff;
+}
+
+.btn-cancelar-turno:hover {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.btn-asistio-turno:hover {
+    background-color: #d1fae5;
+    border-color: #059669;
+    color: #059669;
+}
+
+.btn-deshacer-turno {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-deshacer-turno:hover {
+    background-color: #f1f5f9;
+}
+
+/* Responsividad para pantallas chicas */
+@media (max-width: 900px) {
+    .grilla-turnos-hoy {
+        grid-template-columns: 1fr;
+    }
+    .header-gestion-turnos {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .filtro-profesional-top {
+        width: 100%;
+    }
+}
