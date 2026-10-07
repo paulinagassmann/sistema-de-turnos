@@ -2170,6 +2170,20 @@ body > footer {
     }
 }
 
+.contenedor-tarjetas-resumen-sec.tarjetas-agendas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tarjetas-agendas > .tarjeta-accion {
+    height: 180px;
+}
+
+@media (max-width: 900px) {
+    .contenedor-tarjetas-resumen-sec.tarjetas-agendas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 .tarjeta-accion.enlace-tarjeta-metrica {
     text-decoration: none;
     display: flex;
@@ -3204,3 +3218,355 @@ body > footer {
 
 
 
+
+
+
+
+/* ===================================================
+   ESTILOS: SECRETARIO-BUSCAR
+   =================================================== */
+
+.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: stretch;
+}
+
+.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard {
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+    margin: 0;
+    padding: 24px 32px 0;
+}
+
+.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) .bloque-buscador-pacientes {
+    margin-bottom: 0;
+}
+
+.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    padding: 24px 32px 32px;
+}
+
+.header-seccion-perfil {
+    margin-bottom: 20px;
+}
+
+.header-seccion-perfil h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.6rem;
+}
+
+.main-secretario:has(.header-seccion-perfil) .titulo-nombre-paciente-buscado {
+    grid-column: 1 / -1;
+}
+
+.main-secretario:has(.header-seccion-perfil) .titulo-nombre-paciente-buscado h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.btn-editar-perfil,
+.btn-dar-turno-mini {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 45px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #0052cc;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-editar-perfil:hover,
+.btn-dar-turno-mini:hover {
+    background-color: #004099;
+}
+
+.btn-editar-perfil:focus-visible,
+.btn-dar-turno-mini:focus-visible,
+.btn-cancelar-turno-mini:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.cabecera-turno-paciente {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cabecera-turno-paciente .subtitulo-detalle {
+    margin: 0;
+}
+
+.btn-cancelar-turno-mini {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background-color: #fef2f2;
+    color: #b91c1c;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-cancelar-turno-mini:hover {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+}
+
+@media (max-width: 768px) {
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto 1fr;
+    }
+
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario,
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard,
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
+        grid-column: 1;
+    }
+
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario {
+        grid-row: 1;
+    }
+
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard {
+        grid-row: 2;
+        padding: 20px 20px 0;
+    }
+
+    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
+        grid-row: 3;
+        padding: 20px;
+    }
+
+    .cabecera-turno-paciente,
+    .item-turno-proximo-sec {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .btn-dar-turno-mini,
+    .btn-cancelar-turno-mini {
+        width: 100%;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================================================
+   ESTILOS: AGENDAS HORARIOS BASE (SECRETARIO)
+   =================================================== */
+
+.contenedor-config-agenda {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 820px;
+}
+
+.tarjeta-seleccion-prof {
+    padding: 20px 24px;
+}
+
+.tarjeta-dias-semana {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Filas de los días de la semana */
+.fila-horario-dia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    transition: opacity 0.2s;
+}
+
+.fila-horario-dia.dia-inactivo {
+    opacity: 0.55;
+}
+
+.dia-info-switch {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 160px;
+}
+
+.nombre-dia {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+/* Interruptor (Switch Toggle personalizado) */
+.switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-toggle {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider-toggle:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.switch-toggle input:checked + .slider-toggle {
+    background-color: #0052cc;
+}
+
+.switch-toggle input:checked + .slider-toggle:before {
+    transform: translateX(20px);
+}
+
+/* Contenedor de franjas horarias */
+.franjas-horarias-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.franja-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-time {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background-color: #f8fafc;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.input-time:focus {
+    border-color: #0052cc;
+    background-color: #ffffff;
+}
+
+.separador-a {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.btn-accion-horario {
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-accion-horario:hover {
+    background-color: #f1f5f9;
+}
+
+.texto-sin-horarios {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Divisores sutiles entre días */
+.divisor-horarios {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 0;
+}
+
+/* Botón flotante al pie */
+.contenedor-guardar-plantilla {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+/* Responsividad para pantallas chicas */
+@media (max-width: 768px) {
+    .fila-horario-dia {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .franjas-horarias-container {
+        align-items: flex-start;
+        width: 100%;
+    }
+}
