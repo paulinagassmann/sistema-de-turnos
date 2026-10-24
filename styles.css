@@ -2033,15 +2033,14 @@ body > footer {
     display: block;
 }
 
-.main-secretario > .bloque-buscador-pacientes {
-    width: 100%;
-    margin-bottom: 24px;
-}
-
 .texto-bienvenida-secretario h1 {
     color: #0f172a;
     text-align: left;
     flex-grow: 1;
+}
+
+.main-secretario:has(.grilla-dashboard-secretario) .texto-bienvenida-secretario h1 {
+    font-size: 2.1rem;
 }
 
 /* 4. Grilla del Dashboard del Secretario */
@@ -3222,61 +3221,6 @@ body > footer {
 
 
 
-/* ===================================================
-   ESTILOS: SECRETARIO-BUSCAR
-   =================================================== */
-
-.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) {
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    align-items: stretch;
-}
-
-.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-}
-
-.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard {
-    grid-column: 2;
-    grid-row: 1;
-    display: block;
-    margin: 0;
-    padding: 24px 32px 0;
-}
-
-.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) .bloque-buscador-pacientes {
-    margin-bottom: 0;
-}
-
-.layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
-    grid-column: 2;
-    grid-row: 2;
-    max-width: none;
-    padding: 24px 32px 32px;
-}
-
-.header-seccion-perfil {
-    margin-bottom: 20px;
-}
-
-.header-seccion-perfil h1 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 1.6rem;
-}
-
-.main-secretario:has(.header-seccion-perfil) .titulo-nombre-paciente-buscado {
-    grid-column: 1 / -1;
-}
-
-.main-secretario:has(.header-seccion-perfil) .titulo-nombre-paciente-buscado h2 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 1.2rem;
-}
-
 .btn-editar-perfil,
 .btn-dar-turno-mini {
     display: inline-flex;
@@ -3307,18 +3251,6 @@ body > footer {
     outline-offset: 2px;
 }
 
-.cabecera-turno-paciente {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.cabecera-turno-paciente .subtitulo-detalle {
-    margin: 0;
-}
-
 .btn-cancelar-turno-mini {
     flex-shrink: 0;
     padding: 8px 12px;
@@ -3338,38 +3270,11 @@ body > footer {
 }
 
 @media (max-width: 768px) {
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto auto 1fr;
-    }
-
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario,
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard,
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
-        grid-column: 1;
-    }
-
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .sidebar-secretario {
-        grid-row: 1;
-    }
-
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .header-dashboard {
-        grid-row: 2;
-        padding: 20px 20px 0;
-    }
-
-    .layout-secretario:has(> .header-dashboard > .bloque-buscador-pacientes) > .main-secretario {
-        grid-row: 3;
-        padding: 20px;
-    }
-
-    .cabecera-turno-paciente,
     .item-turno-proximo-sec {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .btn-dar-turno-mini,
     .btn-cancelar-turno-mini {
         width: 100%;
     }
@@ -3569,4 +3474,914 @@ body > footer {
         align-items: flex-start;
         width: 100%;
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.btn-editar-perfil {
+    display: flex;
+    width: fit-content;
+    margin: 0 0 24px auto;
+}
+/* ===================================================
+   ESTILOS: EXCEPCIONES DE AGENDA (SECRETARIO)
+   =================================================== */
+
+.main-secretario:has(.contenedor-excepciones-general) {
+    max-width: 1440px;
+}
+
+.main-secretario:has(.contenedor-excepciones-general) .header-dashboard {
+    margin-bottom: 24px;
+}
+
+.contenedor-excepciones-general {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.tarjeta-filtro-excepcion {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 20px 24px;
+}
+
+.tarjeta-filtro-excepcion .grupo-input {
+    width: min(100%, 360px);
+}
+
+.tarjeta-filtro-excepcion .input-form {
+    min-height: 44px;
+}
+
+.ayuda-filtro-excepcion {
+    margin: 0 0 11px;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.grilla-excepciones-dos-columnas {
+    display: grid;
+    grid-template-columns: minmax(290px, 0.85fr) minmax(0, 1.4fr);
+    align-items: start;
+    gap: 20px;
+    width: 100%;
+}
+
+.panel-calendario-excepcion,
+.panel-horarios-excepcion {
+    min-width: 0;
+    padding: 24px;
+}
+
+.panel-calendario-excepcion .cabecera-mes,
+.panel-horarios-excepcion .cabecera-horarios-dia {
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.panel-calendario-excepcion .cabecera-mes h2,
+.panel-horarios-excepcion .cabecera-horarios-dia h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+    line-height: 1.35;
+}
+
+.sobrelinea-excepcion {
+    margin: 0 0 5px;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.panel-calendario-excepcion .dias-semana {
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 0.72rem;
+}
+
+.panel-calendario-excepcion .grilla-dias {
+    gap: 6px;
+}
+
+.panel-calendario-excepcion .grilla-dias button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.panel-calendario-excepcion .dia-seleccionado {
+    outline: 3px solid rgba(0, 82, 204, 0.16);
+    outline-offset: 2px;
+}
+
+.panel-calendario-excepcion .btn-nav-mes:focus-visible,
+.panel-calendario-excepcion .grilla-dias button:focus-visible,
+.btn-bloquear-dia-completo:focus-visible,
+.btn-accion-linea:focus-visible,
+.btn-whatsapp-modal:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.footer-calendario-excepcion {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-bloquear-dia-completo {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-bloquear-dia-completo:hover {
+    border-color: #0052cc;
+    background: #eff6ff;
+    color: #0052cc;
+}
+
+.panel-horarios-excepcion .cabecera-horarios-dia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.panel-horarios-excepcion .btn-dar-turno-mini {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 13px;
+    font-size: 0.86rem;
+}
+
+.panel-horarios-excepcion .btn-dar-turno-mini:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.resumen-dia-excepcion {
+    margin: 0 0 18px;
+    color: #64748b;
+    font-size: 0.87rem;
+    line-height: 1.5;
+}
+
+.lista-franjas-excepcion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-franja-estado {
+    display: grid;
+    grid-template-columns: 56px 92px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.hora-franja {
+    color: #0f172a;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.franja-turno-extra {
+    grid-template-columns: 112px 92px minmax(0, 1fr) auto;
+}
+
+.franja-turno-extra .hora-franja {
+    white-space: nowrap;
+    font-size: 0.82rem;
+}
+
+.etiqueta-turno-extra {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 5px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #ede9fe;
+    color: #6d28d9;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.badge-estado {
+    justify-self: start;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge-disponible {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-ocupado {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-bloqueado {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.detalle-estado {
+    min-width: 0;
+    color: #475569;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.detalle-estado small {
+    display: block;
+    margin-top: 2px;
+    color: #94a3b8;
+    font-size: 0.74rem;
+}
+
+.franja-ocupada {
+    border-color: #bfdbfe;
+    background: #f8fbff;
+}
+
+.franja-bloqueada {
+    border-color: #fde68a;
+    background: #fffcf2;
+}
+
+.btn-accion-linea {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #475569;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-accion-linea:hover,
+.btn-whatsapp-modal:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+
+.btn-cancelar-turno-excepcion {
+    border-color: #fecaca;
+    background: #fffafa;
+    color: #b91c1c;
+}
+
+.btn-cancelar-turno-excepcion:hover {
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.btn-desbloquear {
+    border-color: #fde68a;
+    background: #ffffff;
+    color: #92400e;
+}
+
+@media (max-width: 1050px) {
+    .grilla-excepciones-dos-columnas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel-calendario-excepcion {
+        max-width: 560px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tarjeta-filtro-excepcion {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+        padding: 18px;
+    }
+
+    .tarjeta-filtro-excepcion .grupo-input {
+        width: 100%;
+    }
+
+    .ayuda-filtro-excepcion {
+        margin: 0;
+    }
+
+    .panel-calendario-excepcion,
+    .panel-horarios-excepcion {
+        padding: 18px;
+    }
+
+    .panel-horarios-excepcion .cabecera-horarios-dia {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .panel-horarios-excepcion .btn-dar-turno-mini {
+        width: 100%;
+    }
+
+    .item-franja-estado {
+        grid-template-columns: 54px minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .item-franja-estado.franja-turno-extra {
+        grid-template-columns: minmax(88px, auto) minmax(0, 1fr) auto;
+    }
+
+    .item-franja-estado .detalle-estado {
+        grid-column: 2 / -1;
+    }
+
+    .item-franja-estado > .btn-accion-linea {
+        grid-column: 2 / -1;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 420px) {
+    .panel-calendario-excepcion .cabecera-mes h2,
+    .panel-horarios-excepcion .cabecera-horarios-dia h2 {
+        font-size: 1.05rem;
+    }
+
+    .panel-calendario-excepcion .grilla-dias {
+        gap: 2px;
+    }
+
+    .panel-calendario-excepcion .grilla-dias button {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.modal-cancelacion-turno {
+    width: min(440px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+}
+
+.modal-cancelacion-turno .modal-card {
+    width: 100%;
+    gap: 14px;
+}
+
+.modal-cancelacion-turno .modal-acciones {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-cancelacion-turno .modal-subtitulo {
+    margin-bottom: 8px;
+}
+
+.btn-whatsapp-modal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: #0052cc;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-whatsapp-modal:hover {
+    background-color: #004099;
+}
+
+.modal-cancelacion-turno button:focus-visible,
+.btn-whatsapp-modal:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.estado-bloqueo-dia {
+    margin: 0;
+    color: #166534;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.modal-bloqueo-dia {
+    width: min(620px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
+
+.modal-bloqueo-dia .modal-card {
+    width: 100%;
+    align-items: stretch;
+    gap: 14px;
+    text-align: left;
+}
+
+.modal-bloqueo-dia .modal-icono-alerta {
+    align-self: center;
+}
+
+.modal-bloqueo-dia .modal-titulo {
+    text-align: center;
+}
+
+.modal-bloqueo-dia .modal-subtitulo {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.lista-pacientes-afectados {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding: 0;
+    list-style: none;
+}
+
+.lista-pacientes-afectados li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.datos-paciente-afectado {
+    color: #334155;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.modal-bloqueo-dia .btn-whatsapp-modal {
+    flex-shrink: 0;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+}
+
+.modal-bloqueo-dia .modal-acciones {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-bloqueo-dia button:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.modal-confirmacion-franja {
+    width: min(480px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+}
+
+.modal-turno-extra {
+    width: min(560px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
+
+.modal-form-turno-extra {
+    width: 100%;
+    align-items: stretch;
+    gap: 16px;
+    text-align: left;
+}
+
+.modal-form-turno-extra .modal-icono-alerta {
+    align-self: center;
+}
+
+.modal-form-turno-extra .modal-titulo,
+.modal-form-turno-extra .modal-subtitulo {
+    text-align: center;
+}
+
+.modal-form-turno-extra .modal-subtitulo {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.campos-horario-extra {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.campo-turno-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.campo-turno-extra label {
+    color: #334155;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.campo-turno-extra label span {
+    color: #64748b;
+    font-weight: 400;
+}
+
+.modal-form-turno-extra input,
+.modal-form-turno-extra select {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.modal-form-turno-extra input:focus,
+.modal-form-turno-extra select:focus {
+    border-color: #0052cc;
+    outline: 3px solid rgba(0, 82, 204, 0.15);
+}
+
+.datos-paciente-turno-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.datos-paciente-turno-extra[hidden],
+.error-turno-extra[hidden] {
+    display: none;
+}
+
+.error-turno-extra {
+    margin: 0;
+    color: #b91c1c;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.modal-form-turno-extra .modal-acciones {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-form-turno-extra button:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.modal-confirmacion-franja .modal-card {
+    width: 100%;
+    gap: 14px;
+}
+
+.modal-confirmacion-franja .modal-subtitulo {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modal-confirmacion-franja .modal-acciones {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-confirmacion-franja button:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.btn-confirmar-desbloqueo {
+    background-color: #15803d;
+}
+
+.btn-confirmar-desbloqueo:hover {
+    background-color: #166534;
+}
+
+@media (max-width: 560px) {
+    .modal-bloqueo-dia .modal-card {
+        padding: 24px 18px;
+    }
+
+    .lista-pacientes-afectados li {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .modal-bloqueo-dia .modal-acciones {
+        flex-direction: column-reverse;
+    }
+
+    .modal-bloqueo-dia .modal-acciones button {
+        width: 100%;
+    }
+
+    .modal-confirmacion-franja .modal-card {
+        padding: 24px 18px;
+    }
+
+    .modal-confirmacion-franja .modal-acciones {
+        flex-direction: column-reverse;
+    }
+
+    .modal-confirmacion-franja .modal-acciones button {
+        width: 100%;
+    }
+
+    .modal-form-turno-extra {
+        padding: 24px 18px;
+    }
+
+    .modal-form-turno-extra .campos-horario-extra {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .modal-form-turno-extra .modal-acciones {
+        flex-direction: column-reverse;
+    }
+
+    .modal-form-turno-extra .modal-acciones button {
+        width: 100%;
+    }
+}
+
+.vista-agendas .header-dashboard {
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 20px;
+}
+
+.vista-agendas .texto-bienvenida-secretario h1 {
+    margin: 0 0 6px;
+    color: #0f172a;
+    font-size: 1.6rem;
+}
+
+.vista-agendas .texto-bienvenida-secretario p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.filtro-agendas {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 18px 22px;
+}
+
+.filtro-agendas label {
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.filtro-agendas select {
+    width: min(100%, 320px);
+    min-height: 42px;
+    padding: 9px 36px 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.filtro-agendas select:focus-visible,
+.vista-agendas .btn-nav-mes:focus-visible,
+.vista-agendas .grilla-dias button:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.25);
+    outline-offset: 2px;
+}
+
+.grilla-consulta-agendas {
+    display: grid;
+    grid-template-columns: minmax(290px, 0.85fr) minmax(0, 1.4fr);
+    align-items: start;
+    gap: 20px;
+    width: 100%;
+}
+
+.panel-calendario-agendas,
+.panel-horarios-agendas {
+    min-width: 0;
+    padding: 24px;
+}
+
+.panel-calendario-agendas .cabecera-mes {
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.panel-calendario-agendas .cabecera-mes h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+    line-height: 1.35;
+}
+
+.panel-calendario-agendas .dias-semana {
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 0.72rem;
+}
+
+.panel-calendario-agendas .grilla-dias {
+    gap: 6px;
+}
+
+.panel-calendario-agendas .grilla-dias button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.panel-calendario-agendas .dia-seleccionado {
+    outline: 3px solid rgba(0, 82, 204, 0.16);
+    outline-offset: 2px;
+}
+
+.panel-horarios-agendas .cabecera-horarios-dia {
+    margin-bottom: 12px;
+}
+
+.panel-horarios-agendas .cabecera-horarios-dia h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+.sobrelinea-agendas {
+    margin: 0 0 5px;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.leyenda-agendas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.leyenda-agendas span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.punto-leyenda {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.punto-disponible {
+    background-color: #16a34a;
+}
+
+.punto-ocupado {
+    background-color: #2563eb;
+}
+
+.vista-agendas .item-franja-estado {
+    grid-template-columns: 56px 92px minmax(0, 1fr);
+}
+
+@media (max-width: 980px) {
+    .grilla-consulta-agendas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panel-calendario-agendas {
+        max-width: 560px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .filtro-agendas {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+        padding: 18px;
+    }
+
+    .filtro-agendas select {
+        width: 100%;
+    }
+
+    .panel-calendario-agendas,
+    .panel-horarios-agendas {
+        padding: 18px;
+    }
+
+    .panel-calendario-agendas .grilla-dias {
+        gap: 4px;
+    }
+
+    .panel-calendario-agendas .grilla-dias button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .vista-agendas .item-franja-estado {
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 8px 10px;
+    }
+
+    .vista-agendas .item-franja-estado .detalle-estado {
+        grid-column: 1 / -1;
+    }
+}
+
+.btn-editar-perfil {
+    display: flex;
+    width: fit-content;
+    margin: 0 0 24px auto;
 }

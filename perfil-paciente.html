@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="footer-pasos">
-                    <button type="button" class="btn-siguiente-paso" onclick="mostrarModalPerfil()">Guardar cambios</button>
+                    <button type="button" class="btn-siguiente-paso" onclick="alert('Datos del perfil actualizados con éxito')">Guardar cambios</button>
                 </div>
 
                 </form>
@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="footer-pasos">
-                    <button type="button" class="btn-siguiente-paso" onclick="mostrarModalPerfil()">Actualizar contraseña</button>
+                    <button type="button" class="btn-siguiente-paso" onclick="alert('Contraseña actualizada con éxito')">Actualizar contraseña</button>
                 </div>
             </form>
             </section>
@@ -90,28 +90,9 @@
 
         </main>
 
-        <!-- Modal de confirmación rápida -->
-        <div id="modalPerfilExito" class="modal-fondo">
-            <div class="modal-caja">
-                <div class="modal-icono-check">✓</div>
-                <h3>Cambios guardados</h3>
-                <p>La información de tu perfil fue actualizada con éxito.</p>
-                <button type="button" class="btn-siguiente-paso" onclick="cerrarModalPerfil()">Aceptar</button>
-            </div>
-        </div>
-
         <footer>
             <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  
         </footer>
-
-        <script>
-        function mostrarModalPerfil() {
-            document.getElementById('modalPerfilExito').classList.add('mostrar');
-        }
-        function cerrarModalPerfil() {
-            document.getElementById('modalPerfilExito').classList.remove('mostrar');
-        }
-    </script>
 
     </body>
 </html>
