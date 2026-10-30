@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Agendar Turno </title>
-    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js" defer></script>
+    <script src="../js/paciente.js" defer></script>
 </head>
 
 <body>
@@ -90,7 +92,7 @@
 
         <footer class ="footer-pasos">
                <a href="paciente2.html" class="btn-cancelar-paso">Volver</a>
-               <button type="button" class="btn-siguiente-paso" onclick="mostrarModal()">Confirmar sesión &rarr;</button>
+               <button type="button" class="btn-siguiente-paso" data-modal-open="modalExito">Confirmar sesión &rarr;</button>
         </footer>
 
         </section>
@@ -107,11 +109,6 @@
     </div>
 
     <!-- función para abrir el cartelito -->
-    <script>
-        function mostrarModal() {
-            document.getElementById('modalExito').classList.add('mostrar');
-        }
-    </script>
 
     <footer>
         <small> &copy; 2026 Pausa. Todos los derechos reservados. </small>  

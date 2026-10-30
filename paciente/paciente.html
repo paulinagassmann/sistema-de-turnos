@@ -8,8 +8,10 @@
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Paciente </title>
-    <link rel="stylesheet" href="styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
- </head>
+    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+     <script src="../js/main.js" defer></script>
+    <script src="../js/paciente.js" defer></script>
+</head>
 
     <body>
     
@@ -18,7 +20,7 @@
                 <span class="logo-texto">Pausa</span>
                 <span class="subtitulo-logo">Clínica de Salud Mental</span>
             </div>
-            <a href="index.html" class="btn-logout">Cerrar sesión</a>
+            <a href="../index.html" class="btn-logout">Cerrar sesión</a>
         </header>
 
         <main class = "main-paciente">
@@ -51,7 +53,7 @@
 
                     </div>
 
-                    <button type="button" class="btn-cancelar" onclick="abrirModalCancelar()"> Cancelar sesión </button> 
+                    <button type="button" class="btn-cancelar" data-modal-open="modalCancelar"> Cancelar sesión </button> 
                 </article>
 
                 <a href="paciente1.html" class="btn-agendar">
@@ -114,8 +116,8 @@
         <p>¿Estás seguro de que querés cancelar tu sesión? Esta acción no se puede deshacer.</p>
         
         <div class="modal-acciones">
-            <button type="button" class="btn-secundario-modal" onclick="cerrarModalCancelar()">No, mantener turno</button>
-            <button type="button" class="btn-peligro-modal" onclick="confirmarCancelacion()">Sí, cancelar</button>
+            <button type="button" class="btn-secundario-modal" data-modal-close="modalCancelar">No, mantener turno</button>
+            <button type="button" class="btn-peligro-modal" data-modal-close="modalCancelar" data-modal-open="modalCanceladoExito">Sí, cancelar</button>
         </div>
     </div>
 </div>
@@ -126,32 +128,10 @@
         <div class="modal-icono-check">✓</div>
         <h3>Turno cancelado</h3>
         <p>Tu turno fue cancelado correctamente. Podés agendar uno nuevo cuando lo necesites.</p>
-        <button type="button" class="btn-siguiente-paso" onclick="cerrarModalExito()">Aceptar</button>
+        <button type="button" class="btn-siguiente-paso" data-modal-close="modalCanceladoExito">Aceptar</button>
     </div>
 </div>
 
 <!--JavaScript para la apertura y cierre de los cartelitos-->
-<script>
-    // Función para abrir el modal de cancelación
-    function abrirModalCancelar() {
-        document.getElementById('modalCancelar').classList.add('mostrar');
-    }
-
-    // Función para cerrar el modal de cancelación
-    function cerrarModalCancelar() {
-        document.getElementById('modalCancelar').classList.remove('mostrar');
-    }
-
-    // Función para confirmar la cancelación del turno
-    function confirmarCancelacion() {
-        cerrarModalCancelar(); // Cierra el modal de confirmación
-        document.getElementById('modalCanceladoExito').classList.add('mostrar'); // Abre el modal de éxito
-    }
-
-    // Función para cerrar el modal de éxito
-    function cerrarModalExito() {
-        document.getElementById('modalCanceladoExito').classList.remove('mostrar');
-    }
-</script>
 
     </html>

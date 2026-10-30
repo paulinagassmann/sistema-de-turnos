@@ -1,3 +1,7 @@
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
+
 /* 1. RESET Y TIPOGRAFÍA BASE */
 * {
     margin: 0;
@@ -39,6 +43,11 @@ body > header a {
 body > header a:hover {
     color: #0052cc;
 }
+
+
+/* =======================================
+   ESTILOS: INTERFAZ DE ACCESO
+   ======================================= */
 
 /* 4. CONTENEDOR PRINCIPAL Y TARJETA */
 main {
@@ -164,15 +173,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: PANTALLA PACIENTE
+   ESTILOS: INTERFAZ DE PACIENTE - PANTALLA PRINCIPAL
    ======================================= */
 
 /* DISPOSICIÓN DE LAS DOS COLUMNAS */
@@ -387,12 +389,12 @@ body > footer {
     display: flex;
     justify-content: space-between; /* Envía Pausa a la izquierda y Cerrar sesión a la derecha */
     align-items: center;
-    width: 100%;                 
+    width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px 40px;
-    box-sizing: border-box;     
-}   
+    box-sizing: border-box;
+}
 
 .header-paciente .btn-logout {
     background-color: #ffe4e6;
@@ -432,9 +434,9 @@ body > footer {
 
 /* Nombre principal */
 .logo-texto {
-    font-size: 1.35rem;       
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #0052cc;      
+    color: #0052cc;
     line-height: 1.1;
     letter-spacing: -0.3px;
 }
@@ -448,6 +450,9 @@ body > footer {
 }
 
 
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
 
 /*ESTILOS PARA LOS CARTELITOS CUANDO SE PRESIONA EL BOTÓN DE CANCELAR SESIÓN*/
 /* Ícono de alerta ámbar/rojo suave */
@@ -509,22 +514,10 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: PERFIL-PACIENTE (editar información)
+   ESTILOS: INTERFAZ DE PACIENTE - PERFIL
    ======================================= */
 
-/*
 /* Contenedor principal del perfil */
 .main-perfil-paciente {
     width: 100%;
@@ -605,19 +598,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: PRIMER PASO PARA AGENDAR TURNO
+   ESTILOS: INTERFAZ DE PACIENTE - AGENDAR TURNO, PASO 1
    ======================================= */
 
 /* Contenedor central de la pantalla */
@@ -765,6 +747,12 @@ body > footer {
     background-color: #f8fafc;
 }
 
+.tarjeta-profesional.profesional-seleccionado {
+    border-color: #0052cc;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.12);
+}
+
 /* 3. Foto / Avatar circular del psicólogo */
 .avatar-profesional {
     width: 48px;
@@ -837,17 +825,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: SEGUNDO PASO PARA AGENDAR TURNO
+   ESTILOS: INTERFAZ DE PACIENTE - AGENDAR TURNO, PASO 2
    ======================================= */
 
 /* Contenedor de 2 columnas principales */
@@ -860,8 +839,13 @@ body > footer {
 }
 
 
-/*ESTILOS PARA EL CALENDARIOOOOOOOOOOOOOOOO*/
 /* 1. Cabecera del mes y flechas */
+
+
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
+
 .cabecera-mes {
     display: flex;
     justify-content: space-between;
@@ -875,6 +859,7 @@ body > footer {
     font-weight: 700;
     margin: 0;
 }
+
 
 .nav-mes {
     display: flex;
@@ -963,8 +948,6 @@ body > footer {
 }
 
 
-
-
 /*ESTILOS PARA LOS BOTONES DE HORARIOSSSSSSSSSSSSSSSSSSS*/
 /* Cabecera del panel de horarios */
 .cabecera-horarios h3 {
@@ -1009,16 +992,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: TERCER PASO PARA AGENDAR TURNO
+   ESTILOS: INTERFAZ DE PACIENTE - AGENDAR TURNO, PASO 3
    ======================================= */
 
 /* Contenedor de 2 columnas para el resumen y los avisos */
@@ -1097,9 +1072,6 @@ body > footer {
 }
 
 
-
-
-
 /*CARTELITO DE QUE SE AGENDÓ EL TURNO CON ÉXITOOOOOOOOOOOO*/
 
 /* Fondo oscuro translúcido que cubre toda la pantalla (oculto por defecto) */
@@ -1159,47 +1131,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: PARA LA INTERFAZ DE PROFESIONAL (DASHBOARD)
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
    ======================================= */
 
 /* Estructura general de 2 columnas (Sidebar + Contenido) */
@@ -1207,6 +1140,11 @@ body > footer {
     background-color: #f8fafc;
     margin: 0;
 }
+
+
+/* =======================================
+   ESTILOS: INTERFAZ DE PROFESIONAL
+   ======================================= */
 
 .layout-profesional {
     display: flex;
@@ -1224,6 +1162,11 @@ body > footer {
     box-sizing: border-box;
     flex-shrink: 0;
 }
+
+
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
 
 .menu-lateral {
     display: flex;
@@ -1279,6 +1222,11 @@ body > footer {
     background-color: #fef2f2;
 }
 
+
+/* =======================================
+   ESTILOS: INTERFAZ DE PROFESIONAL - PANEL PRINCIPAL
+   ======================================= */
+
 /* 2. Área de Contenido Principal */
 .main-profesional {
     flex-grow: 1;
@@ -1290,6 +1238,11 @@ body > footer {
     box-sizing: border-box;
 }
 
+
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
+
 /* Encabezado: Título centrado y fecha a la derecha */
 .header-dashboard {
     display: flex;
@@ -1299,6 +1252,11 @@ body > footer {
     margin-bottom: 8px;
 }
 
+
+/* =======================================
+   ESTILOS: INTERFAZ DE PROFESIONAL - PANEL PRINCIPAL
+   ======================================= */
+
 .espaciador-header {
     width: 140px; /* Equilibra el ancho de la fecha para que el centro sea exacto */
 }
@@ -1307,6 +1265,11 @@ body > footer {
     text-align: left;
     flex-grow: 1;
 }
+
+
+/* =======================================
+   ESTILOS COMPARTIDOS ENTRE INTERFACES
+   ======================================= */
 
 .fecha-hoy {
     background-color: #ffffff;
@@ -1320,6 +1283,11 @@ body > footer {
     align-items: center;
     gap: 6px;
 }
+
+
+/* =======================================
+   ESTILOS: INTERFAZ DE PROFESIONAL - PANEL PRINCIPAL
+   ======================================= */
 
 /* 3. Grilla Principal: Turnos a la izquierda y Resumen a la derecha */
 .grilla-cuerpo-profesional {
@@ -1472,27 +1440,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =======================================
-   ESTILOS: PROFESIONAL-AGENDA (AGENDA COMPLETA DEL PROFESIONAL)
+   ESTILOS: INTERFAZ DE PROFESIONAL - AGENDA
    ======================================= */
 
 /* Contenedor principal de la agenda */
@@ -1537,22 +1486,10 @@ body > footer {
 }
 
 /* --- COLUMNA 1: CALENDARIO MENSUAL --- */
-.cabecera-mes {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
 .cabecera-mes h3 {
     margin: 0;
     font-size: 1.25rem;
     color: #0f172a;
-}
-
-.nav-mes {
-    display: flex;
-    gap: 8px;
 }
 
 .btn-nav-mes {
@@ -1723,32 +1660,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: PROFESIONAL-PACIENTE (LISTA DE PACIENTES Y DETALLE DE LOS MISMOS)
+   ESTILOS: INTERFAZ DE PROFESIONAL - PACIENTES
    =================================================== */
 
 /* 1. Contenedor de las dos tarjetas */
@@ -1904,26 +1817,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: PANTALLA SECRETARIO
+   ESTILOS: INTERFAZ DE SECRETARIO - PANEL PRINCIPAL
    =================================================== */
 
 .layout-secretario {
@@ -2197,32 +2092,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: SECRETARIO - DAR TURNO (INTERFAZ DE AGENDAR TURNO)
+   ESTILOS: INTERFAZ DE SECRETARIO - DAR TURNO
    =================================================== */
 
 /* Contenedor general en grilla para los pasos */
@@ -2299,6 +2170,12 @@ body > footer {
     background-color: #f8fafc;
 }
 
+.item-especialista-btn.profesional-seleccionado {
+    border-color: #0052cc;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.12);
+}
+
 .avatar-esp {
     width: 36px;
     height: 36px;
@@ -2329,39 +2206,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: SECRETARIO - REGISTRAR - PACIENTE 
+   ESTILOS: INTERFAZ DE SECRETARIO - REGISTRAR PACIENTE
    =================================================== */
 
 .contenedor-formulario-paciente {
@@ -2495,21 +2341,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: CARTELITO DE EXITO EN EL REGISTRO DE PACIENTE POR EL SECRETARIO
+   ESTILOS: INTERFAZ DE SECRETARIO - MODAL DE REGISTRO
    =================================================== */
 /* Por defecto, el dialog nativo viene oculto y sin estilos */
 .modal-dialog {
@@ -2653,49 +2486,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: SECRETARIO - PACIENTES
+   ESTILOS: INTERFAZ DE SECRETARIO - PACIENTES
    =================================================== */
 
 .grilla-gestion-pacientes {
@@ -2880,53 +2672,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: SECRETARIO TURNOS DE HOY
+   ESTILOS: INTERFAZ DE SECRETARIO - TURNOS DE HOY
    =================================================== */
 
 /* Cabecera superior con título y selector de profesional */
@@ -3208,19 +2955,6 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 .btn-editar-perfil,
 .btn-dar-turno-mini {
     display: inline-flex;
@@ -3281,26 +3015,8 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===================================================
-   ESTILOS: AGENDAS HORARIOS BASE (SECRETARIO)
+   ESTILOS: INTERFAZ DE SECRETARIO - HORARIOS BASE DE AGENDA
    =================================================== */
 
 .contenedor-config-agenda {
@@ -3477,40 +3193,15 @@ body > footer {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .btn-editar-perfil {
     display: flex;
     width: fit-content;
     margin: 0 0 24px auto;
 }
+
+
 /* ===================================================
-   ESTILOS: EXCEPCIONES DE AGENDA (SECRETARIO)
+   ESTILOS: INTERFAZ DE SECRETARIO - EXCEPCIONES DE AGENDA
    =================================================== */
 
 .main-secretario:has(.contenedor-excepciones-general) {
@@ -4184,6 +3875,11 @@ body > footer {
     }
 }
 
+
+/* =======================================
+   ESTILOS: INTERFAZ DE SECRETARIO - CONSULTA DE AGENDAS
+   ======================================= */
+
 .vista-agendas .header-dashboard {
     grid-template-columns: minmax(0, 1fr);
     margin-bottom: 20px;
@@ -4378,10 +4074,4 @@ body > footer {
     .vista-agendas .item-franja-estado .detalle-estado {
         grid-column: 1 / -1;
     }
-}
-
-.btn-editar-perfil {
-    display: flex;
-    width: fit-content;
-    margin: 0 0 24px auto;
 }
