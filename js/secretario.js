@@ -812,13 +812,12 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
         const actualizarCobertura = () => {
             const tieneCobertura = cobertura.value === 'si';
-            obraSocial.required = tieneCobertura;
-            credencial.required = false;
-            obraSocial.disabled = !tieneCobertura;
-            credencial.disabled = !tieneCobertura;
+            if (credencial) {
+                credencial.required = false;
+                credencial.disabled = !tieneCobertura;
+            }
             if (!tieneCobertura) {
-                obraSocial.value = '';
-                credencial.value = '';
+                if (credencial) credencial.value = '';
             }
         };
         cobertura.addEventListener('change', actualizarCobertura);
@@ -837,7 +836,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 email: formulario.querySelector('#email').value.trim().toLocaleLowerCase('es'),
                 cobertura: cobertura.value,
                 obraSocial: obraSocial.value,
-                credencial: credencial.value.trim(),
+                credencial: credencial?.value.trim() || '',
                 profesionales: []
             };
             const pacientes = obtenerPacientes();
