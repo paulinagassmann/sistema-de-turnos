@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 1. Iniciamos una transacción (por seguridad, para guardar todo junto o nada)
         $conexion->beginTransaction();
 
-        // 2. Insertamos en la tabla central 'usuarios'
+        // 2. Insertamos en la tabla central 'usuarios'; los pacientes no requieren cambio obligatorio.
         $sql_usuario = "INSERT INTO usuarios (dni, nombre, apellido, fecha_nacimiento, telefono, correo, password, rol, debe_cambiar_password) 
-                        VALUES (:dni, :nombre, :apellido, :fecha_nacimiento, :telefono, :correo, :password, 'paciente', 1)";
+                        VALUES (:dni, :nombre, :apellido, :fecha_nacimiento, :telefono, :correo, :password, 'paciente', 0)";
 
         $stmt = $conexion->prepare($sql_usuario);
         $stmt->execute([

@@ -921,6 +921,16 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         modal.querySelector('.btn-imprimir-cred')?.addEventListener('click', () => window.print());
     }
 
+    function inicializarModalExitoProfesional() {
+        const modal = document.getElementById('modalExitoProfesional');
+        const parametros = new URLSearchParams(window.location.search);
+        if (!modal || !parametros.has('exito')) return;
+
+        document.getElementById('modal-prof-dni').textContent = parametros.get('dni') || '';
+        document.getElementById('modal-prof-pass').textContent = parametros.get('pass') || '';
+        modal.showModal();
+    }
+
     function inicializarBusquedaYSeleccionPacientes() {
         const input = document.querySelector('.grilla-dar-turno .input-busqueda-paciente');
         const listaProfesionales = document.querySelector('.lista-especialistas-rapida');
@@ -1928,6 +1938,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         sincronizarProfesionalesEnSelectores();
         inicializarRegistroPaciente();
         inicializarRegistroProfesional();
+        inicializarModalExitoProfesional();
         inicializarBusquedaYSeleccionPacientes();
         inicializarTurnosDelDia();
         inicializarPacientes();

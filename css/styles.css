@@ -2485,7 +2485,6 @@ body > footer {
     background-color: #004099;
 }
 
-
 /* ===================================================
    ESTILOS: INTERFAZ DE SECRETARIO - PACIENTES
    =================================================== */
@@ -4074,4 +4073,177 @@ body > footer {
     .vista-agendas .item-franja-estado .detalle-estado {
         grid-column: 1 / -1;
     }
+}
+
+
+
+
+/* Estilos para la interfaz de cambio de contraseña */
+
+.pantalla-cambio-password {
+    min-height: 100vh;
+    padding: 24px clamp(20px, 5vw, 64px);
+    background: linear-gradient(135deg, #eef2ff 0%, #f0fdfa 100%);
+}
+
+.cabecera-cambio-password {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.cabecera-cambio-password > a {
+    color: #64748b;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.cabecera-cambio-password > a:hover {
+    color: #0052cc;
+}
+
+.pantalla-cambio-password main {
+    flex: 1;
+    width: 100%;
+}
+
+.tarjeta-cambio-password {
+    max-width: 480px;
+    padding: 36px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    text-align: left;
+}
+
+.insignia-seguridad {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background-color: #eff6ff;
+    color: #0052cc;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.tarjeta-cambio-password h1 {
+    margin-bottom: 10px;
+    color: #0f172a;
+    font-size: 1.55rem;
+    line-height: 1.3;
+}
+
+.texto-intro-cambio {
+    margin-bottom: 26px;
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.tarjeta-cambio-password form {
+    gap: 18px;
+}
+
+.tarjeta-cambio-password .grupo-campo input {
+    padding: 12px 14px;
+}
+
+.tarjeta-cambio-password .grupo-campo small {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.tarjeta-cambio-password .grupo-campo input:focus-visible {
+    outline: 2px solid #0052cc;
+    outline-offset: 2px;
+}
+
+.mensaje-cambio-password {
+    margin: 0;
+    color: #b91c1c;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.btn-actualizar-password {
+    width: 100%;
+    margin-top: 4px;
+    background-color: #0052cc;
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-actualizar-password:hover {
+    background-color: #0041a8;
+}
+
+.btn-actualizar-password:focus-visible {
+    outline: 3px solid rgba(0, 82, 204, 0.3);
+    outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+    .pantalla-cambio-password {
+        padding: 20px;
+    }
+
+    .tarjeta-cambio-password {
+        padding: 26px 22px;
+    }
+}
+
+.control-password {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.control-password > input {
+    padding-right: 50px;
+}
+
+.boton-ver-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    place-items: center;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.boton-ver-password:hover {
+    background-color: #f1f5f9;
+    color: #0052cc;
+}
+
+.boton-ver-password:focus-visible {
+    outline: 2px solid #0052cc;
+    outline-offset: 2px;
+}
+
+.control-password > .boton-ver-password svg {
+    position: static;
+    width: 24px;
+    height: 24px;
+    transform: none;
+    stroke: currentColor;
+    pointer-events: none;
 }

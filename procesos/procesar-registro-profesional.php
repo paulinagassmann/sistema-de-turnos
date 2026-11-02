@@ -52,8 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // 3. Confirmamos los cambios de forma definitiva
         $conexion->commit();
 
-        // Redirigimos al formulario pasando el correo y la contraseña temporal por URL para el cartelito de éxito
-        header("Location: ../secretario/secretario-registrar-profesional.html?exito=1&email=" . urlencode($correo) . "&pass=" . urlencode($password_temporal));
+        // Redirigimos al formulario pasando el DNI y la contraseña temporal por URL para el cartelito de éxito
+        header("Location: ../secretario/secretario-registrar-profesional.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($password_temporal));
         exit();
 
     } catch (Exception $e) {

@@ -474,7 +474,49 @@ function inicializarConfiguracionProfesional() {
     });
 }
 
+function inicializarCambioPassword() {
+    const formulario = document.querySelector('#formulario-cambio-password');
+    if (!formulario) return;
+
+    const passwordNueva = formulario.querySelector('#password-nueva');
+    const passwordActual = formulario.querySelector('#password-actual');
+    const confirmarPassword = formulario.querySelector('#confirmar-password');
+    const mensaje = document.querySelector('#mensaje-cambio-password');
+    const mensajesError = {
+        actual: 'La contraseña actual no es correcta.',
+        longitud: 'La nueva contraseña debe tener al menos 8 caracteres.',
+        coincidencia: 'Las contraseñas nuevas no coinciden.',
+        distinta: 'La nueva contraseña debe ser diferente de la actual.',
+        servidor: 'No se pudo actualizar la contraseña. Intentá nuevamente.'
+    };
+    const error = new URLSearchParams(window.location.search).get('error');
+
+    if (error && Object.prototype.hasOwnProperty.call(mensajesError, error)) {
+        mensaje.textContent = mensajesError[error];
+        mensaje.hidden = false;
+    }
+
+    confirmarPassword.addEventListener('input', () => confirmarPassword.setCustomValidity(''));
+    passwordActual.addEventListener('input', () => passwordNueva.setCustomValidity(''));
+    passwordNueva.addEventListener('input', () => {
+        confirmarPassword.setCustomValidity('');
+        passwordNueva.setCustomValidity('');
+    });
+    formulario.addEventListener('submit', (event) => {
+        if (passwordNueva.value !== confirmarPassword.value) {
+            confirmarPassword.setCustomValidity('Las contraseñas nuevas no coinciden.');
+        } else if (passwordNueva.value === passwordActual.value) {
+            passwordNueva.setCustomValidity('La nueva contraseña debe ser diferente de la actual.');
+        }
+
+        if (!formulario.reportValidity()) {
+            event.preventDefault();
+        }
+    });
+}
+
 inicializarAgendaProfesional();
 inicializarEstadosTurnos();
 inicializarListaPacientes();
 inicializarConfiguracionProfesional();
+inicializarCambioPassword();
