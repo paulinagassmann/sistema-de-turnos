@@ -24,9 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['apellido'] = $usuario['apellido'];
             $_SESSION['rol'] = $usuario['rol'];
 
-            // Solo secretarios y profesionales deben cambiar la contraseña temporal en su primer ingreso.
+            // Todas las cuentas con contraseña temporal deben actualizarla en su primer ingreso.
             if (
-                in_array($usuario['rol'], ['secretario', 'profesional'], true)
+                in_array($usuario['rol'], ['secretario', 'profesional', 'paciente'], true)
                 && (int) $usuario['debe_cambiar_password'] === 1
             ) {
                 header("Location: ../cambiar-password.html");
@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     header("Location: ../profesional/profesional.html");
                     break;
                 case 'paciente':
-                    header("Location: ../paciente/paciente.html");
+                    header("Location: ../paciente/paciente.php");
                     break;
                 default:
                     header("Location: ../index.html?error=rol_desconocido");

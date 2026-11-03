@@ -102,7 +102,7 @@ function inicializarControlesPassword() {
 
 function mostrarAvisoPasswordActualizada() {
     const urlParams = new URLSearchParams(window.location.search);
-    const esPanelAutorizado = document.querySelector('.layout-secretario, .layout-profesional');
+    const esPanelAutorizado = document.querySelector('.layout-secretario, .layout-profesional, .body-dashboard-paciente');
 
     if (urlParams.get('password_actualizada') !== '1' || !esPanelAutorizado) return;
 

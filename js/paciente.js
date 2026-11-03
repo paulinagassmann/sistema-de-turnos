@@ -1,8 +1,7 @@
 const CLAVES_PACIENTE = {
     borrador: 'pausa.turnoBorrador',
     turno: 'pausa.turnoActivo',
-    turnoCancelado: 'pausa.turnoCancelado',
-    perfil: 'pausa.perfilPaciente'
+    turnoCancelado: 'pausa.turnoCancelado'
 };
 
 function leerDato(storage, clave, valorPredeterminado = null) {
@@ -310,18 +309,6 @@ function inicializarInicioPaciente() {
         tarjetaTurno.insertAdjacentElement('afterend', aviso);
     }
 
-    const perfil = leerDato(localStorage, CLAVES_PACIENTE.perfil);
-    if (perfil) {
-        const campos = {
-            email: document.querySelector('#email'),
-            telefono: document.querySelector('#telefono'),
-            'obra-social': document.querySelector('#obra-social')
-        };
-        Object.entries(campos).forEach(([clave, campo]) => {
-            if (campo && perfil[clave]) campo.value = perfil[clave];
-        });
-    }
-
     document.querySelector('.btn-peligro-modal')?.addEventListener('click', () => {
         localStorage.removeItem(CLAVES_PACIENTE.turno);
         localStorage.setItem(CLAVES_PACIENTE.turnoCancelado, 'true');
@@ -335,61 +322,7 @@ function inicializarInicioPaciente() {
     }, true);
 }
 
-function inicializarPerfil() {
-    const formularios = document.querySelectorAll('.form-perfil');
-    if (!formularios.length) return;
-
-    const formularioDatos = formularios[0];
-    const camposPerfil = ['email', 'telefono', 'obra-social'];
-    const perfil = leerDato(localStorage, CLAVES_PACIENTE.perfil, {});
-
-    camposPerfil.forEach((id) => {
-        const campo = formularioDatos.querySelector(`#${id}`);
-        if (!campo) return;
-        campo.required = true;
-        if (perfil[id]) campo.value = perfil[id];
-    });
-
-    formularioDatos.addEventListener('submit', (evento) => {
-        evento.preventDefault();
-        if (!formularioDatos.reportValidity()) return;
-
-        const nuevosDatos = Object.fromEntries(camposPerfil.map((id) => [
-            id,
-            formularioDatos.querySelector(`#${id}`).value.trim()
-        ]));
-        localStorage.setItem(CLAVES_PACIENTE.perfil, JSON.stringify(nuevosDatos));
-        window.alert('Los datos de tu perfil se guardaron en este dispositivo.');
-    });
-
-    const formularioClave = formularios[1];
-    if (!formularioClave) return;
-
-    const claveActual = formularioClave.querySelector('#contra-actual');
-    const claveNueva = formularioClave.querySelector('#contra-nueva');
-    const confirmarClave = formularioClave.querySelector('#contra-confirmar');
-    [claveActual, claveNueva, confirmarClave].forEach((campo) => {
-        if (campo) campo.required = true;
-    });
-    if (claveNueva) claveNueva.minLength = 8;
-    if (confirmarClave) confirmarClave.minLength = 8;
-
-    confirmarClave?.addEventListener('input', () => confirmarClave.setCustomValidity(''));
-    claveNueva?.addEventListener('input', () => confirmarClave?.setCustomValidity(''));
-    formularioClave.addEventListener('submit', (evento) => {
-        evento.preventDefault();
-        if (claveNueva.value !== confirmarClave.value) {
-            confirmarClave.setCustomValidity('Las contraseñas nuevas no coinciden.');
-        }
-        if (!formularioClave.reportValidity()) return;
-
-        formularioClave.reset();
-        window.alert('La solicitud es válida. Para actualizar la contraseña hace falta conectar un servicio de autenticación.');
-    });
-}
-
 inicializarSeleccionProfesional();
 inicializarCalendario();
 inicializarConfirmacion();
 inicializarInicioPaciente();
-inicializarPerfil();

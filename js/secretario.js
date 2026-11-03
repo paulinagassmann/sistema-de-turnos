@@ -812,6 +812,10 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
         const actualizarCobertura = () => {
             const tieneCobertura = cobertura.value === 'si';
+            obraSocial.disabled = !tieneCobertura;
+            if (!tieneCobertura) {
+                obraSocial.value = '';
+            }
             if (credencial) {
                 credencial.required = false;
                 credencial.disabled = !tieneCobertura;

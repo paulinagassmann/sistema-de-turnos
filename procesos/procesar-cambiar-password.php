@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     volverAlCambioPassword('servidor');
 }
 
-// valido que el rol en la sesión sea exclusivamente secretario o profesional porque son los unicos a los que se les obliga cambiar la contraseña 
+// Solo se permite cambiar la contraseña a los roles válidos del sistema.
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
-    || !in_array($_SESSION['rol'], ['secretario', 'profesional'], true)
+    || !in_array($_SESSION['rol'], ['secretario', 'profesional', 'paciente'], true)
 ) {
     header("Location: index.html?error=sesion_requerida");
     exit();
@@ -23,7 +23,8 @@ if (
 
 $rutasPorRol = [
     'secretario' => '../secretario/secretario.html',
-    'profesional' => '../profesional/profesional.html'
+    'profesional' => '../profesional/profesional.html',
+    'paciente' => '../paciente/paciente.php'
 ];
 $destino = $rutasPorRol[$_SESSION['rol']];
 
