@@ -52,6 +52,7 @@ try {
     error_log("Error al cargar el dashboard del paciente: " . $e->getMessage());
     http_response_code(500);
     ?>
+
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -87,7 +88,7 @@ try {
     <title> Pausa - Paciente </title>
     <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
      <script src="../js/main.js" defer></script>
-    <script src="../js/paciente.js?v=perfil-db-20261103-1" defer></script>
+    <script src="../js/paciente.js?v=booking-step-two-20261104-2" defer></script>
 </head>
 
     <body class="body-dashboard-paciente">
@@ -107,9 +108,12 @@ try {
                     <h1> Bienvenido, <?php echo htmlspecialchars($datosPaciente['nombre']); ?> </h1>
                     <p> Aquí puedes gestionar tus turnos de terapia y acceder a tu información personal. </p>
                 </header>
+                <?php if (isset($_GET['turno_agendado']) && $_GET['turno_agendado'] === '1'): ?>
+                    <p class="aviso-turno-agendado" role="status">Tu turno se reservó correctamente.</p>
+                <?php endif; ?>
 
                 <!-- Tarjeta de próximo turno -->
-                <article class="tarjeta-turnos">
+                <article class="tarjeta-turnos" data-source="database">
                     <h2> Próxima sesión </h2>
                     <?php if ($proximoTurno): ?>
                     <?php 
@@ -133,13 +137,13 @@ try {
                         </span>
                     </div>
 
-                    <button type="button" class="btn-cancelar" data-modal-open="modalCancelar"> Cancelar sesión </button> 
+                    <p class="aviso-cancelacion">Para cancelar este turno, comunicate con la clínica.</p>
                     <?php else: ?>
                         <p style="margin: 20px 0; color: #666;">No tenés ninguna sesión próxima agendada.</p>
                     <?php endif; ?>
                 </article>
 
-                <a href="paciente1.html" class="btn-agendar">
+                <a href="paciente1.php" class="btn-agendar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                     <span>Agendar nuevo turno</span>
                 </a>

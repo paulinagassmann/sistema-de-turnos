@@ -51,9 +51,17 @@ function inicializarSeleccionProfesional() {
             opcion.classList.toggle('profesional-seleccionado', seleccionada);
             opcion.setAttribute('aria-pressed', String(seleccionada));
         });
+        const siguiente = document.querySelector('.footer-pasos .btn-siguiente-paso');
+        if (siguiente) {
+            const destino = new URL(siguiente.href, window.location.href);
+            destino.searchParams.set('profesional_id', tarjeta.dataset.professionalId);
+            siguiente.href = destino.toString();
+        }
     };
 
     const tarjetaGuardada = tarjetas.find((tarjeta) =>
+        tarjeta.dataset.professionalId === String(borrador.profesional?.id)
+    ) || tarjetas.find((tarjeta) =>
         tarjeta.querySelector('h3')?.textContent.trim() === borrador.profesional?.nombre
     );
     if (tarjetaGuardada) marcarSeleccion(tarjetaGuardada);
@@ -63,6 +71,7 @@ function inicializarSeleccionProfesional() {
             marcarSeleccion(tarjeta);
             guardarBorrador({
                 profesional: {
+                    id: tarjeta.dataset.professionalId,
                     nombre: tarjeta.querySelector('h3').textContent.trim(),
                     especialidad: tarjeta.querySelector('p').textContent.trim()
                 },
@@ -90,53 +99,34 @@ function inicializarCalendario() {
     const encabezadoHorarios = document.querySelector('.cabecera-horarios h3');
     if (!grilla || !encabezadoMes || !encabezadoHorarios) return;
 
-    const meses = Array.from({ length: 12 }, (_, indice) =>
-        new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(new Date(2026, indice, 1))
-    );
-    const mesInicial = encabezadoMes.textContent.trim().split(/\s+/);
-    let mes = meses.indexOf(mesInicial[0].toLocaleLowerCase('es-AR'));
-    let anio = Number(mesInicial[1]);
-    if (mes < 0 || !Number.isInteger(anio)) {
-        mes = new Date().getMonth();
-        anio = new Date().getFullYear();
+    let horariosPorFecha;
+    try {
+        horariosPorFecha = JSON.parse(grilla.dataset.slots || '{}');
+    } catch (error) {
+        console.error('No se pudieron leer los horarios disponibles.', error);
+        encabezadoHorarios.textContent = 'No se pudieron cargar los horarios.';
+        return;
     }
 
-    const diasDisponiblesIniciales = new Set(
-        [...grilla.querySelectorAll('.dia-disponible, .dia-seleccionado')]
-            .map((dia) => Number(dia.textContent.trim()))
-    );
-    const diaSeleccionadoInicial = grilla.querySelector('.dia-seleccionado');
+    const fechasDisponibles = Object.keys(horariosPorFecha).sort();
+    const fechaFinDisponibilidad = fechasDisponibles[fechasDisponibles.length - 1];
+    const ultimoMesDisponible = fechaFinDisponibilidad
+        ? fechaLocal(fechaFinDisponibilidad)
+        : new Date();
     const borrador = leerBorrador();
-    let fechaSeleccionada = borrador.fecha ||
-        (diaSeleccionadoInicial
-            ? fechaISO(new Date(anio, mes, Number(diaSeleccionadoInicial.textContent.trim())))
-            : null);
-
-    const horas = [...document.querySelectorAll('.btn-hora')];
-    let horaSeleccionada = borrador.hora ||
-        document.querySelector('.btn-hora.hora-seleccionada')?.textContent.trim() ||
-        null;
-
-    const hoy = fechaISO(new Date());
-    const fechaEsDisponible = (fecha) => {
-        if (fecha < hoy) return false;
-        const fechaActual = fechaLocal(fecha);
-        if (anio === Number(mesInicial[1]) &&
-            mes === meses.indexOf(mesInicial[0].toLocaleLowerCase('es-AR'))) {
-            return diasDisponiblesIniciales.has(fechaActual.getDate());
-        }
-        return fechaActual.getDay() !== 0 && fechaActual.getDay() !== 6;
-    };
-
-    const seleccionarHora = (boton) => {
-        horas.forEach((opcion) => {
-            const seleccionada = opcion === boton;
-            opcion.classList.toggle('hora-seleccionada', seleccionada);
-            opcion.setAttribute('aria-pressed', String(seleccionada));
-        });
-        horaSeleccionada = boton.textContent.trim();
-        guardarBorrador({ hora: horaSeleccionada });
-    };
+    let fechaSeleccionada = fechasDisponibles.includes(borrador.fecha)
+        ? borrador.fecha
+        : fechasDisponibles[0] || null;
+    let horaSeleccionada = fechaSeleccionada &&
+        horariosPorFecha[fechaSeleccionada]?.includes(borrador.hora)
+        ? borrador.hora
+        : null;
+    const fechaInicial = fechaSeleccionada ? fechaLocal(fechaSeleccionada) : new Date();
+    let anio = fechaInicial.getFullYear();
+    let mes = fechaInicial.getMonth();
+    const campoFecha = document.querySelector('#inputFechaSeleccionada');
+    const campoHora = document.querySelector('#inputHoraSeleccionada');
+    const listaHoras = document.querySelector('.lista-horas');
 
     const actualizarEncabezadoFecha = () => {
         encabezadoHorarios.textContent = fechaSeleccionada
@@ -149,11 +139,52 @@ function inicializarCalendario() {
             : 'Seleccioná una fecha disponible';
     };
 
+    const dibujarHorarios = () => {
+        if (!listaHoras) return;
+        listaHoras.replaceChildren();
+
+        const horarios = fechaSeleccionada ? horariosPorFecha[fechaSeleccionada] || [] : [];
+        if (horarios.length === 0) {
+            const aviso = document.createElement('p');
+            aviso.textContent = fechaSeleccionada
+                ? 'No hay horarios disponibles para esta fecha.'
+                : 'No hay fechas disponibles para este profesional.';
+            listaHoras.append(aviso);
+        } else {
+            horarios.forEach((horario) => {
+                const boton = document.createElement('button');
+                boton.type = 'button';
+                boton.className = 'btn-hora';
+                boton.textContent = horario;
+                boton.setAttribute('aria-pressed', String(horario === horaSeleccionada));
+                if (horario === horaSeleccionada) boton.classList.add('hora-seleccionada');
+                boton.addEventListener('click', () => {
+                    horaSeleccionada = horario;
+                    if (campoHora) campoHora.value = horario;
+                    guardarBorrador({ fecha: fechaSeleccionada, hora: horario });
+                    dibujarHorarios();
+                });
+                listaHoras.append(boton);
+            });
+        }
+
+        if (campoFecha) campoFecha.value = fechaSeleccionada || '';
+        if (campoHora) campoHora.value = horaSeleccionada || '';
+        actualizarEncabezadoFecha();
+    };
+
     const dibujarCalendario = () => {
         encabezadoMes.textContent = formatearFecha(new Date(anio, mes, 1), {
             month: 'long',
             year: 'numeric'
         });
+        const mesActual = new Date(anio, mes, 1);
+        const fechaActual = new Date();
+        const mesInicialDisponible = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+        const mesFinalDisponible = new Date(ultimoMesDisponible.getFullYear(), ultimoMesDisponible.getMonth(), 1);
+        const botonesNavegacion = document.querySelectorAll('.btn-nav-mes');
+        if (botonesNavegacion[0]) botonesNavegacion[0].disabled = mesActual <= mesInicialDisponible;
+        if (botonesNavegacion[1]) botonesNavegacion[1].disabled = mesActual >= mesFinalDisponible;
         grilla.replaceChildren();
 
         const primerDia = new Date(anio, mes, 1).getDay();
@@ -183,13 +214,9 @@ function inicializarCalendario() {
                 boton.addEventListener('click', () => {
                     fechaSeleccionada = fecha;
                     horaSeleccionada = null;
-                    horas.forEach((hora) => {
-                        hora.classList.remove('hora-seleccionada');
-                        hora.setAttribute('aria-pressed', 'false');
-                    });
                     guardarBorrador({ fecha, hora: null });
                     dibujarCalendario();
-                    actualizarEncabezadoFecha();
+                    dibujarHorarios();
                 });
             } else {
                 boton.className = 'dia-inactivo';
@@ -197,45 +224,43 @@ function inicializarCalendario() {
             }
             grilla.append(boton);
         }
-        actualizarEncabezadoFecha();
     };
 
-    if (fechaSeleccionada && fechaLocal(fechaSeleccionada).getFullYear() === anio &&
-        fechaLocal(fechaSeleccionada).getMonth() === mes) {
-        guardarBorrador({ fecha: fechaSeleccionada, hora: horaSeleccionada });
-    }
-
-    horas.forEach((hora) => {
-        hora.setAttribute('aria-pressed', String(hora.textContent.trim() === horaSeleccionada));
-        hora.addEventListener('click', () => seleccionarHora(hora));
-        hora.classList.toggle('hora-seleccionada', hora.textContent.trim() === horaSeleccionada);
-    });
+    const fechaEsDisponible = (fecha) =>
+        Array.isArray(horariosPorFecha[fecha]) && horariosPorFecha[fecha].length > 0;
 
     document.querySelectorAll('.btn-nav-mes').forEach((boton, indice) => {
         boton.setAttribute('aria-label', indice === 0 ? 'Mes anterior' : 'Mes siguiente');
         boton.addEventListener('click', () => {
-            mes += indice === 0 ? -1 : 1;
-            if (mes < 0) {
-                mes = 11;
-                anio -= 1;
-            } else if (mes > 11) {
-                mes = 0;
-                anio += 1;
-            }
+            const nuevoMes = new Date(anio, mes + (indice === 0 ? -1 : 1), 1);
+            const mesInicialDisponible = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            const mesFinalDisponible = new Date(ultimoMesDisponible.getFullYear(), ultimoMesDisponible.getMonth(), 1);
+            if (nuevoMes < mesInicialDisponible || nuevoMes > mesFinalDisponible) return;
+            anio = nuevoMes.getFullYear();
+            mes = nuevoMes.getMonth();
             dibujarCalendario();
         });
     });
 
     const siguiente = document.querySelector('.footer-pasos .btn-siguiente-paso');
-    siguiente?.addEventListener('click', (evento) => {
-        const fechaValida = fechaSeleccionada && fechaSeleccionada >= hoy;
-        if (fechaValida && horaSeleccionada) return;
+    siguiente?.closest('form')?.addEventListener('submit', (evento) => {
+        const horarioValido = fechaEsDisponible(fechaSeleccionada)
+            && horariosPorFecha[fechaSeleccionada].includes(horaSeleccionada);
+        if (horarioValido) return;
 
         evento.preventDefault();
         window.alert('Seleccioná una fecha y un horario disponible para continuar.');
     });
 
+    if (fechaSeleccionada) {
+        guardarBorrador({
+            profesional: borrador.profesional,
+            fecha: fechaSeleccionada,
+            hora: horaSeleccionada
+        });
+    }
     dibujarCalendario();
+    dibujarHorarios();
 }
 
 function inicializarConfirmacion() {
@@ -243,6 +268,14 @@ function inicializarConfirmacion() {
     if (!resumen) return;
 
     const borrador = leerBorrador();
+    const volver = document.querySelector('.panel-resumen')?.closest('.tarjeta-blanca')
+        ?.querySelector('.footer-pasos .btn-cancelar-paso');
+    if (volver && borrador.profesional?.id) {
+        const destinoPasoDos = new URL('paciente2.php', window.location.href);
+        destinoPasoDos.searchParams.set('profesional_id', borrador.profesional.id);
+        volver.href = destinoPasoDos.toString();
+    }
+
     const valores = resumen.querySelectorAll('.item-resumen strong');
     if (borrador.profesional?.nombre) valores[0].textContent = borrador.profesional.nombre;
     if (borrador.fecha) {
@@ -262,7 +295,13 @@ function inicializarConfirmacion() {
             evento.preventDefault();
             evento.stopImmediatePropagation();
             window.alert('Faltan datos del turno. Volvé a los pasos anteriores y completá la selección.');
-            window.location.href = estado.profesional?.nombre ? 'paciente2.html' : 'paciente1.html';
+            if (estado.profesional?.id) {
+                const destinoPasoDos = new URL('paciente2.php', window.location.href);
+                destinoPasoDos.searchParams.set('profesional_id', estado.profesional.id);
+                window.location.href = destinoPasoDos.toString();
+            } else {
+                window.location.href = 'paciente1.php';
+            }
             return;
         }
 
@@ -298,6 +337,8 @@ function actualizarTarjetaTurno(turno) {
 function inicializarInicioPaciente() {
     const tarjetaTurno = document.querySelector('.tarjeta-turnos');
     if (!tarjetaTurno) return;
+
+    if (tarjetaTurno.dataset.source === 'database') return;
 
     const turno = leerDato(localStorage, CLAVES_PACIENTE.turno);
     if (turno) actualizarTarjetaTurno(turno);

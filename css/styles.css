@@ -198,6 +198,23 @@ body > footer {
     gap: 20px;
 }
 
+.aviso-turno-agendado,
+.aviso-turno-error {
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.aviso-turno-agendado {
+    color: #166534;
+    background-color: #f0fdf4;
+}
+
+.aviso-turno-error {
+    color: #b91c1c;
+    background-color: #fef2f2;
+}
+
 /* Columna derecha (Perfil) */
 .seccion-perfil {
     width: 340px;
@@ -777,6 +794,15 @@ body > footer {
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+}
+
+.avatar-profesional-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eff6ff;
+    color: #0052cc;
+    font-weight: 700;
 }
 
 /* 4. Textos dentro de la tarjeta */
