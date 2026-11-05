@@ -39,6 +39,8 @@ function formatearFechaProfesional(fecha, opciones) {
 
 function inicializarAgendaProfesional() {
     const grilla = document.querySelector('.grilla-dias-agenda');
+    if (grilla?.dataset.source === 'database') return;
+
     const encabezadoMes = document.querySelector('.cabecera-mes h3');
     const encabezadoDia = document.querySelector('.encabezado-detalle-dia h2');
     const subtitulo = document.querySelector('.subtitulo-detalle');
@@ -195,6 +197,38 @@ function inicializarListaPacientes() {
     if (!lista) return;
 
     const tarjetas = [...lista.querySelectorAll('.tarjeta-paciente-item')];
+    const buscador = document.querySelector('.input-busqueda-paciente');
+    let mensajeSinResultados = lista.querySelector('.mensaje-sin-pacientes');
+    if (!mensajeSinResultados) {
+        mensajeSinResultados = document.createElement('p');
+        mensajeSinResultados.className = 'mensaje-sin-pacientes';
+        mensajeSinResultados.setAttribute('role', 'status');
+        mensajeSinResultados.textContent = 'No se encontraron pacientes.';
+        mensajeSinResultados.hidden = true;
+        lista.append(mensajeSinResultados);
+    }
+
+    const filtrar = () => {
+        const busqueda = obtenerNombreNormalizado(buscador?.value || '');
+        let visibles = 0;
+        tarjetas.forEach((tarjeta) => {
+            const dni = tarjeta.dataset.dni || '';
+            const coincide = obtenerNombreNormalizado(`${tarjeta.textContent} ${dni}`).includes(busqueda);
+            tarjeta.hidden = !coincide;
+            tarjeta.style.display = coincide ? '' : 'none';
+            if (coincide) visibles += 1;
+        });
+        mensajeSinResultados.hidden = visibles > 0;
+    };
+
+    buscador?.addEventListener('input', filtrar);
+    if (lista.dataset.source === 'database') {
+        tarjetas.forEach((tarjeta) => {
+            tarjeta.setAttribute('aria-pressed', String(tarjeta.classList.contains('paciente-seleccionado')));
+        });
+        return;
+    }
+
     const panel = document.querySelector('.contenedor-tarjetas-pacientes > section:last-child');
     const campos = [...(panel?.querySelectorAll('.ficha-datos-contacto p') || [])];
     const valoresIniciales = new Map(campos.map((campo) => [
@@ -279,31 +313,6 @@ function inicializarListaPacientes() {
         }
     };
 
-    const buscador = document.querySelector('.input-busqueda-paciente');
-    let mensajeSinResultados = lista.querySelector('.mensaje-sin-pacientes');
-    if (!mensajeSinResultados) {
-        mensajeSinResultados = document.createElement('p');
-        mensajeSinResultados.className = 'mensaje-sin-pacientes';
-        mensajeSinResultados.setAttribute('role', 'status');
-        mensajeSinResultados.textContent = 'No se encontraron pacientes.';
-        mensajeSinResultados.hidden = true;
-        lista.append(mensajeSinResultados);
-    }
-
-    const filtrar = () => {
-        const busqueda = obtenerNombreNormalizado(buscador?.value || '');
-        let visibles = 0;
-        tarjetas.forEach((tarjeta) => {
-            const dni = tarjeta.dataset.dni || '';
-            const coincide = obtenerNombreNormalizado(`${tarjeta.textContent} ${dni}`).includes(busqueda);
-            tarjeta.hidden = !coincide;
-            tarjeta.style.display = coincide ? '' : 'none';
-            if (coincide) visibles += 1;
-        });
-        mensajeSinResultados.hidden = visibles > 0;
-    };
-
-    buscador?.addEventListener('input', filtrar);
     tarjetas.forEach((tarjeta) => {
         tarjeta.setAttribute('aria-pressed', String(tarjeta.classList.contains('paciente-seleccionado')));
         tarjeta.addEventListener('click', () => actualizarDetalle(tarjeta));

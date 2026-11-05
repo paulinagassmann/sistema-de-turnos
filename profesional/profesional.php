@@ -100,13 +100,13 @@ try {
                 <a href="profesional.php" class="item-menu activo">
                     <span>Inicio / Hoy</span>
                 </a>
-                <a href="profesional-pacientes.html" class="item-menu">
+                <a href="profesional-pacientes.php" class="item-menu">
                     <span>Mis Pacientes</span>
                 </a>
-                <a href="profesional-agenda.html" class="item-menu">
+                <a href="profesional-agenda.php" class="item-menu">
                     <span>Agenda </span>
                 </a>
-                <a href="profesional-configuracion.html" class="item-menu">
+                <a href="profesional-configuracion.php" class="item-menu">
                     <span>Configuración</span>
                 </a>
             </nav>
@@ -191,7 +191,7 @@ try {
                     </div>
 
                     <div class="bloque-agenda-lateral">
-                        <a href="profesional-agenda.html" class="btn-siguiente-paso">
+                        <a href="profesional-agenda.php" class="btn-siguiente-paso">
                             Consultar agenda
                         </a>
                     </div>

@@ -153,7 +153,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
             <section class="tarjeta-blanca">
                 <h2>Cambiar contraseña</h2>
 
-                <form class="form-perfil" action="../procesos/procesar-cambiar-password-perfil.php" method="POST">
+                <form class="form-perfil" action="../procesos/procesar-cambiar-password-paciente.php" method="POST">
 
                     <div class="grupo-campo">
                         <label for="contra-actual">Contraseña actual</label>

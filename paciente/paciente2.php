@@ -21,6 +21,9 @@ if ($profesionalId === false || $profesionalId === null) {
     exit();
 }
 
+$zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
+$ahora = new DateTimeImmutable('now', $zonaHoraria);
+
 require_once __DIR__ . '/../config/conexion.php';
 
 $profesional = null;
@@ -59,10 +62,13 @@ try {
         "SELECT DATE_FORMAT(fecha_hora, '%Y-%m-%d %H:%i') AS fecha_hora
          FROM turnos
          WHERE profesional_id = :profesional_id
-           AND fecha_hora >= NOW()
+           AND fecha_hora >= :ahora
            AND estado IN ('pendiente', 'confirmado')"
     );
-    $stmtTurnos->execute([':profesional_id' => $profesionalId]);
+    $stmtTurnos->execute([
+        ':profesional_id' => $profesionalId,
+        ':ahora' => $ahora->format('Y-m-d H:i:s')
+    ]);
     $turnosOcupados = $stmtTurnos->fetchAll(PDO::FETCH_COLUMN);
 } catch (Throwable $e) {
     error_log("Error al cargar agenda en paso 2: " . $e->getMessage());
@@ -120,20 +126,28 @@ foreach ($turnosOcupados ?? [] as $fechaHoraOcupada) {
 }
 
 $horariosPorFecha = [];
-$fechaInicio = new DateTimeImmutable('today');
-$fechaHoy = $fechaInicio->format('Y-m-d');
-$horaActual = (new DateTimeImmutable())->format('H:i');
+$ahora = new DateTimeImmutable('now', $zonaHoraria);
+$fechaInicio = $ahora->setTime(0, 0);
+$fechaHoy = $ahora->format('Y-m-d');
+$horaActual = $ahora->format('H:i:s');
+
 for ($diaOffset = 0; $diaOffset < 90; $diaOffset++) {
     $fecha = $fechaInicio->modify("+{$diaOffset} days");
+    $fechaFormateada = $fecha->format('Y-m-d');
     $numeroDia = (int) $fecha->format('N');
+
     foreach (array_unique($horariosPorDia[$numeroDia] ?? []) as $horario) {
-        $fechaFormateada = $fecha->format('Y-m-d');
-        if (
-            !isset($ocupados[$fechaFormateada . ' ' . $horario])
-            && ($fechaFormateada !== $fechaHoy || $horario > $horaActual)
-        ) {
-            $horariosPorFecha[$fechaFormateada][] = $horario;
+        $claveOcupado = $fechaFormateada . ' ' . $horario;
+
+        if (isset($ocupados[$claveOcupado])) {
+            continue;
         }
+
+        if ($fechaFormateada === $fechaHoy && $horario <= $horaActual) {
+            continue;
+        }
+
+        $horariosPorFecha[$fechaFormateada][] = $horario;
     }
 }
 

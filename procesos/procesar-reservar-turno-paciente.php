@@ -52,8 +52,13 @@ if (
     exit();
 }
 
-$inicioTurno = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $fecha . ' ' . $hora);
-$ahora = new DateTimeImmutable();
+$zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
+$inicioTurno = DateTimeImmutable::createFromFormat(
+    '!Y-m-d H:i',
+    $fecha . ' ' . $hora,
+    $zonaHoraria
+);
+$ahora = new DateTimeImmutable('now', $zonaHoraria);
 $fechaLimite = $ahora->modify('+89 days');
 if (
     !$inicioTurno
