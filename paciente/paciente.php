@@ -11,6 +11,10 @@ if (
     exit();
 }
 
+if (empty($_SESSION['csrf_cancelar_turno'])) {
+    $_SESSION['csrf_cancelar_turno'] = bin2hex(random_bytes(32));
+}
+
 require_once __DIR__ . '/../config/conexion.php';
 
 try {
@@ -32,7 +36,7 @@ try {
 
     // 2. Buscamos el próximo turno pendiente o confirmado de este paciente
     $stmtTurno = $conexion->prepare(
-        "SELECT t.fecha_hora, t.estado, 
+        "SELECT t.id, t.fecha_hora, t.estado,
                 u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido, 
                 pr.especialidad 
          FROM turnos t
@@ -112,6 +116,24 @@ try {
                     <p class="aviso-turno-agendado" role="status">Tu turno se reservó correctamente.</p>
                 <?php endif; ?>
 
+                <?php if (isset($_GET['turno_cancelado']) && $_GET['turno_cancelado'] === '1'): ?>
+                    <p class="aviso-turno-agendado" role="status">Tu turno fue cancelado correctamente.</p>
+                <?php endif; ?>
+                <?php
+                $mensajesErrorCancelacion = [
+                    'sin_turno' => 'No tenés un turno próximo disponible para cancelar.',
+                    'solicitud_invalida' => 'La solicitud de cancelación no es válida. Intentá nuevamente.',
+                    'servidor' => 'No pudimos cancelar el turno. Intentá nuevamente más tarde.'
+                ];
+                if (
+                    isset($_GET['error'])
+                    && is_string($_GET['error'])
+                    && isset($mensajesErrorCancelacion[$_GET['error']])
+                ):
+                ?>
+                    <p class="aviso-turno-error" role="alert"><?php echo htmlspecialchars($mensajesErrorCancelacion[$_GET['error']], ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php endif; ?>
+
                 <!-- Tarjeta de próximo turno -->
                 <article class="tarjeta-turnos" data-source="database">
                     <h2> Próxima sesión </h2>
@@ -123,7 +145,7 @@ try {
                         $horaFormateada = date('H:i', $timestamp);
                     ?>
                     <p> <strong>Profesional: Lic. <?php echo htmlspecialchars($proximoTurno['prof_nombre'] . ' ' . $proximoTurno['prof_apellido']); ?></strong> </p>
-                    <p> <?php echo htmlspecialchars($proximoTurno['especialidad']); ?> </p>
+                    <p> Especialidad: <?php echo htmlspecialchars($proximoTurno['especialidad']); ?> </p>
  
                     <div class="contenedor-chips">
                         <span class="chip-info">
@@ -137,7 +159,8 @@ try {
                         </span>
                     </div>
 
-                    <p class="aviso-cancelacion">Para cancelar este turno, comunicate con la clínica.</p>
+                    <!-- Botón para abrir el modal de cancelación -->
+                    <button type="button" class="btn-cancelar" data-modal-open="modalCancelar">Cancelar turno</button>
                     <?php else: ?>
                         <p style="margin: 20px 0; color: #666;">No tenés ninguna sesión próxima agendada.</p>
                     <?php endif; ?>
@@ -210,29 +233,23 @@ try {
             </div>
         </dialog>
 
-    <!-- MODAL 1: PREGUNTA DE CONFIRMACIÓN -->
+<?php if ($proximoTurno): ?>
+<!-- MODAL 1: PREGUNTA DE CONFIRMACIÓN -->
 <div id="modalCancelar" class="modal-fondo">
     <div class="modal-caja">
         <div class="modal-icono-alerta">⚠️</div>
         <h3>¿Cancelar turno?</h3>
         <p>¿Estás seguro de que querés cancelar tu sesión? Esta acción no se puede deshacer.</p>
         
-        <div class="modal-acciones">
+        <form action="../procesos/procesar-cancelar-turno-paciente.php" method="POST" class="modal-acciones">
+            <input type="hidden" name="turno_id" value="<?php echo htmlspecialchars((string) $proximoTurno['id'], ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_cancelar_turno'], ENT_QUOTES, 'UTF-8'); ?>">
             <button type="button" class="btn-secundario-modal" data-modal-close="modalCancelar">No, mantener turno</button>
-            <button type="button" class="btn-peligro-modal" data-modal-close="modalCancelar" data-modal-open="modalCanceladoExito">Sí, cancelar</button>
-        </div>
+            <button type="submit" class="btn-peligro-modal">Sí, cancelar</button>
+        </form>
     </div>
 </div>
-
-<!-- MODAL 2: AVISO DE CANCELADO CON ÉXITO -->
-<div id="modalCanceladoExito" class="modal-fondo">
-    <div class="modal-caja">
-        <div class="modal-icono-check">✓</div>
-        <h3>Turno cancelado</h3>
-        <p>Tu turno fue cancelado correctamente. Podés agendar uno nuevo cuando lo necesites.</p>
-        <button type="button" class="btn-siguiente-paso" data-modal-close="modalCanceladoExito">Aceptar</button>
-    </div>
-</div>
+<?php endif; ?>
 
 
 </body>

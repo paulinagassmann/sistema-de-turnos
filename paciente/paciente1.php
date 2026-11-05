@@ -105,7 +105,7 @@ try {
                             <span class="avatar-profesional avatar-profesional-placeholder" aria-hidden="true">P</span>
                             <div class="info-profesional">
                                 <h3>Lic. <?php echo htmlspecialchars($prof['nombre'] . ' ' . $prof['apellido'], ENT_QUOTES, 'UTF-8'); ?></h3>
-                                <p><?php echo htmlspecialchars($prof['especialidad'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                <p>Especialidad: <?php echo htmlspecialchars($prof['especialidad'], ENT_QUOTES, 'UTF-8'); ?></p>
                             </div>
                         </button>
                     <?php endforeach; ?>

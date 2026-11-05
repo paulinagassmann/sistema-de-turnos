@@ -1420,7 +1420,8 @@ body > footer {
     color: #0f172a;
 }
 
-.valor-completado {
+.valor-completado,
+.valor-confirmado {
     color: #16a34a;
 }
 
@@ -2899,6 +2900,16 @@ body > footer {
 .estado-cancelado {
     background-color: #fee2e2;
     color: #dc2626;
+}
+
+.estado-confirmado {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.estado-ausente {
+    background-color: #fee2e2;
+    color: #b91c1c;
 }
 
 .estado-asistio {

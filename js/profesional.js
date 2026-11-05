@@ -1,5 +1,4 @@
 const CLAVES_PROFESIONAL = {
-    estadosTurnos: 'pausa.estadosTurnosProfesional',
     agenda: 'pausa.diaAgendaProfesional',
     cuenta: 'pausa.cuentaProfesional'
 };
@@ -36,99 +35,6 @@ function fechaISOProfesional(fecha) {
 function formatearFechaProfesional(fecha, opciones) {
     const texto = new Intl.DateTimeFormat('es-AR', opciones).format(fecha);
     return texto.charAt(0).toLocaleUpperCase('es-AR') + texto.slice(1);
-}
-
-function obtenerClaveTurno(fecha, paciente, hora) {
-    return `${fecha}|${obtenerNombreNormalizado(paciente)}|${hora.trim().toLocaleLowerCase('es')}`;
-}
-
-function agregarSelectorEstadoTurno(insignia, fecha, actualizarResumen) {
-    if (insignia.nextElementSibling?.classList.contains('selector-estado-turno')) return;
-
-    const fila = insignia.closest('.fila-turno, .item-turno-agenda');
-    const paciente = fila?.querySelector('.info-paciente-turno strong, .nombre-paciente');
-    const hora = fila?.querySelector('.chip-horario, .hora-turno-agenda strong');
-    if (!paciente || !hora || !fecha) return;
-
-    const clave = obtenerClaveTurno(fecha, paciente.textContent, hora.textContent);
-    const estadosGuardados = leerDatoProfesional(CLAVES_PROFESIONAL.estadosTurnos, {});
-    const estadoAlmacenado = estadosGuardados[clave];
-    const estadoInicial = ['pendiente', 'atendido', 'ausente'].includes(estadoAlmacenado)
-        ? estadoAlmacenado
-        : insignia.classList.contains('estado-atendido')
-            ? 'atendido'
-            : insignia.classList.contains('estado-ausente')
-                ? 'ausente'
-                : 'pendiente';
-    const selector = document.createElement('select');
-    selector.className = 'selector-estado-turno';
-    selector.setAttribute('aria-label', `Cambiar estado del turno de ${paciente.textContent.trim()}`);
-    selector.style.cssText = 'margin-inline-start:8px; padding:4px 6px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font:inherit; font-size:.8rem;';
-
-    [
-        ['pendiente', 'Pendiente'],
-        ['atendido', 'Atendido'],
-        ['ausente', 'Ausente']
-    ].forEach(([valor, etiqueta]) => {
-        const opcion = document.createElement('option');
-        opcion.value = valor;
-        opcion.textContent = etiqueta;
-        selector.append(opcion);
-    });
-
-    const aplicarEstado = (estado) => {
-        insignia.classList.remove('estado-pendiente', 'estado-atendido', 'estado-ausente');
-        insignia.classList.add(`estado-${estado}`);
-        insignia.textContent = estado.charAt(0).toLocaleUpperCase('es-AR') + estado.slice(1);
-        selector.value = estado;
-    };
-
-    selector.addEventListener('change', () => {
-        const estadosActualizados = leerDatoProfesional(CLAVES_PROFESIONAL.estadosTurnos, {});
-        estadosActualizados[clave] = selector.value;
-        localStorage.setItem(CLAVES_PROFESIONAL.estadosTurnos, JSON.stringify(estadosActualizados));
-        aplicarEstado(selector.value);
-        actualizarResumen?.();
-    });
-
-    insignia.insertAdjacentElement('afterend', selector);
-    aplicarEstado(estadoInicial);
-}
-
-function inicializarEstadosTurnos() {
-    const turnos = [
-        ...document.querySelectorAll('.fila-turno .chip-estado, .lista-turnos-dia-agenda .chip-estado')
-    ];
-    if (!turnos.length) return;
-
-    const fechaDashboard = document.querySelector('.fecha-hoy time')?.dateTime;
-    const encabezadoAgenda = document.querySelector('.encabezado-detalle-dia h2');
-    const fechaAgendaInicial = encabezadoAgenda && obtenerFechaInicialAgenda(encabezadoAgenda);
-    const fechaAgenda = fechaAgendaInicial && fechaISOProfesional(fechaAgendaInicial);
-
-    const actualizarResumen = () => {
-        const filas = [...document.querySelectorAll('.fila-turno')];
-        const total = document.querySelector('.resumen-dia .valor-resumen');
-        const completados = document.querySelector('.resumen-dia .valor-completado');
-        const pendientes = document.querySelector('.resumen-dia .valor-pendiente');
-        if (!total || !completados || !pendientes) return;
-
-        total.textContent = String(filas.length);
-        completados.textContent = String(filas.filter((fila) =>
-            fila.querySelector('.chip-estado')?.classList.contains('estado-atendido')
-        ).length);
-        pendientes.textContent = String(filas.filter((fila) =>
-            fila.querySelector('.chip-estado')?.classList.contains('estado-pendiente')
-        ).length);
-    };
-
-    turnos.forEach((insignia) => {
-        const fila = insignia.closest('.fila-turno, .item-turno-agenda');
-        const fecha = fila?.classList.contains('fila-turno') ? fechaDashboard : fechaAgenda;
-        agregarSelectorEstadoTurno(insignia, fecha, actualizarResumen);
-    });
-
-    actualizarResumen();
 }
 
 function inicializarAgendaProfesional() {
@@ -172,25 +78,6 @@ function inicializarAgendaProfesional() {
         return turnosOriginales.map((turno) => turno.cloneNode(true));
     };
 
-    const aplicarEstados = (fecha, turnos) => {
-        const estadosGuardados = leerDatoProfesional(CLAVES_PROFESIONAL.estadosTurnos, {});
-        turnos.forEach((turno) => {
-            const insignia = turno.querySelector('.chip-estado');
-            const paciente = turno.querySelector('.nombre-paciente');
-            const hora = turno.querySelector('.hora-turno-agenda strong');
-            if (!insignia || !paciente || !hora) return;
-            const estadoGuardado = estadosGuardados[obtenerClaveTurno(fecha, paciente.textContent, hora.textContent)];
-            const estado = ['pendiente', 'atendido', 'ausente'].includes(estadoGuardado)
-                ? estadoGuardado
-                : null;
-            if (estado) {
-                insignia.classList.remove('estado-pendiente', 'estado-atendido', 'estado-ausente');
-                insignia.classList.add(`estado-${estado}`);
-                insignia.textContent = estado.charAt(0).toLocaleUpperCase('es-AR') + estado.slice(1);
-            }
-        });
-    };
-
     const renderizarDia = () => {
         const fecha = new Date(`${fechaSeleccionada}T12:00:00`);
         encabezadoDia.textContent = formatearFechaProfesional(fecha, {
@@ -210,12 +97,7 @@ function inicializarAgendaProfesional() {
         listaTurnos.replaceChildren();
 
         if (turnos.length) {
-            aplicarEstados(fechaSeleccionada, turnos);
             listaTurnos.append(...turnos);
-            turnos.forEach((turno) => {
-                const insignia = turno.querySelector('.chip-estado');
-                if (insignia) agregarSelectorEstadoTurno(insignia, fechaSeleccionada);
-            });
         } else {
             mensajeSinTurnos.textContent = cantidad
                 ? 'El detalle de estos turnos no está cargado en esta vista.'
@@ -515,8 +397,90 @@ function inicializarCambioPassword() {
     });
 }
 
+function inicializarActualizacionEstadosTurnos() {
+    const lista = document.querySelector('.lista-turnos-hoy[data-status-endpoint]');
+    if (!lista) return;
+
+    const endpoint = lista.dataset.statusEndpoint;
+    const estadosValidos = new Set(['pendiente', 'confirmado', 'ausente', 'cancelado']);
+    const etiquetasEstado = {
+        pendiente: 'Pendiente',
+        confirmado: 'Confirmado',
+        ausente: 'Ausente',
+        cancelado: 'Cancelado'
+    };
+
+    const actualizar = async () => {
+        try {
+            const respuesta = await fetch(endpoint, {
+                headers: { Accept: 'application/json' },
+                cache: 'no-store'
+            });
+            if (!respuesta.ok) throw new Error(`La consulta de estados respondió HTTP ${respuesta.status}.`);
+
+            const datos = await respuesta.json();
+            if (!Array.isArray(datos.turnos)) {
+                throw new Error('La respuesta de estados de turnos no tiene el formato esperado.');
+            }
+
+            const turnosActuales = [...lista.querySelectorAll('.fila-turno')];
+            const idsActuales = turnosActuales.map((turno) => turno.dataset.turnoId).sort();
+            const turnosActualizados = datos.turnos;
+            const idsActualizados = turnosActualizados.map((turno) => String(turno.id)).sort();
+
+            if (idsActuales.join(',') !== idsActualizados.join(',')) {
+                window.location.reload();
+                return;
+            }
+
+            const estadosPorId = new Map(
+                turnosActualizados.map((turno) => [String(turno.id), turno.estado])
+            );
+            for (const fila of turnosActuales) {
+                const estado = estadosPorId.get(fila.dataset.turnoId);
+                if (!estadosValidos.has(estado)) {
+                    throw new Error(`El turno ${fila.dataset.turnoId} tiene un estado no reconocido.`);
+                }
+
+                const insignia = fila.querySelector('.chip-estado');
+                if (!insignia) throw new Error(`Falta el indicador de estado del turno ${fila.dataset.turnoId}.`);
+
+                insignia.classList.remove(
+                    'estado-pendiente',
+                    'estado-confirmado',
+                    'estado-ausente',
+                    'estado-cancelado'
+                );
+                insignia.classList.add(`estado-${estado}`);
+                insignia.textContent = etiquetasEstado[estado];
+            }
+
+            const total = document.querySelector('.resumen-dia .valor-resumen');
+            const confirmados = document.querySelector('.resumen-dia .valor-confirmado');
+            const pendientes = document.querySelector('.resumen-dia .valor-pendiente');
+            if (total) total.textContent = String(turnosActualizados.length);
+            if (confirmados) {
+                confirmados.textContent = String(turnosActualizados.filter(
+                    (turno) => turno.estado === 'confirmado'
+                ).length);
+            }
+            if (pendientes) {
+                pendientes.textContent = String(turnosActualizados.filter(
+                    (turno) => turno.estado === 'pendiente'
+                ).length);
+            }
+        } catch (error) {
+            console.error('No se pudieron actualizar los estados de los turnos.', error);
+        } finally {
+            window.setTimeout(actualizar, 30000);
+        }
+    };
+
+    window.setTimeout(actualizar, 30000);
+}
+
 inicializarAgendaProfesional();
-inicializarEstadosTurnos();
 inicializarListaPacientes();
 inicializarConfiguracionProfesional();
 inicializarCambioPassword();
+inicializarActualizacionEstadosTurnos();

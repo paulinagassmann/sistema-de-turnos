@@ -23,7 +23,7 @@ if (
 
 $rutasPorRol = [
     'secretario' => '../secretario/secretario.html',
-    'profesional' => '../profesional/profesional.html',
+    'profesional' => '../profesional/profesional.php',
     'paciente' => '../paciente/paciente.php'
 ];
 $destino = $rutasPorRol[$_SESSION['rol']];
