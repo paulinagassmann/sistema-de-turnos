@@ -787,6 +787,13 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         document.querySelectorAll(
             '#filtro-profesional, #profesional-agenda, #profesional, .select-profesional-top'
         ).forEach((selector) => {
+            if (
+                selector.matches('.select-profesional-top')
+                && document.querySelector('.lista-turnos-operativa[data-source="database"]')
+            ) {
+                return;
+            }
+
             const valorActual = selector.value;
             profesionales.forEach((profesional) => {
                 if ([...selector.options].some((opcion) => opcion.value === profesional.id)) return;
@@ -1352,6 +1359,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     function inicializarTurnosDelDia() {
         const lista = document.querySelector('.lista-turnos-operativa');
         if (!lista) return;
+        if (lista.dataset.source === 'database') return;
 
         const turnosOriginales = [...lista.querySelectorAll('.item-turno-operativo')];
         const selectProfesional = document.querySelector('.select-profesional-top');
@@ -1513,6 +1521,17 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         const lista = document.querySelector('.lista-pacientes-lateral');
         if (!lista) return;
 
+        if (lista.dataset.source === 'database') {
+            const busqueda = document.querySelector('.input-busqueda-paciente');
+            busqueda?.addEventListener('input', () => {
+                const texto = normalizar(busqueda.value);
+                [...lista.querySelectorAll('.item-paciente-lista')].forEach((tarjeta) => {
+                    tarjeta.hidden = !normalizar(tarjeta.textContent).includes(texto);
+                });
+            });
+            return;
+        }
+
         const panel = document.querySelector('.grilla-gestion-pacientes > section:last-child');
         const campos = [...panel.querySelectorAll('.campo-detalle-admin')];
         const selectProfesional = document.getElementById('filtro-profesional');
@@ -1570,7 +1589,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             const enlaceEditar = panel.querySelector('.btn-editar-perfil');
             if (paciente && enlaceEditar) {
                 sessionStorage.setItem('pausa.secretaria.pacienteSeleccionado', paciente.dni);
-                enlaceEditar.href = `secretario-editar-perfil-paciente.html?dni=${encodeURIComponent(paciente.dni)}`;
+                enlaceEditar.href = `secretario-editar-perfil-paciente.php?dni=${encodeURIComponent(paciente.dni)}`;
             }
         };
 
@@ -1949,29 +1968,6 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         inicializarEdicionPaciente();
         inicializarConfiguracion();
         inicializarHorariosBase();
-        actualizarResumenInicio();
-    }
-
-    function actualizarResumenInicio() {
-        const metrica = document.querySelector('.tarjeta-metrica-azul .numero-grande');
-        const subtexto = document.querySelector('.tarjeta-metrica-azul .subtexto-metrica');
-        const fechaDashboard = document.querySelector('.fecha-hoy time')?.dateTime;
-        if (!metrica || !subtexto || !fechaDashboard) return;
-        const base = [
-            { id: 'enzo murguia|09:00', estado: 'pendiente' },
-            { id: 'paulina gassmann|10:00', estado: 'cancelado' },
-            { id: 'miguel rojas|08:00', estado: 'asistio' }
-        ].map((turno) => ({
-            ...turno,
-            estado: leer(CLAVES.estadosTurnos, {})[turno.id] || turno.estado
-        }));
-        const adicionales = leer(CLAVES.turnos, [])
-            .filter((turno) => turno.fecha === fechaDashboard && turno.estado !== 'cancelado')
-            .map((turno) => ({ estado: turno.estado || 'pendiente' }));
-        const turnos = [...base, ...adicionales];
-        const pendientes = turnos.filter((turno) => turno.estado === 'pendiente').length;
-        metrica.textContent = String(turnos.length);
-        subtexto.textContent = `${pendientes} pendientes`;
     }
 
     inicializarEdicionPacienteYConfiguracionCuandoCargue();

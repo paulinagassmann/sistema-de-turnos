@@ -135,7 +135,7 @@ try {
                 <section class="tarjeta-blanca">
                     <h2>Información de la cuenta</h2>
 
-                    <form class="form-perfil" action="../procesos/procesar-editar-perfil-profesional.php" method="POST">
+                    <form class="form-perfil" action="../procesos/profesional/procesar-editar-perfil-profesional.php" method="POST">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_profesional'], ENT_QUOTES, 'UTF-8'); ?>">
 
                         <div class="grupo-campo">
@@ -164,7 +164,7 @@ try {
                 <section class="tarjeta-blanca">
                     <h2>Cambiar contraseña</h2>
 
-                    <form class="form-perfil" action="../procesos/procesar-cambiar-password-profesional.php" method="POST">
+                    <form class="form-perfil" action="../procesos/profesional/procesar-cambiar-password-profesional.php" method="POST">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_profesional'], ENT_QUOTES, 'UTF-8'); ?>">
 
                         <div class="grupo-campo">

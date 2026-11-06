@@ -14,9 +14,12 @@ if (
     exit();
 }
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../config/turnos.php';
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     $stmt = $conexion->prepare(
         'SELECT id, estado
          FROM turnos

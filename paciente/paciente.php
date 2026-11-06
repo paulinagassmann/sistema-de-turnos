@@ -16,8 +16,11 @@ if (empty($_SESSION['csrf_cancelar_turno'])) {
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     // 1. Buscamos los datos del usuario y su extensión de paciente (obra social, teléfono, correo, etc.)
     $stmtUsuario = $conexion->prepare(
         'SELECT u.nombre, u.apellido, u.correo, u.telefono, u.dni, p.obra_social 
@@ -34,7 +37,7 @@ try {
         exit();
     }
 
-    // 2. Buscamos el próximo turno pendiente o confirmado de este paciente
+    // 2. Solo mostramos como próxima sesión un turno que siga pendiente
     $stmtTurno = $conexion->prepare(
         "SELECT t.id, t.fecha_hora, t.estado,
                 u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido, 
@@ -45,7 +48,7 @@ try {
          JOIN pacientes pa ON t.paciente_id = pa.id
          WHERE pa.id = :paciente_id 
            AND t.fecha_hora >= NOW() 
-           AND t.estado IN ('pendiente', 'confirmado')
+           AND t.estado = 'pendiente'
          ORDER BY t.fecha_hora ASC 
          LIMIT 1"
     );
@@ -241,7 +244,7 @@ try {
         <h3>¿Cancelar turno?</h3>
         <p>¿Estás seguro de que querés cancelar tu sesión? Esta acción no se puede deshacer.</p>
         
-        <form action="../procesos/procesar-cancelar-turno-paciente.php" method="POST" class="modal-acciones">
+        <form action="../procesos/paciente/procesar-cancelar-turno-paciente.php" method="POST" class="modal-acciones">
             <input type="hidden" name="turno_id" value="<?php echo htmlspecialchars((string) $proximoTurno['id'], ENT_QUOTES, 'UTF-8'); ?>">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_cancelar_turno'], ENT_QUOTES, 'UTF-8'); ?>">
             <button type="button" class="btn-secundario-modal" data-modal-close="modalCancelar">No, mantener turno</button>

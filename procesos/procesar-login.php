@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // 4. Redireccionamiento automático e inteligente según el rol registrado en la BD
             switch ($usuario['rol']) {
                 case 'secretario':
-                    header("Location: ../secretario/secretario.html");
+                    header("Location: ../secretario/secretario.php");
                     break;
                 case 'profesional':
                     header("Location: ../profesional/profesional.php");

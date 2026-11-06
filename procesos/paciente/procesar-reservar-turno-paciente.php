@@ -7,7 +7,7 @@ if (
     || !isset($_SESSION['rol'])
     || $_SESSION['rol'] !== 'paciente'
 ) {
-    header("Location: ../index.html?error=sesion_requerida");
+    header("Location: ../../index.html?error=sesion_requerida");
     exit();
 }
 
@@ -17,7 +17,7 @@ if (
     || empty($_SESSION['csrf_reservar_turno'])
     || !hash_equals($_SESSION['csrf_reservar_turno'], $csrfToken)
 ) {
-    header("Location: ../paciente/paciente1.php?error=sesion_vencida");
+    header("Location: ../../paciente/paciente1.php?error=sesion_vencida");
     exit();
 }
 
@@ -39,7 +39,7 @@ if (
     || preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) !== 1
     || preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $hora) !== 1
 ) {
-    header("Location: ../paciente/paciente1.php?error=seleccion_invalida");
+    header("Location: ../../paciente/paciente1.php?error=seleccion_invalida");
     exit();
 }
 
@@ -48,7 +48,7 @@ if (
     count($fechaPartes) !== 3
     || !checkdate((int) $fechaPartes[1], (int) $fechaPartes[2], (int) $fechaPartes[0])
 ) {
-    header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=seleccion_invalida");
+    header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=seleccion_invalida");
     exit();
 }
 
@@ -65,22 +65,25 @@ if (
     || $inicioTurno <= $ahora
     || $inicioTurno->format('Y-m-d') > $fechaLimite->format('Y-m-d')
 ) {
-    header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=fecha_vencida");
+    header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=fecha_vencida");
     exit();
 }
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../config/turnos.php';
 
 $nombreBloqueo = hash('sha256', $profesionalId . '|' . $fecha . '|' . $hora);
 $bloqueoAdquirido = false;
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     $stmtBloqueo = $conexion->prepare('SELECT GET_LOCK(:nombre, 5)');
     $stmtBloqueo->execute([':nombre' => $nombreBloqueo]);
     $bloqueoAdquirido = (int) $stmtBloqueo->fetchColumn() === 1;
 
     if (!$bloqueoAdquirido) {
-        header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=ocupado");
+        header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=ocupado");
         exit();
     }
 
@@ -145,7 +148,7 @@ try {
     if (!$horarioValido) {
         $conexion->prepare('SELECT RELEASE_LOCK(:nombre)')->execute([':nombre' => $nombreBloqueo]);
         $bloqueoAdquirido = false;
-        header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=seleccion_invalida");
+        header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=seleccion_invalida");
         exit();
     }
 
@@ -168,7 +171,7 @@ try {
         $conexion->rollBack();
         $conexion->prepare('SELECT RELEASE_LOCK(:nombre)')->execute([':nombre' => $nombreBloqueo]);
         $bloqueoAdquirido = false;
-        header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=ocupado");
+        header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=ocupado");
         exit();
     }
 
@@ -191,7 +194,7 @@ try {
         $_SESSION['hora_turno'],
         $_SESSION['csrf_reservar_turno']
     );
-    header("Location: ../paciente/paciente.php?turno_agendado=1");
+    header("Location: ../../paciente/paciente.php?turno_agendado=1");
     exit();
 } catch (Throwable $e) {
     if ($conexion->inTransaction()) {
@@ -201,6 +204,6 @@ try {
         $conexion->prepare('SELECT RELEASE_LOCK(:nombre)')->execute([':nombre' => $nombreBloqueo]);
     }
     error_log("Error al registrar el turno: " . $e->getMessage());
-    header("Location: ../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=servidor");
+    header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=servidor");
     exit();
 }

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conexion->commit();
 
         // Éxito: Redirigimos al formulario pasando el DNI y la contraseña (año) por la URL de manera limpia
-        header("Location: ../secretario/secretario-registrar-paciente.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($anio_nacimiento));
+        header("Location: ../../secretario/secretario-registrar-paciente.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($anio_nacimiento));
         exit();
 
     } catch (Exception $e) {

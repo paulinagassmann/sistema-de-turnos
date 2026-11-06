@@ -17,12 +17,12 @@ if (
     || !isset($_SESSION['rol'])
     || !in_array($_SESSION['rol'], ['secretario', 'profesional', 'paciente'], true)
 ) {
-    header("Location: index.html?error=sesion_requerida");
+    header("Location: ../index.html?error=sesion_requerida");
     exit();
 }
 
 $rutasPorRol = [
-    'secretario' => '../secretario/secretario.html',
+    'secretario' => '../secretario/secretario.php',
     'profesional' => '../profesional/profesional.php',
     'paciente' => '../paciente/paciente.php'
 ];

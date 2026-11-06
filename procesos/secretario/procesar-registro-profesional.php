@@ -1,6 +1,6 @@
 <?php
 //conexión a la bd
-require_once '../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Recogemos los datos enviados por el formulario
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conexion->commit();
 
         // Redirigimos al formulario pasando el DNI y la contraseña temporal por URL para el cartelito de éxito
-        header("Location: ../secretario/secretario-registrar-profesional.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($password_temporal));
+        header("Location: ../../secretario/secretario-registrar-profesional.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($password_temporal));
         exit();
 
     } catch (Exception $e) {

@@ -125,7 +125,7 @@ try {
                 <p>No pudimos cargar los datos del profesional. Volvé a intentarlo más tarde.</p>
                 <a href="paciente1.php" class="btn-cancelar-paso">Volver a profesionales</a>
             <?php else: ?>
-            <form action="../procesos/procesar-reservar-turno-paciente.php" method="POST">
+            <form action="../procesos/paciente/procesar-reservar-turno-paciente.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="profesional_id" value="<?php echo $profesional_id; ?>">
                 <input type="hidden" name="fecha_seleccionada" value="<?php echo htmlspecialchars($fecha, ENT_QUOTES, 'UTF-8'); ?>">

@@ -12,9 +12,12 @@ if (
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
 $errorAlCargarDatos = false;
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     // 2. busco los datos del profesional logueado
     $stmtProf = $conexion->prepare(
         'SELECT u.nombre, u.apellido, p.especialidad 
@@ -149,7 +152,7 @@ try {
                     <div
                         class="lista-turnos-hoy"
                         data-source="database"
-                        data-status-endpoint="../procesos/obtener-turnos-hoy-profesional.php"
+                        data-status-endpoint="../procesos/profesional/obtener-turnos-hoy-profesional.php"
                     >
                         <?php if (!empty($turnosHoy)): ?>
                             <?php foreach ($turnosHoy as $turno): ?>

@@ -127,7 +127,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
             <section class="tarjeta-blanca">
                 <h2>Editar información personal</h2>
 
-                <form class="form-perfil" action="../procesos/procesar-editar-perfil-paciente.php" method="POST">
+                <form class="form-perfil" action="../procesos/paciente/procesar-editar-perfil-paciente.php" method="POST">
                     <div class="grupo-campo">
                         <label for="email">Correo electrónico</label>
                         <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
@@ -153,7 +153,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
             <section class="tarjeta-blanca">
                 <h2>Cambiar contraseña</h2>
 
-                <form class="form-perfil" action="../procesos/procesar-cambiar-password-paciente.php" method="POST">
+                <form class="form-perfil" action="../procesos/paciente/procesar-cambiar-password-paciente.php" method="POST">
 
                     <div class="grupo-campo">
                         <label for="contra-actual">Contraseña actual</label>

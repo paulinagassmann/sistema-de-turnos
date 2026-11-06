@@ -7,11 +7,11 @@ if (
     || !isset($_SESSION['rol'])
     || $_SESSION['rol'] !== 'paciente'
 ) {
-    header("Location: ../index.html?error=sesion_requerida");
+    header("Location: ../../index.html?error=sesion_requerida");
     exit();
 }
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
 
 $correo = $_POST['correo'] ?? null;
 $telefono = $_POST['telefono'] ?? null;
@@ -25,7 +25,7 @@ if (
     || trim($correo) === ''
     || trim($telefono) === ''
 ) {
-    header("Location: ../paciente/perfil-paciente.php?error=campos_vacios");
+    header("Location: ../../paciente/perfil-paciente.php?error=campos_vacios");
     exit();
 }
 
@@ -34,7 +34,7 @@ $telefono = trim($telefono);
 $obra_social = trim($obra_social);
 
 if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
-    header("Location: ../paciente/perfil-paciente.php?error=correo_invalido");
+    header("Location: ../../paciente/perfil-paciente.php?error=correo_invalido");
     exit();
 }
 
@@ -66,13 +66,13 @@ try {
 
     $conexion->commit();
 
-    header("Location: ../paciente/perfil-paciente.php?exito=1");
+    header("Location: ../../paciente/perfil-paciente.php?exito=1");
     exit();
 } catch (Throwable $e) {
     if ($conexion->inTransaction()) {
         $conexion->rollBack();
     }
     error_log("Error al actualizar perfil: " . $e->getMessage());
-    header("Location: ../paciente/perfil-paciente.php?error=servidor");
+    header("Location: ../../paciente/perfil-paciente.php?error=servidor");
     exit();
 }

@@ -25,6 +25,7 @@ $zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
 $ahora = new DateTimeImmutable('now', $zonaHoraria);
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
 
 $profesional = null;
 $agendas = [];
@@ -32,6 +33,8 @@ $turnosOcupados = [];
 $errorAlCargarAgenda = false;
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     $stmtProfesional = $conexion->prepare(
         'SELECT u.nombre, u.apellido, p.especialidad
          FROM profesionales p

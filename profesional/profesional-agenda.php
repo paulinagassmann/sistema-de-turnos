@@ -12,6 +12,7 @@ if (
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
 $profesional_id = $_SESSION['usuario_id'];
 $zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
 $fechaHoy = new DateTimeImmutable('today', $zonaHoraria);
@@ -25,6 +26,8 @@ $errorAlCargarAgenda = false;
 $datosProfesional = null;
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     // 2. Buscamos los datos de la cuenta profesional para mostrar su nombre
     $stmtProf = $conexion->prepare(
         "SELECT u.nombre, u.apellido

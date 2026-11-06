@@ -12,6 +12,7 @@ if (
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
 $profesional_id = $_SESSION['usuario_id'];
 
 $listaPacientes = [];
@@ -21,6 +22,8 @@ $historialTurnos = [];
 $errorAlCargarPacientes = false;
 
 try {
+    actualizarTurnosPendientesVencidos($conexion);
+
     // 2. Buscamos la lista de pacientes únicos que se atienden con este profesional
     $stmtPacientes = $conexion->prepare(
         "SELECT DISTINCT pac.id, u.nombre, u.apellido, u.dni, u.correo, u.telefono, pac.obra_social
