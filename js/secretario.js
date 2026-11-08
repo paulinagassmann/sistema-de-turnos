@@ -1,4 +1,24 @@
 (() => {
+    const modal = document.getElementById('modalCancelarTurnoPaciente');
+    if (!modal) return;
+
+    const turnoId = document.getElementById('turno-paciente-id');
+    const fechaTurno = document.getElementById('fecha-cancelar-turno-paciente');
+    const cerrarModal = document.getElementById('cerrar-modal-cancelar-turno-paciente');
+
+    document.addEventListener('click', (evento) => {
+        const boton = evento.target.closest('.btn-cancelar-turno-paciente');
+        if (!boton) return;
+
+        turnoId.value = boton.dataset.turnoId;
+        fechaTurno.textContent = `${boton.dataset.turnoFecha} hs (Lic. ${boton.dataset.profesional})`;
+        modal.showModal();
+    });
+
+    cerrarModal.addEventListener('click', () => modal.close());
+})();
+
+(() => {
     if (!(document.getElementById('modalCancelarTurnoExcepcion'))) return;
 
 const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoExcepcion');
@@ -78,6 +98,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             enlace.href = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
             enlace.target = '_blank';
             enlace.rel = 'noopener noreferrer';
+            if (turno.dataset.turnoId) enlace.dataset.turnoId = turno.dataset.turnoId;
             enlace.textContent = 'Enviar WhatsApp de cancelación';
             enlace.setAttribute('aria-label', `Enviar WhatsApp de cancelación a ${paciente}`);
             return enlace;
@@ -98,14 +119,15 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             if (etiqueta) detalle.append(etiqueta);
         };
 
-        const crearBotonCancelarTurno = ({ paciente, telefono, fecha, inicio, fin }) => {
-            const boton = crearBotonAccion('Cancelar turno', 'btn-cancelar-turno-excepcion');
+        const crearBotonCancelarTurno = ({ paciente, telefono, fecha, inicio, fin, turnoId }) => {
+            const boton = crearBotonAccion('Bloquear turno', 'btn-cancelar-turno-excepcion');
             Object.assign(boton.dataset, {
                 paciente,
                 telefono,
                 fecha,
                 hora: inicio,
-                fin
+                fin,
+                turnoId: turnoId || ''
             });
             return boton;
         };
@@ -132,110 +154,6 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             document.getElementById('nombre-paciente-extra').required = asignado;
         });
 
-        const minutosDesdeHora = (hora) => {
-            const [horas, minutos] = hora.split(':').map(Number);
-            return horas * 60 + minutos;
-        };
-
-        const haySuperposicionDeHorario = (inicio, fin) => {
-            const inicioNuevo = minutosDesdeHora(inicio);
-            const finNuevo = minutosDesdeHora(fin);
-
-            return Array.from(panelHorariosExcepcion.querySelectorAll('.item-franja-estado')).some((franja) => {
-                const inicioExistente = franja.dataset.inicio;
-                const finExistente = franja.dataset.fin;
-                if (!inicioExistente || !finExistente) return false;
-
-                return inicioNuevo < minutosDesdeHora(finExistente)
-                    && finNuevo > minutosDesdeHora(inicioExistente);
-            });
-        };
-
-        formularioTurnoExtra.addEventListener('submit', (evento) => {
-            evento.preventDefault();
-            errorTurnoExtra.hidden = true;
-            errorTurnoExtra.textContent = '';
-
-            if (!formularioTurnoExtra.reportValidity()) return;
-
-            const datos = new FormData(formularioTurnoExtra);
-            const inicio = datos.get('horaInicio').toString();
-            const fin = datos.get('horaFin').toString();
-
-            if (minutosDesdeHora(fin) <= minutosDesdeHora(inicio)) {
-                errorTurnoExtra.textContent = 'La hora de fin debe ser posterior a la hora de inicio.';
-                errorTurnoExtra.hidden = false;
-                return;
-            }
-
-            if (haySuperposicionDeHorario(inicio, fin)) {
-                errorTurnoExtra.textContent = 'Ese horario se superpone con otra franja del día. Elegí un horario libre.';
-                errorTurnoExtra.hidden = false;
-                return;
-            }
-
-            const asignado = datos.get('estado') === 'asignado';
-            const fecha = panelHorariosExcepcion.querySelector('.cabecera-horarios-dia h2').textContent.toLocaleLowerCase('es');
-            const franja = document.createElement('div');
-            franja.className = 'item-franja-estado franja-turno-extra';
-            franja.dataset.inicio = inicio;
-            franja.dataset.fin = fin;
-
-            const horario = document.createElement('span');
-            horario.className = 'hora-franja';
-            horario.textContent = `${inicio} - ${fin}`;
-
-            const badge = document.createElement('span');
-            badge.className = `badge-estado ${asignado ? 'badge-ocupado' : 'badge-disponible'}`;
-            badge.textContent = asignado ? 'Ocupado' : 'Disponible';
-
-            const detalle = document.createElement('span');
-            detalle.className = 'detalle-estado';
-
-            const etiqueta = document.createElement('span');
-            etiqueta.className = 'etiqueta-turno-extra';
-            etiqueta.textContent = 'Turno extra';
-
-            if (asignado) {
-                const paciente = datos.get('nombrePaciente').toString().trim();
-                detalle.append(document.createTextNode(paciente));
-
-                const dni = datos.get('dniPaciente').toString().trim();
-                if (dni) {
-                    const datoDni = document.createElement('small');
-                    datoDni.textContent = `DNI: ${dni}`;
-                    detalle.append(datoDni);
-                }
-                detalle.append(etiqueta);
-                franja.classList.add('franja-ocupada');
-            } else {
-                detalle.append(document.createTextNode('Turno agregado fuera del horario base'), etiqueta);
-            }
-
-            franja.append(horario, badge, detalle);
-
-            if (asignado) {
-                franja.append(crearBotonCancelarTurno({
-                    paciente: datos.get('nombrePaciente').toString().trim(),
-                    telefono: '',
-                    fecha,
-                    inicio,
-                    fin
-                }));
-            } else {
-                franja.append(crearBotonAccion('Bloquear', 'btn-bloquear-individual'));
-            }
-
-            const listaFranjas = panelHorariosExcepcion.querySelector('.lista-franjas-excepcion');
-            const posicion = Array.from(listaFranjas.children).find((fila) =>
-                minutosDesdeHora(fila.dataset.inicio) > minutosDesdeHora(inicio)
-            );
-            if (posicion) listaFranjas.insertBefore(franja, posicion);
-            else listaFranjas.append(franja);
-
-            modalTurnoExtra.close();
-        });
-
         document.getElementById('cerrar-modal-turno-extra').addEventListener('click', () => {
             modalTurnoExtra.close();
         });
@@ -244,24 +162,29 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             const boton = evento.target.closest('.btn-cancelar-turno-excepcion');
             if (!boton) return;
 
-            const { paciente, telefono, fecha, hora, fin } = boton.dataset;
+            const { paciente, telefono, fecha, hora, fin, turnoId } = boton.dataset;
             nombrePacienteExcepcion.textContent = paciente;
+            enlaceWhatsappExcepcion.dataset.turnoId = turnoId || '';
+            enlaceWhatsappExcepcion.dataset.telefono = telefono || '';
             if (telefono) {
                 const horario = fin ? `de ${hora} a ${fin}` : `a las ${hora}`;
                 const mensaje = `Hola ${paciente}, te escribimos de Pausa para avisarte que tuvimos que cancelar tu turno del ${fecha} ${horario}. Podés solicitar otro turno cuando quieras. Disculpá las molestias.`;
-                enlaceWhatsappExcepcion.href = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+                enlaceWhatsappExcepcion.href = `https://wa.me/${telefono.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`;
                 enlaceWhatsappExcepcion.hidden = false;
                 enlaceWhatsappExcepcion.style.removeProperty('display');
+                enlaceWhatsappExcepcion.textContent = 'Abrir WhatsApp';
                 textoModalCancelacionExcepcion.replaceChildren(
                     document.createTextNode('Se abrirá WhatsApp con un mensaje listo para '),
                     nombrePacienteExcepcion,
-                    document.createTextNode('. Revisalo y envialo para avisarle que su turno fue cancelado y que puede solicitar otro.')
+                    document.createTextNode('. Revisalo y envialo para avisarle que su turno fue cancelado y que ese horario quedó bloqueado.')
                 );
             } else {
-                enlaceWhatsappExcepcion.hidden = true;
-                enlaceWhatsappExcepcion.style.display = 'none';
+                enlaceWhatsappExcepcion.hidden = false;
+                enlaceWhatsappExcepcion.style.removeProperty('display');
+                enlaceWhatsappExcepcion.href = '#';
+                enlaceWhatsappExcepcion.textContent = 'Confirmar cancelación';
                 textoModalCancelacionExcepcion.replaceChildren(
-                    document.createTextNode(`No hay un WhatsApp asociado a ${paciente} para enviar el aviso de cancelación.`)
+                    document.createTextNode(`No hay un WhatsApp asociado a ${paciente}. Podés confirmar la cancelación y bloquear ese horario sin enviar un aviso.`)
                 );
             }
             modalCancelarTurnoExcepcion.showModal();
@@ -376,7 +299,6 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     const panel = document.querySelector('.panel-horarios-excepcion');
     if (!calendario || !panel) return;
 
-    const CLAVE = 'pausa.secretaria.excepciones';
     const CLAVE_FECHA = 'pausa.secretaria.fechaExcepcion';
     const selectorProfesional = document.getElementById('profesional');
     const grilla = calendario.querySelector('.grilla-dias');
@@ -386,53 +308,31 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     const botonBloquearDia = calendario.querySelector('.btn-bloquear-dia-completo');
     const botonTurnoExtra = panel.querySelector('.btn-dar-turno-mini');
     const estadoBloqueo = calendario.querySelector('#estado-bloqueo-dia');
+    const botonConfirmarEstadoFranja = document.getElementById('confirmar-estado-franja');
+    const formularioTurnoExtra = document.getElementById('formulario-turno-extra');
+    const errorTurnoExtra = document.getElementById('error-turno-extra');
+    const modalTurnoExtra = document.getElementById('modalTurnoExtra');
     const meses = Array.from({ length: 12 }, (_, indice) =>
-        new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(new Date(2026, indice, 1))
+        new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(new Date(new Date().getFullYear(), indice, 1))
     );
-    const mesInicial = tituloMes.textContent.trim().split(/\s+/);
-    let mes = meses.indexOf(mesInicial[0].toLocaleLowerCase('es-AR'));
-    let anio = Number(mesInicial[1]);
-    const inicialRegex = tituloDia.textContent.match(/(\d{1,2})\s+de\s+(\S+)/i);
-    const diaInicial = inicialRegex ? Number(inicialRegex[1]) : 1;
-    const mesDiaInicial = inicialRegex
-        ? meses.indexOf(inicialRegex[2].toLocaleLowerCase('es-AR'))
-        : mes;
-    const fechaOriginal = new Date(anio, mesDiaInicial >= 0 ? mesDiaInicial : mes, diaInicial);
-    const fechaOriginalISO = `${fechaOriginal.getFullYear()}-${String(fechaOriginal.getMonth() + 1).padStart(2, '0')}-${String(fechaOriginal.getDate()).padStart(2, '0')}`;
+    const fechaOriginal = new Date();
+    fechaOriginal.setHours(12, 0, 0, 0);
+    let mes = fechaOriginal.getMonth();
+    let anio = fechaOriginal.getFullYear();
     let fechaSeleccionada = fechaOriginal;
     const textoDetalle = (franja) => {
         const detalle = franja.querySelector('.detalle-estado').cloneNode(true);
         detalle.querySelector('.etiqueta-turno-extra')?.remove();
         return detalle.textContent.trim();
     };
-    const franjasIniciales = [...listaFranjas.querySelectorAll('.item-franja-estado')].map((franja) => {
-        const botonCancelar = franja.querySelector('.btn-cancelar-turno-excepcion');
-        const detalle = franja.querySelector('.detalle-estado');
-        return {
-            inicio: franja.dataset.inicio,
-            fin: franja.dataset.fin,
-            estado: franja.classList.contains('franja-ocupada') ? 'ocupado'
-                : franja.classList.contains('franja-bloqueada') ? 'bloqueado' : 'disponible',
-            paciente: botonCancelar?.dataset.paciente || '',
-            dni: detalle.querySelector('small')?.textContent.replace(/^DNI:\s*/i, '') || '',
-            telefono: botonCancelar?.dataset.telefono || '',
-            fecha: botonCancelar?.dataset.fecha || tituloDia.textContent.trim(),
-            detalle: textoDetalle(franja),
-            extra: franja.classList.contains('franja-turno-extra'),
-            whatsappHref: franja.querySelector('a.btn-whatsapp-modal')?.href || ''
-        };
-    });
-    const estadosInicialesPorDia = Object.fromEntries(
-        [...grilla.querySelectorAll('button')].map((boton) => {
-            const dia = Number(boton.textContent.trim());
-            const fecha = new Date(anio, mes, dia);
-            return [`${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`, {
-                disponible: boton.classList.contains('dia-disponible') ||
-                    boton.classList.contains('dia-seleccionado')
-            }];
-        })
-    );
     const botonesNavegacion = calendario.querySelectorAll('.btn-nav-mes');
+    const tokenCsrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const rutaProcesador = '../procesos/secretario/procesar-excepciones.php';
+    let accionFranjaPendiente = null;
+    let diaCompletoBloqueado = false;
+    let solicitudCargaDia = 0;
+    let diasConTurnos = new Set();
+    let solicitudCargaMes = 0;
 
     function fechaISO(fecha) {
         return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
@@ -443,49 +343,142 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         return texto.charAt(0).toLocaleUpperCase('es-AR') + texto.slice(1);
     }
 
-    function leerEstados() {
+    async function enviarAccion(datos) {
+        const formulario = new URLSearchParams({
+            ...datos,
+            csrf_token: tokenCsrf,
+            profesional_id: selectorProfesional.value,
+            response: 'json'
+        });
+        const respuesta = await fetch(rutaProcesador, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formulario
+        });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || !resultado.ok) {
+            const mensajes = {
+                sesion_requerida: 'Tu sesión venció. Iniciá sesión nuevamente.',
+                solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
+                datos_invalidos: 'La fecha o el horario seleccionado no es válido.',
+                ocupado: 'Ese horario tiene un turno reservado y no se puede modificar.',
+                superpuesto: 'Ese horario se superpone con otra excepción existente.',
+                dentro_horario_base: 'El turno extra debe quedar completamente fuera del horario base.',
+                paciente_invalido: 'No se encontró un paciente con ese nombre y DNI.',
+                excepcion_no_encontrada: 'La excepción ya no existe o no puede modificarse.',
+                turno_no_encontrado: 'El turno ya fue cancelado o no pertenece a esta agenda.',
+                horario_invalido: 'No se pudo determinar la duración del turno para bloquearlo.',
+                servidor: 'No se pudo guardar el cambio. Intentá nuevamente.'
+            };
+            throw new Error(mensajes[resultado.error] || 'No se pudo completar la operación.');
+        }
+        return resultado;
+    }
+
+    async function cargarMes() {
+        const solicitudActual = ++solicitudCargaMes;
+        if (!selectorProfesional.value) {
+            diasConTurnos = new Set();
+            renderizarCalendario();
+            return;
+        }
+
         try {
-            return JSON.parse(localStorage.getItem(CLAVE) || '{}');
+            const resultado = await enviarAccion({
+                accion: 'cargar_mes',
+                mes: `${anio}-${String(mes + 1).padStart(2, '0')}`
+            });
+            if (solicitudActual !== solicitudCargaMes) return;
+            diasConTurnos = new Set(resultado.data.dias);
+            renderizarCalendario();
         } catch (error) {
-            console.error('No se pudieron leer las excepciones guardadas.', error);
-            return {};
+            if (solicitudActual !== solicitudCargaMes) return;
+            crearAviso(error.message);
+            console.error('No se pudieron cargar los días con turnos.', error);
         }
     }
 
-    function claveEstado() {
-        return `${selectorProfesional.value}|${fechaISO(fechaSeleccionada)}`;
+    function crearAviso(texto) {
+        estadoBloqueo.textContent = texto;
+        estadoBloqueo.classList.add('estado-error-excepcion');
+        window.setTimeout(() => estadoBloqueo.classList.remove('estado-error-excepcion'), 4000);
     }
 
-    function obtenerFranjasActuales() {
-        return [...listaFranjas.querySelectorAll('.item-franja-estado')].map((franja) => {
-            const badge = franja.querySelector('.badge-estado');
-            const detalle = franja.querySelector('.detalle-estado');
-            const cancelar = franja.querySelector('.btn-cancelar-turno-excepcion');
-            return {
-                inicio: franja.dataset.inicio || '',
-                fin: franja.dataset.fin || '',
-                estado: franja.classList.contains('franja-ocupada') ? 'ocupado'
-                    : franja.classList.contains('franja-bloqueada') ? 'bloqueado'
-                        : badge.classList.contains('badge-ocupado') ? 'ocupado' : 'disponible',
-                paciente: cancelar?.dataset.paciente || '',
-                dni: detalle.querySelector('small')?.textContent.replace(/^DNI:\s*/i, '') || '',
-                telefono: cancelar?.dataset.telefono || '',
-                fecha: cancelar?.dataset.fecha || fechaISO(fechaSeleccionada),
-                detalle: textoDetalle(franja),
-                extra: franja.classList.contains('franja-turno-extra'),
-                whatsappHref: franja.querySelector('a.btn-whatsapp-modal')?.href || ''
-            };
-        });
-    }
-
-    function guardarEstado() {
-        const todos = leerEstados();
-        todos[claveEstado()] = {
-            franjas: obtenerFranjasActuales(),
-            bloqueadoDia: botonBloquearDia.disabled,
-            textoBloqueo: estadoBloqueo.textContent
-        };
-        localStorage.setItem(CLAVE, JSON.stringify(todos));
+    async function cargarDia() {
+        const solicitudActual = ++solicitudCargaDia;
+        if (!selectorProfesional.value) {
+            listaFranjas.replaceChildren();
+            listaFranjas.removeAttribute('aria-busy');
+            return;
+        }
+        listaFranjas.setAttribute('aria-busy', 'true');
+        listaFranjas.replaceChildren();
+        try {
+            const resultado = await enviarAccion({
+                accion: 'cargar_dia',
+                fecha: fechaISO(fechaSeleccionada)
+            });
+            if (solicitudActual !== solicitudCargaDia) return;
+            listaFranjas.replaceChildren();
+            resultado.data.franjas.forEach((franja) => {
+                franja.fecha = fechaLegible(fechaSeleccionada, {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                });
+                listaFranjas.append(crearFranja(franja, resultado.data.bloqueadoDia));
+            });
+            if (!resultado.data.franjas.length) {
+                const aviso = document.createElement('p');
+                aviso.className = 'mensaje-sin-franjas-excepcion';
+                aviso.textContent = 'No hay franjas registradas para este día.';
+                listaFranjas.append(aviso);
+            }
+            diaCompletoBloqueado = resultado.data.bloqueadoDia;
+            botonBloquearDia.disabled = false;
+            botonBloquearDia.textContent = diaCompletoBloqueado
+                ? 'Desbloquear día'
+                : 'Bloquear día completo';
+            botonTurnoExtra.disabled = resultado.data.bloqueadoDia;
+            estadoBloqueo.textContent = resultado.data.textoBloqueo || '';
+            if (resultado.data.bloqueadoDia) {
+                (resultado.data.turnosCancelados || []).forEach((turno) => {
+                    const aviso = document.createElement('span');
+                    aviso.style.display = 'block';
+                    const paciente = `${turno.nombre} ${turno.apellido}`.trim();
+                    const telefono = String(turno.telefono || '').replace(/\D/g, '');
+                    if (telefono) {
+                        const horario = `a las ${turno.hora}`;
+                        const mensaje = `Hola ${paciente}, te escribimos de Pausa para avisarte que tuvimos que cancelar tu turno del ${fechaLegible(fechaSeleccionada, {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        })} ${horario}. Podés solicitar otro turno cuando quieras. Disculpá las molestias.`;
+                        const enlace = document.createElement('a');
+                        enlace.className = 'btn-whatsapp-modal';
+                        enlace.href = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+                        enlace.target = '_blank';
+                        enlace.rel = 'noopener noreferrer';
+                        enlace.textContent = `Avisar a ${paciente} (${turno.hora}) por WhatsApp`;
+                        aviso.append(enlace);
+                    } else {
+                        aviso.textContent = `${paciente} (${turno.hora}): no tiene teléfono registrado.`;
+                    }
+                    estadoBloqueo.append(aviso);
+                });
+            }
+            estadoBloqueo.classList.remove('estado-error-excepcion');
+        } catch (error) {
+            if (solicitudActual !== solicitudCargaDia) return;
+            listaFranjas.replaceChildren();
+            crearAviso(error.message);
+            console.error('No se pudieron cargar las excepciones de agenda.', error);
+        } finally {
+            if (solicitudActual === solicitudCargaDia) {
+                listaFranjas.removeAttribute('aria-busy');
+            }
+        }
     }
 
     function crearAccion(texto, clase) {
@@ -501,6 +494,8 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         franja.className = `item-franja-estado${datos.estado === 'ocupado' ? ' franja-ocupada' : ''}${datos.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${datos.extra ? ' franja-turno-extra' : ''}`;
         franja.dataset.inicio = datos.inicio;
         franja.dataset.fin = datos.fin;
+        if (datos.excepcionId) franja.dataset.excepcionId = datos.excepcionId;
+        if (datos.turnoId) franja.dataset.turnoId = datos.turnoId;
 
         const hora = document.createElement('span');
         hora.className = 'hora-franja';
@@ -534,13 +529,14 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             const cancelar = document.createElement('button');
             cancelar.type = 'button';
             cancelar.className = 'btn-accion-linea btn-cancelar-turno-excepcion';
-            cancelar.textContent = 'Cancelar turno';
+            cancelar.textContent = 'Bloquear turno';
             Object.assign(cancelar.dataset, {
                 paciente: datos.paciente,
                 telefono: datos.telefono,
                 fecha: datos.fecha,
                 hora: datos.inicio,
-                fin: datos.fin
+                fin: datos.fin,
+                turnoId: datos.turnoId || ''
             });
             franja.append(cancelar);
         } else if (datos.estado === 'bloqueado' && datos.whatsappHref) {
@@ -560,6 +556,132 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         return franja;
     }
 
+    async function guardarBloqueoDia() {
+        try {
+            await enviarAccion({
+                accion: 'bloquear_dia',
+                fecha: fechaISO(fechaSeleccionada)
+            });
+            await cargarDia();
+            await cargarMes();
+        } catch (error) {
+            await cargarDia();
+            crearAviso(error.message);
+        }
+    }
+
+    panel.addEventListener('click', (evento) => {
+        const boton = evento.target.closest('.btn-bloquear-individual, .btn-desbloquear');
+        if (!boton) return;
+        const franja = boton.closest('.item-franja-estado');
+        accionFranjaPendiente = {
+            accion: boton.classList.contains('btn-bloquear-individual')
+                ? 'bloquear_franja'
+                : 'desbloquear_franja',
+            inicio: franja.dataset.inicio,
+            fin: franja.dataset.fin,
+            excepcionId: franja.dataset.excepcionId || ''
+        };
+    });
+
+    botonConfirmarEstadoFranja.addEventListener('click', async () => {
+        if (!accionFranjaPendiente) return;
+        const accion = accionFranjaPendiente;
+        accionFranjaPendiente = null;
+        try {
+            await enviarAccion({
+                accion: accion.accion,
+                fecha: fechaISO(fechaSeleccionada),
+                hora_inicio: accion.inicio,
+                hora_fin: accion.fin,
+                excepcion_id: accion.excepcionId
+            });
+            modalConfirmarEstadoFranja.close();
+            await cargarDia();
+            await cargarMes();
+        } catch (error) {
+            await cargarDia();
+            crearAviso(error.message);
+        }
+    });
+    document.getElementById('cancelar-confirmacion-franja').addEventListener('click', () => {
+        accionFranjaPendiente = null;
+    });
+
+    botonBloquearDia.addEventListener('click', (evento) => {
+        if (evento.target.disabled) return;
+        if (diaCompletoBloqueado) {
+            evento.preventDefault();
+            evento.stopImmediatePropagation();
+            enviarAccion({
+                accion: 'desbloquear_dia',
+                fecha: fechaISO(fechaSeleccionada)
+            }).then(async () => {
+                await cargarDia();
+                await cargarMes();
+            }).catch(async (error) => {
+                await cargarDia();
+                crearAviso(error.message);
+            });
+            return;
+        }
+        if (panel.querySelector('.franja-ocupada')) return;
+        guardarBloqueoDia();
+    }, true);
+
+    document.getElementById('confirmar-bloqueo-dia').addEventListener('click', () => {
+        guardarBloqueoDia();
+    });
+
+    document.getElementById('enlace-whatsapp-excepcion').addEventListener('click', async (evento) => {
+        const turnoId = evento.currentTarget.dataset.turnoId;
+        if (!turnoId) return;
+        evento.preventDefault();
+        const telefono = evento.currentTarget.dataset.telefono;
+        const urlWhatsapp = evento.currentTarget.href;
+        const ventanaWhatsapp = telefono ? window.open('about:blank', '_blank') : null;
+        try {
+            await enviarAccion({
+                accion: 'cancelar_turno',
+                fecha: fechaISO(fechaSeleccionada),
+                turno_id: turnoId
+            });
+            if (ventanaWhatsapp) {
+                ventanaWhatsapp.opener = null;
+                ventanaWhatsapp.location.href = urlWhatsapp;
+            }
+            document.getElementById('modalCancelarTurnoExcepcion').close();
+            await cargarDia();
+            await cargarMes();
+        } catch (error) {
+            ventanaWhatsapp?.close();
+            crearAviso(error.message);
+        }
+    });
+
+    formularioTurnoExtra.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+        const datos = new FormData(formularioTurnoExtra);
+        try {
+            await enviarAccion({
+                accion: 'crear_extra',
+                fecha: fechaISO(fechaSeleccionada),
+                hora_inicio: String(datos.get('horaInicio') || ''),
+                estado: String(datos.get('estado') || 'disponible'),
+                nombre_paciente: String(datos.get('nombrePaciente') || '').trim(),
+                dni_paciente: String(datos.get('dniPaciente') || '').trim()
+            });
+            modalTurnoExtra.close();
+            await cargarDia();
+            await cargarMes();
+        } catch (error) {
+            errorTurnoExtra.textContent = error.message;
+            errorTurnoExtra.hidden = false;
+            if (!modalTurnoExtra.open) modalTurnoExtra.showModal();
+            await cargarDia();
+        }
+    });
+
     function seleccionarFecha(fecha) {
         fechaSeleccionada = fecha;
         sessionStorage.setItem(CLAVE_FECHA, fechaISO(fecha));
@@ -570,36 +692,8 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             year: 'numeric'
         });
         document.getElementById('fecha-turno-extra').textContent = tituloDia.textContent;
-
-        const estado = leerEstados()[claveEstado()];
-        const esOriginal = fechaISO(fecha) === fechaOriginalISO &&
-            selectorProfesional.value === 'garabal';
-        listaFranjas.replaceChildren();
-        if (estado?.franjas) {
-            estado.franjas
-                .sort((a, b) => a.inicio.localeCompare(b.inicio))
-                .forEach((franja) => listaFranjas.append(crearFranja(franja, estado.bloqueadoDia)));
-            if (!estado.franjas.length) {
-                const aviso = document.createElement('p');
-                aviso.className = 'mensaje-sin-franjas-excepcion';
-                aviso.textContent = 'No hay franjas registradas para este día.';
-                listaFranjas.append(aviso);
-            }
-        } else if (esOriginal) {
-            franjasIniciales.forEach((franja) => listaFranjas.append(crearFranja(franja, false)));
-        } else {
-            const aviso = document.createElement('p');
-            aviso.className = 'mensaje-sin-franjas-excepcion';
-            aviso.textContent = 'No hay franjas registradas para este día.';
-            listaFranjas.append(aviso);
-        }
-
-        const bloqueadoDia = Boolean(estado?.bloqueadoDia);
-        botonBloquearDia.disabled = bloqueadoDia;
-        botonBloquearDia.textContent = bloqueadoDia ? 'Día bloqueado' : 'Bloquear día completo';
-        botonTurnoExtra.disabled = bloqueadoDia;
-        estadoBloqueo.textContent = estado?.textoBloqueo || '';
         renderizarCalendario();
+        cargarDia();
     }
 
     function renderizarCalendario() {
@@ -607,6 +701,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             month: 'long',
             year: 'numeric'
         });
+        grilla.setAttribute('aria-label', `${tituloMes.textContent}`);
         grilla.replaceChildren();
         for (let espacio = 0; espacio < new Date(anio, mes, 1).getDay(); espacio += 1) {
             const vacio = document.createElement('span');
@@ -621,11 +716,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             const boton = document.createElement('button');
             boton.type = 'button';
             const seleccionado = id === fechaISO(fechaSeleccionada);
-            const disponible = id === fechaOriginalISO && selectorProfesional.value === 'garabal'
-                ? estadosInicialesPorDia[id]?.disponible
-                : true;
-            boton.className = seleccionado ? 'dia-seleccionado' : disponible ? 'dia-disponible' : 'dia-inactivo';
-            boton.disabled = !disponible;
+            boton.className = seleccionado ? 'dia-seleccionado' : 'dia-disponible';
             boton.textContent = String(dia);
             boton.setAttribute('aria-label', fechaLegible(fecha, {
                 day: 'numeric',
@@ -639,21 +730,38 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     }
 
     botonesNavegacion.forEach((boton, indice) => {
-        boton.addEventListener('click', () => {
-            mes += indice === 0 ? -1 : 1;
-            if (mes < 0) {
-                mes = 11;
-                anio -= 1;
-            } else if (mes > 11) {
-                mes = 0;
-                anio += 1;
-            }
-            seleccionarFecha(new Date(anio, mes, 1));
-        });
+        // El índice 0 es el botón de mes anterior (<) y el índice 1 es el siguiente (>)
+        if (indice === 0) {
+            boton.addEventListener('click', () => {
+                const hoy = new Date();
+                // Verificamos si estamos en el mes actual del año actual para no permitir ir al pasado
+                if (anio === hoy.getFullYear() && mes <= hoy.getMonth()) {
+                    return; // No hace nada si intenta ir a un mes anterior al actual
+                }
+                mes -= 1;
+                if (mes < 0) {
+                    mes = 11;
+                    anio -= 1;
+                }
+                seleccionarFecha(new Date(anio, mes, 1));
+                cargarMes();
+            });
+        } else {
+            boton.addEventListener('click', () => {
+                mes += 1;
+                if (mes > 11) {
+                    mes = 0;
+                    anio += 1;
+                }
+                seleccionarFecha(new Date(anio, mes, 1));
+                cargarMes();
+            });
+        }
     });
 
     selectorProfesional.addEventListener('change', () => {
         seleccionarFecha(fechaSeleccionada);
+        cargarMes();
     });
 
     const fechaGuardada = sessionStorage.getItem(CLAVE_FECHA);
@@ -664,18 +772,8 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     }
     anio = fechaInicial.getFullYear();
     mes = fechaInicial.getMonth();
-    listaFranjas.addEventListener('click', () => {
-        window.setTimeout(guardarEstado, 0);
-    });
-    new MutationObserver(() => {
-        window.setTimeout(guardarEstado, 0);
-    }).observe(panel, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        characterData: true
-    });
     seleccionarFecha(fechaInicial);
+    cargarMes();
 })();
 
 (() => {
@@ -785,8 +883,22 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     function sincronizarProfesionalesEnSelectores() {
         const profesionales = obtenerProfesionales();
         document.querySelectorAll(
-            '#filtro-profesional, #profesional-agenda, #profesional, .select-profesional-top'
+            '#filtro-profesional, #profesional, .select-profesional-top'
         ).forEach((selector) => {
+            if (selector.dataset.source === 'database') return;
+            if (
+                selector.matches('#filtro-profesional')
+                && selector.closest('.tarjeta-seleccion-prof')
+            ) {
+                return;
+            }
+            if (
+                selector.matches('#profesional')
+                && selector.closest('.tarjeta-filtro-excepcion')
+            ) {
+                return;
+            }
+
             if (
                 selector.matches('.select-profesional-top')
                 && document.querySelector('.lista-turnos-operativa[data-source="database"]')
@@ -1760,106 +1872,47 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     }
 
     function inicializarHorariosBase() {
-        const selector = document.querySelector('.tarjeta-seleccion-prof #filtro-profesional');
         const tarjetaDias = document.querySelector('.tarjeta-dias-semana');
-        const botonGuardar = document.querySelector('.contenedor-guardar-horarios button');
-        if (!selector || !tarjetaDias || !botonGuardar) return;
+        const formulario = document.querySelector('.contenedor-config-agenda')?.closest('form');
+        if (!tarjetaDias || !formulario) return;
         const filas = [...tarjetaDias.querySelectorAll('.fila-horario-dia')];
-        const claveProfesional = () => selector.value || 'garabal';
+        const obtenerClaveDia = (fila) =>
+            fila.querySelector('.switch-toggle input').name.match(/^dias\[([^\]]+)\]\[activo\]$/)?.[1];
+        const sincronizarNombresFranjas = (fila) => {
+            const dia = obtenerClaveDia(fila);
+            if (!dia) return false;
 
-        const leerHorarioPantalla = () => filas.map((fila) => ({
-            dia: fila.querySelector('.nombre-dia').textContent.trim(),
-            activo: fila.querySelector('.switch-toggle input').checked,
-            franjas: [...fila.querySelectorAll('.franja-item')].map((franja) => {
+            fila.querySelectorAll('.franja-item').forEach((franja) => {
                 const entradas = franja.querySelectorAll('.input-time');
-                return { inicio: entradas[0].value, fin: entradas[1].value };
-            })
-        }));
-
-        const guardarPantalla = () => {
-            const todos = leer(CLAVES.horariosBase, {});
-            todos[claveProfesional()] = leerHorarioPantalla();
-            guardar(CLAVES.horariosBase, todos);
-        };
-
-        const renderizar = (horario) => {
-            filas.forEach((fila, indice) => {
-                const dia = horario?.[indice];
-                const switchDia = fila.querySelector('.switch-toggle input');
-                const contenedor = fila.querySelector('.franjas-horarias-container');
-                if (dia) switchDia.checked = dia.activo;
-                contenedor.replaceChildren();
-                const franjas = dia?.franjas || [];
-                franjas.forEach((franja, franjaIndice) => {
-                    const item = document.createElement('div');
-                    item.className = 'franja-item';
-                    const inicio = document.createElement('input');
-                    inicio.type = 'time';
-                    inicio.className = 'input-time';
-                    inicio.value = franja.inicio;
-                    const separador = document.createElement('span');
-                    separador.className = 'separador-a';
-                    separador.textContent = 'a';
-                    const fin = document.createElement('input');
-                    fin.type = 'time';
-                    fin.className = 'input-time';
-                    fin.value = franja.fin;
-                    const eliminar = document.createElement('button');
-                    eliminar.type = 'button';
-                    eliminar.className = 'btn-accion-horario btn-eliminar-franja';
-                    eliminar.title = 'Eliminar franja';
-                    eliminar.setAttribute('aria-label', `Eliminar franja de ${fila.querySelector('.nombre-dia').textContent}`);
-                    eliminar.textContent = '🗑️';
-                    item.append(inicio, separador, fin, eliminar);
-                    if (franjaIndice === franjas.length - 1) {
-                        const agregar = document.createElement('button');
-                        agregar.type = 'button';
-                        agregar.className = 'btn-accion-horario';
-                        agregar.title = 'Agregar otra franja horaria';
-                        agregar.setAttribute('aria-label', `Agregar franja para ${fila.querySelector('.nombre-dia').textContent}`);
-                        agregar.textContent = '➕';
-                        item.append(agregar);
-                    }
-                    contenedor.append(item);
-                });
-                if (!franjas.length) {
-                    const aviso = document.createElement('span');
-                    aviso.className = 'texto-sin-horarios';
-                    aviso.textContent = 'Sin horarios asignados';
-                    const agregar = document.createElement('button');
-                    agregar.type = 'button';
-                    agregar.className = 'btn-accion-horario';
-                    agregar.title = 'Agregar franja horaria';
-                    agregar.setAttribute('aria-label', `Agregar franja para ${fila.querySelector('.nombre-dia').textContent}`);
-                    agregar.textContent = '➕';
-                    contenedor.append(aviso, agregar);
+                if (entradas.length >= 2) {
+                    entradas[0].name = `dias[${dia}][inicio][]`;
+                    entradas[1].name = `dias[${dia}][fin][]`;
                 }
-                fila.classList.toggle('dia-inactivo', !switchDia.checked);
-                contenedor.hidden = !switchDia.checked;
             });
+            return true;
         };
 
-        const todosLosHorarios = leer(CLAVES.horariosBase, {});
-        const horarioInicial = leerHorarioPantalla();
-        if (!todosLosHorarios.garabal) {
-            todosLosHorarios.garabal = horarioInicial;
-            guardar(CLAVES.horariosBase, todosLosHorarios);
-        }
-        const horarioSinAsignar = filas.map((fila) => ({
-            dia: fila.querySelector('.nombre-dia').textContent.trim(),
-            activo: false,
-            franjas: []
-        }));
-        const horarioPredeterminado = () =>
-            ['garabal', 'calvo', 'wiebe'].includes(claveProfesional())
-                ? horarioInicial
-                : horarioSinAsignar;
-        renderizar(todosLosHorarios[claveProfesional()] || horarioPredeterminado());
-
-        selector.addEventListener('change', () => {
-            const guardados = leer(CLAVES.horariosBase, {});
-            renderizar(guardados[claveProfesional()] || horarioPredeterminado());
+        filas.forEach((fila) => {
+            const activo = fila.querySelector('.switch-toggle input').checked;
+            const contenedor = fila.querySelector('.franjas-horarias-container');
+            sincronizarNombresFranjas(fila);
+            fila.classList.toggle('dia-inactivo', !activo);
+            contenedor.hidden = !activo;
+            contenedor.querySelectorAll('.franja-item').forEach((franja) => {
+                if (franja.querySelector('.btn-eliminar-franja')) return;
+                const eliminar = document.createElement('button');
+                eliminar.type = 'button';
+                eliminar.className = 'btn-accion-horario btn-eliminar-franja';
+                eliminar.title = 'Eliminar franja';
+                eliminar.setAttribute(
+                    'aria-label',
+                    `Eliminar franja de ${fila.querySelector('.nombre-dia').textContent}`
+                );
+                eliminar.textContent = '🗑️';
+                franja.insertBefore(eliminar, franja.querySelector('.btn-accion-horario'));
+            });
         });
+
         tarjetaDias.addEventListener('change', (evento) => {
             if (evento.target.matches('.switch-toggle input')) {
                 const fila = evento.target.closest('.fila-horario-dia');
@@ -1897,12 +1950,15 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 }
                 return;
             }
+            const dia = fila.querySelector('.switch-toggle input').name.match(/^dias\[([^\]]+)\]\[activo\]$/)?.[1];
+            if (!dia) return;
             contenedor.querySelector('.texto-sin-horarios')?.remove();
             boton.remove();
             const item = document.createElement('div');
             item.className = 'franja-item';
             const inicio = document.createElement('input');
             inicio.type = 'time';
+            inicio.name = `dias[${dia}][inicio][]`;
             inicio.className = 'input-time';
             inicio.value = '08:00';
             const separador = document.createElement('span');
@@ -1910,6 +1966,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             separador.textContent = 'a';
             const fin = document.createElement('input');
             fin.type = 'time';
+            fin.name = `dias[${dia}][fin][]`;
             fin.className = 'input-time';
             fin.value = '12:00';
             const eliminar = document.createElement('button');
@@ -1929,18 +1986,29 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             contenedor.hidden = false;
         });
 
-        botonGuardar.addEventListener('click', () => {
-            const horario = leerHorarioPantalla();
-            for (const dia of horario) {
-                if (!dia.activo) continue;
-                const franjas = dia.franjas;
+        formulario.addEventListener('submit', (evento) => {
+            for (const fila of filas) {
+                if (!sincronizarNombresFranjas(fila)) {
+                    window.alert('No se pudieron preparar los horarios para guardar. Recargá la página e intentá nuevamente.');
+                    evento.preventDefault();
+                    return;
+                }
+                if (!fila.querySelector('.switch-toggle input').checked) continue;
+                const dia = fila.querySelector('.nombre-dia').textContent.trim();
+                const franjas = [...fila.querySelectorAll('.franja-item')].map((franja) => {
+                    const entradas = franja.querySelectorAll('.input-time');
+                    return { inicio: entradas[0].value, fin: entradas[1].value };
+                });
+
                 if (!franjas.length) {
-                    window.alert(`${dia.dia}: agregá al menos una franja o desactivá el día.`);
+                    window.alert(`${dia}: agregá al menos una franja o desactivá el día.`);
+                    evento.preventDefault();
                     return;
                 }
                 for (const franja of franjas) {
                     if (!franja.inicio || !franja.fin || franja.inicio >= franja.fin) {
-                        window.alert(`${dia.dia}: cada franja debe tener una hora de fin posterior a la de inicio.`);
+                        window.alert(`${dia}: cada franja debe tener una hora de fin posterior a la de inicio.`);
+                        evento.preventDefault();
                         return;
                     }
                 }
@@ -1948,12 +2016,11 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 if (ordenadas.some((franja, indice) =>
                     indice > 0 && franja.inicio < ordenadas[indice - 1].fin
                 )) {
-                    window.alert(`${dia.dia}: hay franjas horarias superpuestas.`);
+                    window.alert(`${dia}: hay franjas horarias superpuestas.`);
+                    evento.preventDefault();
                     return;
                 }
             }
-            guardarPantalla();
-            window.alert('Horarios base guardados con éxito.');
         });
     }
 
@@ -1994,214 +2061,186 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
 (() => {
     if (!(document.getElementById('profesional-agenda'))) return;
 
-const fechaCalendario = new Date();
-        fechaCalendario.setDate(1);
-        let fechaSeleccionada = new Date();
-const fechaGuardada = sessionStorage.getItem('pausa.secretaria.fechaAgenda');
-if (fechaGuardada) {
-    const restaurada = new Date(`${fechaGuardada}T12:00:00`);
-    if (Number.isFinite(restaurada.getTime())) fechaSeleccionada = restaurada;
-}
-fechaCalendario.setFullYear(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), 1);
+    const pagina = document.querySelector('.vista-agendas');
+    const selectorProfesional = document.getElementById('profesional-agenda');
+    const grillaDias = document.getElementById('dias-agenda');
+    const listaHorarios = document.getElementById('horarios-agenda');
+    const nombresMeses = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
+    const formatoFecha = new Intl.DateTimeFormat('es-AR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    const tokenCsrf = pagina.dataset.csrfToken;
+    const rutaProcesador = '../procesos/secretario/procesar-excepciones.php';
+    const claveFecha = 'pausa.secretaria.fechaAgenda';
+    let solicitudCarga = 0;
 
-        const profesionales = {
-            garabal: {
-                nombre: 'Lic. Garabal',
-                turnos: [
-                    { hora: '09:00', paciente: null },
-                    { hora: '10:00', paciente: { nombre: 'Enzo Murguía', dni: '44.123.456' } },
-                    { hora: '11:00', paciente: null },
-                    { hora: '12:00', paciente: { nombre: 'Julieta Romero', dni: '38.765.432' } },
-                    { hora: '14:00', paciente: null }
-                ]
-            },
-            calvo: {
-                nombre: 'Lic. Calvo',
-                turnos: [
-                    { hora: '09:00', paciente: { nombre: 'Micaela Torres', dni: '41.234.567' } },
-                    { hora: '10:00', paciente: null },
-                    { hora: '11:00', paciente: { nombre: 'Bruno Acosta', dni: '39.876.543' } },
-                    { hora: '12:00', paciente: null },
-                    { hora: '14:00', paciente: null }
-                ]
-            },
-            wiebe: {
-                nombre: 'Lic. Wiebe',
-                turnos: [
-                    { hora: '09:00', paciente: null },
-                    { hora: '10:00', paciente: { nombre: 'Sofía Benítez', dni: '42.345.678' } },
-                    { hora: '11:00', paciente: null },
-                    { hora: '12:00', paciente: { nombre: 'Tomás Fernández', dni: '40.987.654' } },
-                    { hora: '14:00', paciente: null }
-                ]
-            }
-        };
+    function fechaISO(fecha) {
+        return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+    }
 
-        const nombresMeses = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
-        const formatoFecha = new Intl.DateTimeFormat('es-AR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-        const selectorProfesional = document.getElementById('profesional-agenda');
-        const grillaDias = document.getElementById('dias-agenda');
-        const listaHorarios = document.getElementById('horarios-agenda');
+    function leerFechaGuardada() {
+        const guardada = sessionStorage.getItem(claveFecha);
+        if (!guardada || !/^\d{4}-\d{2}-\d{2}$/.test(guardada)) return new Date();
+        const [anio, mes, dia] = guardada.split('-').map(Number);
+        const fecha = new Date(anio, mes - 1, dia);
+        return fecha.getFullYear() === anio && fecha.getMonth() === mes - 1 && fecha.getDate() === dia
+            ? fecha
+            : new Date();
+    }
 
-        function renderizarHorarios() {
-            const profesionalDemo = profesionales[selectorProfesional.value];
-            const profesional = profesionalDemo || {
-                nombre: selectorProfesional.selectedOptions[0]?.textContent.trim() || 'Profesional',
-                turnos: []
-            };
-            let horariosBase = {};
-            try {
-                horariosBase = JSON.parse(localStorage.getItem('pausa.secretaria.horariosBase') || '{}');
-            } catch (error) {
-                console.error('No se pudieron leer los horarios base guardados.', error);
-            }
-            const indiceDia = (fechaSeleccionada.getDay() + 6) % 7;
-            const horarioDia = horariosBase[selectorProfesional.value]?.[indiceDia];
-            const turnosDia = profesionalDemo
-                ? [...profesionalDemo.turnos]
-                : horarioDia?.activo
-                    ? (horarioDia.franjas || []).map((franja) => ({
-                        hora: franja.inicio,
-                        fin: franja.fin,
-                        paciente: null
-                    }))
-                    : [];
-            const citas = (() => {
-                try {
-                    return JSON.parse(localStorage.getItem('pausa.secretaria.turnos') || '[]');
-                } catch (error) {
-                    console.error('No se pudieron leer los turnos guardados.', error);
-                    return [];
-                }
-            })();
-            citas.filter((turno) =>
-                turno.fecha === fechaSeleccionada.toISOString().slice(0, 10) &&
-                turno.profesionalId === selectorProfesional.value &&
-                turno.estado !== 'cancelado'
-            ).forEach((turno) => {
-                const franjaExistente = turnosDia.find((franja) => franja.hora === turno.hora);
-                if (franjaExistente) {
-                    franjaExistente.paciente = {
-                        nombre: turno.paciente,
-                        dni: turno.pacienteDni
-                    };
-                } else {
-                    turnosDia.push({
-                        hora: turno.hora,
-                        paciente: {
-                            nombre: turno.paciente,
-                            dni: turno.pacienteDni
-                        }
-                    });
-                }
+    let fechaSeleccionada = leerFechaGuardada();
+    const fechaCalendario = new Date(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), 1);
+
+    function renderizarCalendario() {
+        const nombreMes = nombresMeses.format(fechaCalendario);
+        document.getElementById('titulo-calendario-agendas').textContent =
+            `${nombreMes.charAt(0).toLocaleUpperCase('es-AR')}${nombreMes.slice(1)}`;
+        grillaDias.replaceChildren();
+
+        const primerDiaSemana = new Date(
+            fechaCalendario.getFullYear(),
+            fechaCalendario.getMonth(),
+            1
+        ).getDay();
+        const diasDelMes = new Date(
+            fechaCalendario.getFullYear(),
+            fechaCalendario.getMonth() + 1,
+            0
+        ).getDate();
+
+        for (let espacio = 0; espacio < primerDiaSemana; espacio += 1) {
+            const celdaVacia = document.createElement('span');
+            celdaVacia.setAttribute('aria-hidden', 'true');
+            grillaDias.append(celdaVacia);
+        }
+
+        for (let dia = 1; dia <= diasDelMes; dia += 1) {
+            const fechaDia = new Date(fechaCalendario.getFullYear(), fechaCalendario.getMonth(), dia);
+            const seleccionado = fechaISO(fechaDia) === fechaISO(fechaSeleccionada);
+            const botonDia = document.createElement('button');
+            botonDia.type = 'button';
+            botonDia.className = seleccionado ? 'dia-disponible dia-seleccionado' : 'dia-disponible';
+            botonDia.textContent = String(dia);
+            botonDia.setAttribute('aria-label', formatoFecha.format(fechaDia));
+            botonDia.setAttribute('aria-pressed', String(seleccionado));
+            botonDia.addEventListener('click', () => {
+                fechaSeleccionada = fechaDia;
+                sessionStorage.setItem(claveFecha, fechaISO(fechaDia));
+                renderizarCalendario();
+                cargarHorarios();
             });
-            turnosDia.sort((a, b) => a.hora.localeCompare(b.hora));
-            const fechaTexto = formatoFecha.format(fechaSeleccionada);
-            document.getElementById('fecha-agenda-seleccionada').textContent =
-                `${fechaTexto.charAt(0).toLocaleUpperCase('es-AR')}${fechaTexto.slice(1)} · ${profesional.nombre}`;
-            listaHorarios.replaceChildren();
+            grillaDias.append(botonDia);
+        }
+    }
 
-            turnosDia.forEach((turno) => {
+    function mostrarMensaje(texto, esError = false) {
+        const mensaje = document.createElement('p');
+        mensaje.className = esError ? 'mensaje-agenda-error' : 'mensaje-sin-franjas-excepcion';
+        mensaje.setAttribute(esError ? 'role' : 'aria-live', esError ? 'alert' : 'polite');
+        mensaje.textContent = texto;
+        listaHorarios.replaceChildren(mensaje);
+    }
+
+    async function cargarHorarios() {
+        const solicitudActual = ++solicitudCarga;
+        const profesionalId = selectorProfesional.value;
+        const fechaTexto = formatoFecha.format(fechaSeleccionada);
+        const tituloFecha = document.getElementById('fecha-agenda-seleccionada');
+        tituloFecha.textContent = `${fechaTexto.charAt(0).toLocaleUpperCase('es-AR')}${fechaTexto.slice(1)}`;
+
+        if (!profesionalId) {
+            mostrarMensaje('No hay profesionales disponibles para consultar.');
+            return;
+        }
+
+        listaHorarios.setAttribute('aria-busy', 'true');
+        mostrarMensaje('Cargando agenda...');
+        try {
+            const formulario = new URLSearchParams({
+                accion: 'cargar_dia',
+                profesional_id: profesionalId,
+                fecha: fechaISO(fechaSeleccionada),
+                csrf_token: tokenCsrf
+            });
+            const respuesta = await fetch(rutaProcesador, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: formulario
+            });
+            const resultado = await respuesta.json();
+            if (!respuesta.ok || !resultado.ok) {
+                throw new Error('No se pudo cargar la agenda de este día.');
+            }
+            if (solicitudActual !== solicitudCarga) return;
+
+            listaHorarios.replaceChildren();
+            resultado.data.franjas.forEach((turno) => {
                 const franja = document.createElement('div');
-                franja.className = `item-franja-estado${turno.paciente ? ' franja-ocupada' : ''}`;
+                franja.className = `item-franja-estado${turno.estado === 'ocupado' ? ' franja-ocupada' : ''}${turno.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${turno.extra ? ' franja-turno-extra' : ''}`;
 
                 const hora = document.createElement('span');
                 hora.className = 'hora-franja';
-                hora.textContent = turno.fin ? `${turno.hora} - ${turno.fin}` : turno.hora;
+                hora.textContent = `${turno.inicio} - ${turno.fin}`;
 
                 const estado = document.createElement('span');
-                estado.className = `badge-estado ${turno.paciente ? 'badge-ocupado' : 'badge-disponible'}`;
-                estado.textContent = turno.paciente ? 'Ocupado' : 'Disponible';
+                const ocupado = turno.estado === 'ocupado';
+                const bloqueado = turno.estado === 'bloqueado';
+                estado.className = `badge-estado ${ocupado ? 'badge-ocupado' : bloqueado ? 'badge-bloqueado' : 'badge-disponible'}`;
+                estado.textContent = ocupado ? 'Ocupado' : bloqueado ? 'Bloqueado' : 'Disponible';
 
                 const detalle = document.createElement('span');
                 detalle.className = 'detalle-estado';
-                if (turno.paciente) {
-                    detalle.textContent = turno.paciente.nombre;
+                detalle.textContent = turno.paciente || turno.detalle || 'Horario libre';
+                if (turno.dni) {
                     const dni = document.createElement('small');
-                    dni.textContent = `DNI: ${turno.paciente.dni}`;
+                    dni.textContent = `DNI: ${turno.dni}`;
                     detalle.append(dni);
-                } else {
-                    detalle.textContent = 'Horario libre';
                 }
-
                 franja.append(hora, estado, detalle);
                 listaHorarios.append(franja);
             });
-        }
 
-        function renderizarCalendario() {
-            const nombreMes = nombresMeses.format(fechaCalendario);
-            document.getElementById('titulo-calendario-agendas').textContent =
-                `${nombreMes.charAt(0).toLocaleUpperCase('es-AR')}${nombreMes.slice(1)}`;
-            grillaDias.replaceChildren();
-
-            const primerDiaSemana = new Date(
-                fechaCalendario.getFullYear(),
-                fechaCalendario.getMonth(),
-                1
-            ).getDay();
-            const diasDelMes = new Date(
-                fechaCalendario.getFullYear(),
-                fechaCalendario.getMonth() + 1,
-                0
-            ).getDate();
-
-            for (let espacio = 0; espacio < primerDiaSemana; espacio += 1) {
-                const celdaVacia = document.createElement('span');
-                celdaVacia.setAttribute('aria-hidden', 'true');
-                grillaDias.append(celdaVacia);
+            if (!resultado.data.franjas.length) {
+                mostrarMensaje(resultado.data.bloqueadoDia
+                    ? 'La agenda de este día está bloqueada.'
+                    : 'No hay horarios base ni turnos extra registrados para este día.');
             }
-
-            for (let dia = 1; dia <= diasDelMes; dia += 1) {
-                const botonDia = document.createElement('button');
-                const fechaDia = new Date(
-                    fechaCalendario.getFullYear(),
-                    fechaCalendario.getMonth(),
-                    dia
-                );
-                const seleccionado = fechaDia.toDateString() === fechaSeleccionada.toDateString();
-                botonDia.type = 'button';
-                botonDia.className = seleccionado ? 'dia-disponible dia-seleccionado' : 'dia-disponible';
-                botonDia.textContent = String(dia);
-                botonDia.setAttribute('aria-label', formatoFecha.format(fechaDia));
-                botonDia.setAttribute('aria-pressed', String(seleccionado));
-                botonDia.addEventListener('click', () => {
-                    fechaSeleccionada = fechaDia;
-                    sessionStorage.setItem('pausa.secretaria.fechaAgenda', fechaDia.toISOString().slice(0, 10));
-                    renderizarCalendario();
-                    renderizarHorarios();
-                });
-                grillaDias.append(botonDia);
+        } catch (error) {
+            if (solicitudActual !== solicitudCarga) return;
+            mostrarMensaje(error.message, true);
+            console.error('No se pudo cargar la agenda desde la base de datos.', error);
+        } finally {
+            if (solicitudActual === solicitudCarga) {
+                listaHorarios.setAttribute('aria-busy', 'false');
             }
         }
+    }
 
-        function cambiarMes(cambio) {
-            const diaDelMes = fechaSeleccionada.getDate();
-            fechaCalendario.setMonth(fechaCalendario.getMonth() + cambio);
-            const ultimoDiaMes = new Date(
-                fechaCalendario.getFullYear(),
-                fechaCalendario.getMonth() + 1,
-                0
-            ).getDate();
-            fechaSeleccionada = new Date(
-                fechaCalendario.getFullYear(),
-                fechaCalendario.getMonth(),
-                Math.min(diaDelMes, ultimoDiaMes)
-            );
-            sessionStorage.setItem('pausa.secretaria.fechaAgenda', fechaSeleccionada.toISOString().slice(0, 10));
-            renderizarCalendario();
-            renderizarHorarios();
-        }
-
-        document.getElementById('mes-anterior').addEventListener('click', () => cambiarMes(-1));
-        document.getElementById('mes-siguiente').addEventListener('click', () => cambiarMes(1));
-        selectorProfesional.addEventListener('change', renderizarHorarios);
-
+    function cambiarMes(cambio) {
+        const diaDelMes = fechaSeleccionada.getDate();
+        fechaCalendario.setMonth(fechaCalendario.getMonth() + cambio);
+        const ultimoDiaMes = new Date(
+            fechaCalendario.getFullYear(),
+            fechaCalendario.getMonth() + 1,
+            0
+        ).getDate();
+        fechaSeleccionada = new Date(
+            fechaCalendario.getFullYear(),
+            fechaCalendario.getMonth(),
+            Math.min(diaDelMes, ultimoDiaMes)
+        );
+        sessionStorage.setItem(claveFecha, fechaISO(fechaSeleccionada));
         renderizarCalendario();
-        renderizarHorarios();
+        cargarHorarios();
+    }
+
+    document.getElementById('mes-anterior').addEventListener('click', () => cambiarMes(-1));
+    document.getElementById('mes-siguiente').addEventListener('click', () => cambiarMes(1));
+    selectorProfesional.addEventListener('change', cargarHorarios);
+
+    renderizarCalendario();
+    cargarHorarios();
 })();

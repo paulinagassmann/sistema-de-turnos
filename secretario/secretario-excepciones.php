@@ -1,3 +1,67 @@
+<?php
+session_start();
+
+// 1. valido la sesión de secretario
+if (
+    empty($_SESSION['usuario_id'])
+    || !isset($_SESSION['rol'])
+    || $_SESSION['rol'] !== 'secretario'
+) {
+    header("Location: ../index.html?error=sesion_requerida");
+    exit();
+}
+
+require_once __DIR__ . '/../config/conexion.php';
+
+$profesionalIdRecibido = $_GET['profesional_id'] ?? null;
+$profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)
+    ? filter_var((string) $profesionalIdRecibido, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+    : null;
+$profesionalIdSeleccionado = $profesionalIdSeleccionado === false ? null : $profesionalIdSeleccionado;
+
+if (empty($_SESSION['csrf_excepciones'])) {
+    $_SESSION['csrf_excepciones'] = bin2hex(random_bytes(32));
+}
+
+$profesionales = [];
+
+try {
+    // obtengo los profesionales de la base de datos
+    $stmtProf = $conexion->prepare(
+        "SELECT p.id, u.nombre, u.apellido, p.especialidad 
+         FROM profesionales p 
+         JOIN usuarios u ON p.id = u.id AND u.rol = 'profesional' 
+         ORDER BY u.apellido ASC"
+    );
+    $stmtProf->execute();
+    $profesionales = $stmtProf->fetchAll(PDO::FETCH_ASSOC);
+
+    $profesionalEncontrado = false;
+    foreach ($profesionales as $profesional) {
+        if ((int) $profesional['id'] === (int) $profesionalIdSeleccionado) {
+            $profesionalEncontrado = true;
+            break;
+        }
+    }
+
+    if (!$profesionalEncontrado && !empty($profesionales)) {
+        $profesionalIdSeleccionado = $profesionales[0]['id'];
+    }
+} catch (Throwable $e) {
+    error_log("Error al cargar profesionales en excepciones: " . $e->getMessage());
+}
+
+$mensajesErrorExcepciones = [
+    'solicitud_invalida' => 'La solicitud venció o no es válida. Recargá la página e intentá nuevamente.',
+    'datos_invalidos' => 'Revisá la fecha y el horario e intentá nuevamente.',
+    'ocupado' => 'Ese horario tiene un turno reservado y no se puede bloquear.',
+    'superpuesto' => 'La excepción se superpone con otra ya registrada.',
+    'servidor' => 'No se pudo guardar el cambio. Intentá nuevamente.'
+];
+$codigoErrorExcepcion = is_string($_GET['error'] ?? null) ? $_GET['error'] : '';
+$mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? null;
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,9 +70,10 @@
     <meta name="description" content="Gestiona excepciones en las agendas de los profesionales.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excepciones | Pausa - Secretario</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
     <script src="../js/main.js" defer></script>
-    <script src="../js/secretario.js" defer></script>
+    <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_excepciones'], ENT_QUOTES, 'UTF-8'); ?>">
 </head>
 
 <body class="body-dashboard">
@@ -64,15 +129,24 @@
                 </div>
             </header>
 
+            <?php if (isset($_GET['exito']) && $_GET['exito'] === '1'): ?>
+                <p style="background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin: 0 0 20px 0;">El cambio de agenda se guardó correctamente.</p>
+            <?php endif; ?>
+            <?php if ($mensajeErrorExcepcion !== null): ?>
+                <p style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin: 0 0 20px 0;"><?php echo htmlspecialchars($mensajeErrorExcepcion, ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php endif; ?>
+
             <div class="contenedor-excepciones-general">
 
                 <section class="tarjeta-blanca tarjeta-filtro-excepcion">
                     <div class="grupo-input">
                         <label for="profesional" class="label-filtro">Profesional</label>
-                        <select name="profesional" id="profesional" class="input-form">
-                            <option value="garabal" selected>Lic. Garabal</option>
-                            <option value="calvo">Lic. Calvo</option>
-                            <option value="wiebe">Lic. Wiebe</option>
+                        <select name="profesional" id="profesional" class="input-form" onchange="window.location.href='secretario-excepciones.php?profesional_id=' + encodeURIComponent(this.value);">
+                            <?php foreach ($profesionales as $p): ?>
+                                <option value="<?php echo $p['id']; ?>" <?php echo $profesionalIdSeleccionado == $p['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($p['nombre'] . ' ' . $p['apellido'] ); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </section>
@@ -247,16 +321,12 @@
         <form id="formulario-turno-extra" class="modal-card modal-form-turno-extra">
             <div class="modal-icono-alerta" aria-hidden="true">+</div>
             <h2 class="modal-titulo" id="titulo-turno-extra">Agregar turno extra</h2>
-            <p class="modal-subtitulo">Definí una franja horaria adicional para <strong id="fecha-turno-extra"></strong>.</p>
+            <p class="modal-subtitulo">Definí la hora de inicio de un turno de 60 minutos para <strong id="fecha-turno-extra"></strong>.</p>
 
             <div class="campos-horario-extra">
                 <div class="campo-turno-extra">
                     <label for="hora-inicio-extra">Hora de inicio</label>
                     <input id="hora-inicio-extra" name="horaInicio" type="time" required>
-                </div>
-                <div class="campo-turno-extra">
-                    <label for="hora-fin-extra">Hora de fin</label>
-                    <input id="hora-fin-extra" name="horaFin" type="time" required>
                 </div>
             </div>
 

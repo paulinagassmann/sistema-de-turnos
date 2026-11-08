@@ -30,6 +30,7 @@ require_once __DIR__ . '/../config/turnos.php';
 $profesional = null;
 $agendas = [];
 $turnosOcupados = [];
+$excepciones = [];
 $errorAlCargarAgenda = false;
 
 try {
@@ -73,6 +74,20 @@ try {
         ':ahora' => $ahora->format('Y-m-d H:i:s')
     ]);
     $turnosOcupados = $stmtTurnos->fetchAll(PDO::FETCH_COLUMN);
+
+    $stmtExcepciones = $conexion->prepare(
+        'SELECT tipo, fecha_hora_inicio, fecha_hora_fin
+         FROM excepciones
+         WHERE profesional_id = :profesional_id
+           AND fecha_hora_inicio < :hasta
+           AND fecha_hora_fin >= :desde'
+    );
+    $stmtExcepciones->execute([
+        ':profesional_id' => $profesionalId,
+        ':desde' => $ahora->format('Y-m-d H:i:s'),
+        ':hasta' => $ahora->modify('+90 days')->format('Y-m-d H:i:s')
+    ]);
+    $excepciones = $stmtExcepciones->fetchAll(PDO::FETCH_ASSOC);
 } catch (Throwable $e) {
     error_log("Error al cargar agenda en paso 2: " . $e->getMessage());
     http_response_code(500);
@@ -85,6 +100,7 @@ if (empty($errorAlCargarAgenda)) {
 }
 
 $horariosPorDia = [];
+$duracionesPorDia = [];
 $diasSemana = [
     'lunes' => 1, 'lun' => 1, 'monday' => 1,
     'martes' => 2, 'mar' => 2, 'tuesday' => 2,
@@ -118,7 +134,9 @@ if (empty($errorAlCargarAgenda)) {
         $inicioMinutos = ((int) $inicio->format('H') * 60) + (int) $inicio->format('i');
         $finMinutos = ((int) $fin->format('H') * 60) + (int) $fin->format('i');
         for ($minuto = $inicioMinutos; $minuto + $duracion <= $finMinutos; $minuto += $duracion) {
-            $horariosPorDia[$dia][] = sprintf('%02d:%02d', intdiv($minuto, 60), $minuto % 60);
+            $horario = sprintf('%02d:%02d', intdiv($minuto, 60), $minuto % 60);
+            $horariosPorDia[$dia][] = $horario;
+            $duracionesPorDia[$dia][$horario] = $duracion;
         }
     }
 }
@@ -150,7 +168,55 @@ for ($diaOffset = 0; $diaOffset < 90; $diaOffset++) {
             continue;
         }
 
+        $inicioSlot = $claveOcupado . ':00';
+        $duracionSlot = $duracionesPorDia[$numeroDia][$horario] ?? 30;
+        $finSlot = (new DateTimeImmutable($inicioSlot, $zonaHoraria))
+            ->modify("+{$duracionSlot} minutes")
+            ->format('Y-m-d H:i:s');
+        $bloqueado = false;
+        foreach ($excepciones as $excepcion) {
+            if (
+                $excepcion['tipo'] === 'bloqueo'
+                && $excepcion['fecha_hora_inicio'] < $finSlot
+                && $excepcion['fecha_hora_fin'] > $inicioSlot
+            ) {
+                $bloqueado = true;
+                break;
+            }
+        }
+        if ($bloqueado) {
+            continue;
+        }
+
         $horariosPorFecha[$fechaFormateada][] = $horario;
+    }
+
+    foreach ($excepciones as $excepcion) {
+        if ($excepcion['tipo'] !== 'extra' || substr($excepcion['fecha_hora_inicio'], 0, 10) !== $fechaFormateada) {
+            continue;
+        }
+        $horarioExtra = substr($excepcion['fecha_hora_inicio'], 11, 5);
+        $claveExtra = $fechaFormateada . ' ' . $horarioExtra;
+        $inicioExtra = $excepcion['fecha_hora_inicio'];
+        $bloqueado = false;
+        foreach ($excepciones as $otraExcepcion) {
+            if (
+                $otraExcepcion['tipo'] === 'bloqueo'
+                && $otraExcepcion['fecha_hora_inicio'] < $excepcion['fecha_hora_fin']
+                && $otraExcepcion['fecha_hora_fin'] > $inicioExtra
+            ) {
+                $bloqueado = true;
+                break;
+            }
+        }
+        if (!$bloqueado && !isset($ocupados[$claveExtra]) && ($fechaFormateada !== $fechaHoy || $horarioExtra > $horaActual)) {
+            $horariosPorFecha[$fechaFormateada][] = $horarioExtra;
+        }
+    }
+
+    if (isset($horariosPorFecha[$fechaFormateada])) {
+        $horariosPorFecha[$fechaFormateada] = array_values(array_unique($horariosPorFecha[$fechaFormateada]));
+        sort($horariosPorFecha[$fechaFormateada]);
     }
 }
 

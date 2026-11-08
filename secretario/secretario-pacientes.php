@@ -18,11 +18,15 @@ $zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
 $ahora = new DateTimeImmutable('now', $zonaHoraria);
 $listaPacientes = [];
 $pacienteSeleccionado = null;
-$proximoTurno = null;
+$proximosTurnos = [];
 $historialTurnos = [];
 $profesionales = [];
 $errorAlCargarPacientes = false;
 $pacienteNoEncontrado = false;
+if (empty($_SESSION['csrf_secretario_cancelar_turno'])) {
+    $_SESSION['csrf_secretario_cancelar_turno'] = bin2hex(random_bytes(32));
+}
+$csrfCancelarTurno = $_SESSION['csrf_secretario_cancelar_turno'];
 
 try {
     actualizarTurnosPendientesVencidos($conexion);
@@ -71,23 +75,22 @@ try {
         }
 
         if ($pacienteSeleccionado) {
-            // 5. Buscamos el próximo turno pendiente de este paciente
+            // 5. Buscamos los próximos turnos activos de este paciente
             $stmtProx = $conexion->prepare(
-                "SELECT t.fecha_hora, t.estado, u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido
+                "SELECT t.id, t.fecha_hora, t.estado, u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido
                  FROM turnos t
                  JOIN profesionales p ON t.profesional_id = p.id
                  JOIN usuarios u_prof ON p.id = u_prof.id AND u_prof.rol = 'profesional'
                  WHERE t.paciente_id = :paciente_id
                    AND t.fecha_hora >= :ahora
                    AND t.estado IN ('pendiente', 'confirmado')
-                 ORDER BY t.fecha_hora ASC
-                 LIMIT 1"
+                 ORDER BY t.fecha_hora ASC"
             );
             $stmtProx->execute([
                 ':paciente_id' => $pacienteSeleccionadoId,
                 ':ahora' => $ahora->format('Y-m-d H:i:s')
             ]);
-            $proximoTurno = $stmtProx->fetch(PDO::FETCH_ASSOC);
+            $proximosTurnos = $stmtProx->fetchAll(PDO::FETCH_ASSOC);
 
             // 6. Buscamos el historial completo de turnos del paciente
             $stmtHist = $conexion->prepare(
@@ -108,7 +111,7 @@ try {
     $errorAlCargarPacientes = true;
     $listaPacientes = [];
     $pacienteSeleccionado = null;
-    $proximoTurno = null;
+    $proximosTurnos = [];
     $historialTurnos = [];
 }
 ?>
@@ -122,9 +125,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
     <script src="../js/main.js" defer></script>
-    <script src="../js/secretario.js?v=database-patients-20261106" defer></script>
+    <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">
@@ -179,6 +182,12 @@ try {
                     <h1>Pacientes</h1>
                 </div>
             </header>
+
+            <?php if (($_GET['turno_cancelado'] ?? null) === '1'): ?>
+                <p role="status" class="aviso-cancelacion-paciente">Turno cancelado. El horario quedó disponible para que otros pacientes lo soliciten.</p>
+            <?php elseif (in_array($_GET['error'] ?? null, ['turno_no_cancelable', 'ocupado', 'servidor'], true)): ?>
+                <p role="alert" class="error-cancelacion-paciente">No se pudo cancelar el turno. Actualizá la página e intentá nuevamente.</p>
+            <?php endif; ?>
 
             <?php if ($errorAlCargarPacientes): ?>
                 <p role="alert" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
@@ -263,14 +272,25 @@ try {
                         <!-- Botón para editar perfil del paciente seleccionado -->
                         <a href="secretario-editar-perfil-paciente.php?id=<?php echo $pacienteSeleccionado['id']; ?>" class="btn-editar-perfil">Editar perfil</a>
 
-                        <!-- Próximo turno -->
-                        <h4 class="subtitulo-detalle">Próximo turno agendado</h4>
-                        <div class="item-turno-proximo-sec">
-                            <?php if ($proximoTurno): ?>
-                                <?php 
-                                    $fechaProxFormateada = (new DateTimeImmutable($proximoTurno['fecha_hora'], $zonaHoraria))->setTimezone($zonaHoraria)->format('d M, Y - H:i');
-                                ?>
-                                <span class="texto-turno-sec"><?php echo htmlspecialchars($fechaProxFormateada, ENT_QUOTES, 'UTF-8'); ?> hs (Lic. <?php echo htmlspecialchars($proximoTurno['prof_apellido'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+                        <!-- Próximos turnos -->
+                        <h4 class="subtitulo-detalle">Próximos turnos agendados</h4>
+                        <div class="lista-turnos-proximos-sec">
+                            <?php if (!empty($proximosTurnos)): ?>
+                                <?php foreach ($proximosTurnos as $turnoProximo): ?>
+                                    <?php
+                                        $fechaProxFormateada = (new DateTimeImmutable($turnoProximo['fecha_hora'], $zonaHoraria))->setTimezone($zonaHoraria)->format('d M, Y - H:i');
+                                    ?>
+                                    <div class="item-turno-proximo-sec">
+                                        <span class="texto-turno-sec"><?php echo htmlspecialchars($fechaProxFormateada, ENT_QUOTES, 'UTF-8'); ?> hs (Lic. <?php echo htmlspecialchars($turnoProximo['prof_apellido'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+                                        <button
+                                            type="button"
+                                            class="btn-cancelar-turno-paciente"
+                                            data-turno-id="<?php echo (int) $turnoProximo['id']; ?>"
+                                            data-turno-fecha="<?php echo htmlspecialchars($fechaProxFormateada, ENT_QUOTES, 'UTF-8'); ?>"
+                                            data-profesional="<?php echo htmlspecialchars($turnoProximo['prof_apellido'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        >Cancelar turno</button>
+                                    </div>
+                                <?php endforeach; ?>
                             <?php else: ?>
                                 <span style="color: #666; font-size: 0.9rem;">El paciente no tiene turnos pendientes próximos.</span>
                             <?php endif; ?>
@@ -314,6 +334,25 @@ try {
     <footer>
         <small>&copy; 2026 Pausa. Todos los derechos reservados.</small>
     </footer>
+
+    <?php if ($pacienteSeleccionado): ?>
+        <dialog id="modalCancelarTurnoPaciente" class="modal-dialog modal-cancelacion-turno" aria-labelledby="titulo-cancelar-turno-paciente" aria-describedby="texto-cancelar-turno-paciente">
+            <form method="POST" action="../procesos/secretario/procesar-cancelar-turno-paciente.php" class="modal-card">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfCancelarTurno, ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="turno_id" id="turno-paciente-id">
+                <input type="hidden" name="paciente_id" value="<?php echo (int) $pacienteSeleccionado['id']; ?>">
+                <div class="modal-icono-alerta" aria-hidden="true">!</div>
+                <h2 class="modal-titulo" id="titulo-cancelar-turno-paciente">¿Cancelar este turno?</h2>
+                <p class="modal-subtitulo" id="texto-cancelar-turno-paciente">
+                    El turno de <strong id="fecha-cancelar-turno-paciente"></strong> se quitará de este paciente y quedará disponible para que lo soliciten otros pacientes.
+                </p>
+                <div class="modal-acciones">
+                    <button type="button" class="btn-secundario-modal" id="cerrar-modal-cancelar-turno-paciente">Volver</button>
+                    <button type="submit" class="btn-peligro-modal">Cancelar turno</button>
+                </div>
+            </form>
+        </dialog>
+    <?php endif; ?>
 
 </body>
 </html>

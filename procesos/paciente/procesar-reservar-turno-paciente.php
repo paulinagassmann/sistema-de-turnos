@@ -107,6 +107,7 @@ try {
     $numeroDiaSolicitado = (int) $inicioTurno->format('N');
     $minutoSolicitado = ((int) $inicioTurno->format('H') * 60) + (int) $inicioTurno->format('i');
     $horarioValido = false;
+    $duracionTurno = null;
 
     foreach ($agendas as $agenda) {
         $diaNombre = strtolower(trim((string) $agenda['dia_semana']));
@@ -141,7 +142,50 @@ try {
             && ($minutoSolicitado - $minutoInicioAgenda) % $duracion === 0
         ) {
             $horarioValido = true;
+            $duracionTurno = $duracion;
             break;
+        }
+    }
+
+    if (!$horarioValido) {
+        $stmtTurnoExtra = $conexion->prepare(
+            "SELECT TIMESTAMPDIFF(MINUTE, fecha_hora_inicio, fecha_hora_fin)
+             FROM excepciones
+             WHERE profesional_id = :profesional_id
+               AND tipo = 'extra'
+               AND fecha_hora_inicio = :fecha_hora_inicio
+               AND fecha_hora_fin > fecha_hora_inicio
+             LIMIT 1"
+        );
+        $stmtTurnoExtra->execute([
+            ':profesional_id' => $profesionalId,
+            ':fecha_hora_inicio' => $inicioTurno->format('Y-m-d H:i:s')
+        ]);
+        $duracionExtra = filter_var($stmtTurnoExtra->fetchColumn(), FILTER_VALIDATE_INT);
+        if ($duracionExtra !== false && $duracionExtra >= 1 && $duracionExtra <= 480) {
+            $horarioValido = true;
+            $duracionTurno = $duracionExtra;
+        }
+    }
+
+    if ($horarioValido && $duracionTurno !== null) {
+        $finTurno = $inicioTurno->modify("+{$duracionTurno} minutes");
+        $stmtBloqueoAgenda = $conexion->prepare(
+            "SELECT 1
+             FROM excepciones
+             WHERE profesional_id = :profesional_id
+               AND tipo = 'bloqueo'
+               AND fecha_hora_inicio < :fecha_hora_fin
+               AND fecha_hora_fin > :fecha_hora_inicio
+             LIMIT 1"
+        );
+        $stmtBloqueoAgenda->execute([
+            ':profesional_id' => $profesionalId,
+            ':fecha_hora_inicio' => $inicioTurno->format('Y-m-d H:i:s'),
+            ':fecha_hora_fin' => $finTurno->format('Y-m-d H:i:s')
+        ]);
+        if ($stmtBloqueoAgenda->fetchColumn()) {
+            $horarioValido = false;
         }
     }
 
@@ -153,6 +197,29 @@ try {
     }
 
     $conexion->beginTransaction();
+    $stmtBloqueoFinal = $conexion->prepare(
+        "SELECT id
+         FROM excepciones
+         WHERE profesional_id = :profesional_id
+           AND tipo = 'bloqueo'
+           AND fecha_hora_inicio < :fecha_hora_fin
+           AND fecha_hora_fin > :fecha_hora_inicio
+         LIMIT 1
+         FOR UPDATE"
+    );
+    $stmtBloqueoFinal->execute([
+        ':profesional_id' => $profesionalId,
+        ':fecha_hora_inicio' => $inicioTurno->format('Y-m-d H:i:s'),
+        ':fecha_hora_fin' => $finTurno->format('Y-m-d H:i:s')
+    ]);
+    if ($stmtBloqueoFinal->fetchColumn()) {
+        $conexion->rollBack();
+        $conexion->prepare('SELECT RELEASE_LOCK(:nombre)')->execute([':nombre' => $nombreBloqueo]);
+        $bloqueoAdquirido = false;
+        header("Location: ../../paciente/paciente2.php?profesional_id=" . $profesionalId . "&error=seleccion_invalida");
+        exit();
+    }
+
     $stmtOcupado = $conexion->prepare(
         "SELECT id
          FROM turnos

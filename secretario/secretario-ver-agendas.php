@@ -1,3 +1,58 @@
+<?php
+session_start();
+
+// 1. Validamos sesión de secretario
+if (
+    empty($_SESSION['usuario_id'])
+    || !isset($_SESSION['rol'])
+    || $_SESSION['rol'] !== 'secretario'
+) {
+    header("Location: ../index.html?error=sesion_requerida");
+    exit();
+}
+
+require_once __DIR__ . '/../config/conexion.php';
+
+$profesionales = [];
+$profesionalIdRecibido = $_GET['profesional_id'] ?? null;
+$profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)
+    ? filter_var((string) $profesionalIdRecibido, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+    : null;
+$profesionalIdSeleccionado = $profesionalIdSeleccionado === false ? null : $profesionalIdSeleccionado;
+$errorAlCargarProfesionales = false;
+
+if (empty($_SESSION['csrf_excepciones'])) {
+    $_SESSION['csrf_excepciones'] = bin2hex(random_bytes(32));
+}
+
+try {
+    // 2. Obtenemos los profesionales reales de la base de datos
+    $stmtProf = $conexion->prepare(
+        "SELECT p.id, u.nombre, u.apellido, p.especialidad 
+         FROM profesionales p 
+         JOIN usuarios u ON p.id = u.id AND u.rol = 'profesional' 
+         ORDER BY u.apellido ASC"
+    );
+    $stmtProf->execute();
+    $profesionales = $stmtProf->fetchAll(PDO::FETCH_ASSOC);
+
+    $profesionalEncontrado = false;
+    foreach ($profesionales as $profesional) {
+        if ((int) $profesional['id'] === (int) $profesionalIdSeleccionado) {
+            $profesionalEncontrado = true;
+            break;
+        }
+    }
+
+    if (!$profesionalEncontrado && !empty($profesionales)) {
+        $profesionalIdSeleccionado = (int) $profesionales[0]['id'];
+    }
+} catch (Throwable $e) {
+    error_log("Error al cargar profesionales en ver agendas: " . $e->getMessage());
+    $errorAlCargarProfesionales = true;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,9 +61,9 @@
     <meta name="description" content="Permite consultar las agendas filtrando por profesional.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver Agendas | Pausa - Secretario</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
     <script src="../js/main.js" defer></script>
-    <script src="../js/secretario.js" defer></script>
+    <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">
@@ -54,7 +109,7 @@
 
         </aside>
 
-        <main class="main-secretario vista-agendas">
+        <main class="main-secretario vista-agendas" data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_excepciones'], ENT_QUOTES, 'UTF-8'); ?>">
             <header class="header-dashboard">
                 <div class="texto-bienvenida-secretario">
                     <h1>Ver agendas</h1>
@@ -64,12 +119,21 @@
 
             <section class="tarjeta-blanca filtro-agendas" aria-label="Filtro de agendas">
                 <label for="profesional-agenda">Profesional</label>
-                <select id="profesional-agenda">
-                    <option value="garabal">Lic. Garabal</option>
-                    <option value="calvo">Lic. Calvo</option>
-                    <option value="wiebe">Lic. Wiebe</option>
+                <select id="profesional-agenda" data-source="database" <?php echo empty($profesionales) ? 'disabled' : ''; ?>>
+                    <?php foreach ($profesionales as $p): ?>
+                        <option value="<?php echo (int) $p['id']; ?>" <?php echo (int) $profesionalIdSeleccionado === (int) $p['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($p['nombre'] . ' ' . $p['apellido'], ENT_QUOTES, 'UTF-8'); ?>
+                        </option>
+                    <?php endforeach; ?>
+                    <?php if (empty($profesionales)): ?>
+                        <option value="" selected><?php echo $errorAlCargarProfesionales ? 'No se pudieron cargar los profesionales' : 'No hay profesionales registrados'; ?></option>
+                    <?php endif; ?>
                 </select>
             </section>
+
+            <?php if ($errorAlCargarProfesionales): ?>
+                <p role="alert" class="mensaje-agenda-error">No se pudieron cargar los profesionales. Recargá la página para intentarlo nuevamente.</p>
+            <?php endif; ?>
 
             <div class="grilla-consulta-agendas">
                 <section class="tarjeta-blanca panel-calendario-agendas" aria-labelledby="titulo-calendario-agendas">
@@ -100,7 +164,7 @@
                             <h2 id="fecha-agenda-seleccionada" aria-live="polite"></h2>
                         </div>
                     </div>
-                    <div class="lista-franjas-excepcion" id="horarios-agenda" aria-live="polite"></div>
+                    <div class="lista-franjas-excepcion" id="horarios-agenda" aria-live="polite" aria-busy="false"></div>
                 </section>
             </div>
         </main>
