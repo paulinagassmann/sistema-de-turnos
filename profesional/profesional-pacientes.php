@@ -14,10 +14,12 @@ if (
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../config/turnos.php';
 $profesional_id = $_SESSION['usuario_id'];
+$zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
+$ahora = new DateTimeImmutable('now', $zonaHoraria);
 
 $listaPacientes = [];
 $pacienteSeleccionado = null;
-$proximoTurnoPaciente = null;
+$proximosTurnosPaciente = [];
 $historialTurnos = [];
 $errorAlCargarPacientes = false;
 
@@ -61,22 +63,22 @@ try {
         }
 
         if ($pacienteSeleccionado) {
-            // 4. Buscamos el próximo turno pendiente de este paciente con este profesional
+            // 4. Buscamos todos los turnos pendientes que aún no comenzaron
             $stmtProx = $conexion->prepare(
-                "SELECT fecha_hora, estado 
+                "SELECT fecha_hora, estado
                  FROM turnos 
                  WHERE paciente_id = :paciente_id 
                    AND profesional_id = :profesional_id 
-                   AND fecha_hora >= NOW() 
-                   AND estado IN ('pendiente', 'confirmado')
-                 ORDER BY fecha_hora ASC 
-                 LIMIT 1"
+                   AND fecha_hora > :ahora
+                   AND estado = 'pendiente'
+                 ORDER BY fecha_hora ASC"
             );
             $stmtProx->execute([
                 ':paciente_id' => $paciente_seleccionado_id,
-                ':profesional_id' => $profesional_id
+                ':profesional_id' => $profesional_id,
+                ':ahora' => $ahora->format('Y-m-d H:i:s')
             ]);
-            $proximoTurnoPaciente = $stmtProx->fetch(PDO::FETCH_ASSOC);
+            $proximosTurnosPaciente = $stmtProx->fetchAll(PDO::FETCH_ASSOC);
 
             // 5. Buscamos el historial de turnos pasados o cancelados/completados
             $stmtHistorial = $conexion->prepare(
@@ -100,7 +102,7 @@ try {
     $errorAlCargarPacientes = true;
     $listaPacientes = [];
     $pacienteSeleccionado = null;
-    $proximoTurnoPaciente = null;
+    $proximosTurnosPaciente = [];
     $historialTurnos = [];
 }
 ?>
@@ -214,17 +216,21 @@ try {
                             <p><strong>Obra social:</strong> <?php echo htmlspecialchars($pacienteSeleccionado['obra_social'] ?? 'No especificada'); ?></p>
                         </div>
 
-                        <h3>Próximo turno</h3>
-                        <div class="item-turno-agenda">
-                            <?php if ($proximoTurnoPaciente): ?>
-                                <?php 
-                                    $tsProx = strtotime($proximoTurnoPaciente['fecha_hora']);
-                                    $fechaProxFormateada = date('d M, Y - H:i', $tsProx);
-                                ?>
-                                <strong><?php echo htmlspecialchars($fechaProxFormateada); ?> hs</strong>
-                                <span class="chip-estado estado-<?php echo htmlspecialchars($proximoTurnoPaciente['estado']); ?>">
-                                    <?php echo ucfirst(htmlspecialchars($proximoTurnoPaciente['estado'])); ?>
-                                </span>
+                        <h3>Próximos turnos</h3>
+                        <div>
+                            <?php if (!empty($proximosTurnosPaciente)): ?>
+                                <?php foreach ($proximosTurnosPaciente as $proximoTurnoPaciente): ?>
+                                    <?php
+                                        $fechaProx = new DateTimeImmutable($proximoTurnoPaciente['fecha_hora'], $zonaHoraria);
+                                        $fechaProxFormateada = $fechaProx->format('d M, Y - H:i');
+                                    ?>
+                                    <div class="item-turno-agenda" style="margin-bottom: 8px;">
+                                        <strong><?php echo htmlspecialchars($fechaProxFormateada); ?> hs</strong>
+                                        <span class="chip-estado estado-pendiente">
+                                            <?php echo ucfirst(htmlspecialchars($proximoTurnoPaciente['estado'])); ?>
+                                        </span>
+                                    </div>
+                                <?php endforeach; ?>
                             <?php else: ?>
                                 <span style="color: #666; font-size: 0.9rem;">No tiene próximos turnos pendientes.</span>
                             <?php endif; ?>

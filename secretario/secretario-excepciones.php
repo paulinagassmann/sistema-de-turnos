@@ -12,6 +12,8 @@ if (
 }
 
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/turnos.php';
+actualizarTurnosPendientesVencidos($conexion);
 
 $profesionalIdRecibido = $_GET['profesional_id'] ?? null;
 $profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)

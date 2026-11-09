@@ -35,6 +35,9 @@ if ($turnoId === false || $turnoId === null) {
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../config/turnos.php';
+$zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
+$ahora = new DateTimeImmutable('now', $zonaHoraria);
+$ahoraFormateado = $ahora->format('Y-m-d H:i:s');
 
 try {
     actualizarTurnosPendientesVencidos($conexion);
@@ -46,13 +49,14 @@ try {
          FROM turnos
          WHERE id = :turno_id
            AND paciente_id = :paciente_id
-           AND fecha_hora >= NOW()
+           AND fecha_hora > :ahora
            AND estado IN ('pendiente', 'confirmado')
          FOR UPDATE"
     );
     $stmtTurno->execute([
         ':turno_id' => $turnoId,
-        ':paciente_id' => $_SESSION['usuario_id']
+        ':paciente_id' => $_SESSION['usuario_id'],
+        ':ahora' => $ahoraFormateado
     ]);
 
     if (!$stmtTurno->fetchColumn()) {
@@ -66,12 +70,13 @@ try {
          SET estado = 'cancelado'
          WHERE id = :turno_id
            AND paciente_id = :paciente_id
-           AND fecha_hora >= NOW()
+           AND fecha_hora > :ahora
            AND estado IN ('pendiente', 'confirmado')"
     );
     $stmtCancelar->execute([
         ':turno_id' => $turnoId,
-        ':paciente_id' => $_SESSION['usuario_id']
+        ':paciente_id' => $_SESSION['usuario_id'],
+        ':ahora' => $ahoraFormateado
     ]);
 
     if ($stmtCancelar->rowCount() !== 1) {

@@ -338,6 +338,16 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
     }
 
+    function fechaDeHoy() {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        return hoy;
+    }
+
+    function esFechaPasada(fecha) {
+        return fechaISO(fecha) < fechaISO(fechaDeHoy());
+    }
+
     function fechaLegible(fecha, opciones) {
         const texto = new Intl.DateTimeFormat('es-AR', opciones).format(fecha);
         return texto.charAt(0).toLocaleUpperCase('es-AR') + texto.slice(1);
@@ -362,6 +372,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 sesion_requerida: 'Tu sesión venció. Iniciá sesión nuevamente.',
                 solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
                 datos_invalidos: 'La fecha o el horario seleccionado no es válido.',
+                fecha_pasada: 'No se pueden agregar ni modificar excepciones en días pasados.',
                 ocupado: 'Ese horario tiene un turno reservado y no se puede modificar.',
                 superpuesto: 'Ese horario se superpone con otra excepción existente.',
                 dentro_horario_base: 'El turno extra debe quedar completamente fuera del horario base.',
@@ -491,7 +502,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
     function crearFranja(datos, bloqueadoDia) {
         const franja = document.createElement('div');
-        franja.className = `item-franja-estado${datos.estado === 'ocupado' ? ' franja-ocupada' : ''}${datos.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${datos.extra ? ' franja-turno-extra' : ''}`;
+        franja.className = `item-franja-estado${datos.estado === 'ocupado' ? ' franja-ocupada' : ''}${datos.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${datos.estado === 'pasado' ? ' franja-pasada' : ''}${datos.extra ? ' franja-turno-extra' : ''}`;
         franja.dataset.inicio = datos.inicio;
         franja.dataset.fin = datos.fin;
         if (datos.excepcionId) franja.dataset.excepcionId = datos.excepcionId;
@@ -501,8 +512,8 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         hora.className = 'hora-franja';
         hora.textContent = datos.extra ? `${datos.inicio} - ${datos.fin}` : datos.inicio;
         const badge = document.createElement('span');
-        badge.className = `badge-estado ${datos.estado === 'ocupado' ? 'badge-ocupado' : datos.estado === 'bloqueado' ? 'badge-bloqueado' : 'badge-disponible'}`;
-        badge.textContent = datos.estado === 'ocupado' ? 'Ocupado' : datos.estado === 'bloqueado' ? 'Bloqueado' : 'Disponible';
+        badge.className = `badge-estado ${datos.estado === 'ocupado' ? 'badge-ocupado' : datos.estado === 'bloqueado' ? 'badge-bloqueado' : datos.estado === 'pasado' ? 'badge-pasado' : 'badge-disponible'}`;
+        badge.textContent = datos.estado === 'ocupado' ? 'Ocupado' : datos.estado === 'bloqueado' ? 'Bloqueado' : datos.estado === 'pasado' ? 'No disponible' : 'Disponible';
         const detalle = document.createElement('span');
         detalle.className = 'detalle-estado';
         if (datos.estado === 'ocupado') {
@@ -547,7 +558,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             enlace.rel = 'noopener noreferrer';
             enlace.textContent = 'Enviar WhatsApp de cancelación';
             franja.append(enlace);
-        } else if (!bloqueadoDia) {
+        } else if (!bloqueadoDia && datos.estado !== 'pasado') {
             franja.append(crearAccion(
                 datos.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear',
                 datos.estado === 'bloqueado' ? 'btn-desbloquear' : 'btn-bloquear-individual'
@@ -683,6 +694,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     });
 
     function seleccionarFecha(fecha) {
+        if (esFechaPasada(fecha)) return;
         fechaSeleccionada = fecha;
         sessionStorage.setItem(CLAVE_FECHA, fechaISO(fecha));
         tituloDia.textContent = fechaLegible(fecha, {
@@ -717,6 +729,8 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             boton.type = 'button';
             const seleccionado = id === fechaISO(fechaSeleccionada);
             boton.className = seleccionado ? 'dia-seleccionado' : 'dia-disponible';
+            boton.disabled = esFechaPasada(fecha);
+            if (boton.disabled) boton.classList.add('dia-inactivo');
             boton.textContent = String(dia);
             boton.setAttribute('aria-label', fechaLegible(fecha, {
                 day: 'numeric',
@@ -724,7 +738,9 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 year: 'numeric'
             }));
             boton.setAttribute('aria-pressed', String(seleccionado));
-            boton.addEventListener('click', () => seleccionarFecha(fecha));
+            if (!boton.disabled) {
+                boton.addEventListener('click', () => seleccionarFecha(fecha));
+            }
             grilla.append(boton);
         }
     }
@@ -733,7 +749,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         // El índice 0 es el botón de mes anterior (<) y el índice 1 es el siguiente (>)
         if (indice === 0) {
             boton.addEventListener('click', () => {
-                const hoy = new Date();
+                const hoy = fechaDeHoy();
                 // Verificamos si estamos en el mes actual del año actual para no permitir ir al pasado
                 if (anio === hoy.getFullYear() && mes <= hoy.getMonth()) {
                     return; // No hace nada si intenta ir a un mes anterior al actual
@@ -743,7 +759,14 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                     mes = 11;
                     anio -= 1;
                 }
-                seleccionarFecha(new Date(anio, mes, 1));
+                const fechaMes = new Date(anio, mes, 1);
+                if (esFechaPasada(fechaMes)) {
+                    anio = hoy.getFullYear();
+                    mes = hoy.getMonth();
+                    seleccionarFecha(hoy);
+                } else {
+                    seleccionarFecha(fechaMes);
+                }
                 cargarMes();
             });
         } else {
@@ -753,7 +776,15 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                     mes = 0;
                     anio += 1;
                 }
-                seleccionarFecha(new Date(anio, mes, 1));
+                const fechaMes = new Date(anio, mes, 1);
+                if (esFechaPasada(fechaMes)) {
+                    const hoy = fechaDeHoy();
+                    anio = hoy.getFullYear();
+                    mes = hoy.getMonth();
+                    seleccionarFecha(hoy);
+                } else {
+                    seleccionarFecha(fechaMes);
+                }
                 cargarMes();
             });
         }
@@ -770,10 +801,23 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         const restaurada = new Date(`${fechaGuardada}T12:00:00`);
         if (Number.isFinite(restaurada.getTime())) fechaInicial = restaurada;
     }
+    if (esFechaPasada(fechaInicial)) fechaInicial = fechaOriginal;
     anio = fechaInicial.getFullYear();
     mes = fechaInicial.getMonth();
     seleccionarFecha(fechaInicial);
     cargarMes();
+    window.setInterval(() => {
+        if (document.visibilityState !== 'visible') return;
+        if (esFechaPasada(fechaSeleccionada)) {
+            const hoy = fechaDeHoy();
+            anio = hoy.getFullYear();
+            mes = hoy.getMonth();
+            seleccionarFecha(hoy);
+            cargarMes();
+            return;
+        }
+        cargarDia();
+    }, 60000);
 })();
 
 (() => {
@@ -1471,7 +1515,27 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     function inicializarTurnosDelDia() {
         const lista = document.querySelector('.lista-turnos-operativa');
         if (!lista) return;
-        if (lista.dataset.source === 'database') return;
+        if (lista.dataset.source === 'database') {
+            const tokenCsrf = lista.dataset.csrfToken;
+            window.setInterval(async () => {
+                if (document.visibilityState !== 'visible') return;
+                try {
+                    const respuesta = await fetch('../procesos/secretario/actualizar-turnos-vencidos.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                        body: new URLSearchParams({ csrf_token: tokenCsrf })
+                    });
+                    const resultado = await respuesta.json();
+                    if (!respuesta.ok || !resultado.ok) {
+                        throw new Error('No se pudieron actualizar los turnos vencidos.');
+                    }
+                    if (resultado.actualizados > 0) window.location.reload();
+                } catch (error) {
+                    console.error('No se pudieron actualizar los turnos vencidos.', error);
+                }
+            }, 60000);
+            return;
+        }
 
         const turnosOriginales = [...lista.querySelectorAll('.item-turno-operativo')];
         const selectProfesional = document.querySelector('.select-profesional-top');
@@ -2076,6 +2140,8 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
     const rutaProcesador = '../procesos/secretario/procesar-excepciones.php';
     const claveFecha = 'pausa.secretaria.fechaAgenda';
     let solicitudCarga = 0;
+    let solicitudCargaMes = 0;
+    let diasConTurnos = new Set();
 
     function fechaISO(fecha) {
         return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
@@ -2119,10 +2185,12 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
 
         for (let dia = 1; dia <= diasDelMes; dia += 1) {
             const fechaDia = new Date(fechaCalendario.getFullYear(), fechaCalendario.getMonth(), dia);
-            const seleccionado = fechaISO(fechaDia) === fechaISO(fechaSeleccionada);
+            const fechaDiaISO = fechaISO(fechaDia);
+            const seleccionado = fechaDiaISO === fechaISO(fechaSeleccionada);
             const botonDia = document.createElement('button');
             botonDia.type = 'button';
-            botonDia.className = seleccionado ? 'dia-disponible dia-seleccionado' : 'dia-disponible';
+            botonDia.classList.toggle('dia-disponible', diasConTurnos.has(fechaDiaISO));
+            botonDia.classList.toggle('dia-seleccionado', seleccionado);
             botonDia.textContent = String(dia);
             botonDia.setAttribute('aria-label', formatoFecha.format(fechaDia));
             botonDia.setAttribute('aria-pressed', String(seleccionado));
@@ -2134,6 +2202,42 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
             });
             grillaDias.append(botonDia);
         }
+    }
+
+    async function cargarDiasConTurnos() {
+        const solicitudActual = ++solicitudCargaMes;
+        const profesionalId = selectorProfesional.value;
+        diasConTurnos = new Set();
+        renderizarCalendario();
+        if (!profesionalId) return;
+
+        const mes = `${fechaCalendario.getFullYear()}-${String(fechaCalendario.getMonth() + 1).padStart(2, '0')}`;
+        const formulario = new URLSearchParams({
+            accion: 'cargar_mes',
+            profesional_id: profesionalId,
+            mes,
+            csrf_token: tokenCsrf
+        });
+
+        try {
+            const respuesta = await fetch(rutaProcesador, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: formulario
+            });
+            const resultado = await respuesta.json();
+            if (!respuesta.ok || !resultado.ok) {
+                throw new Error('No se pudieron cargar los días con turnos.');
+            }
+            if (solicitudActual !== solicitudCargaMes) return;
+
+            diasConTurnos = new Set(resultado.data.dias);
+        } catch (error) {
+            if (solicitudActual !== solicitudCargaMes) return;
+            console.error('No se pudieron cargar los días con turnos desde la base de datos.', error);
+        }
+
+        renderizarCalendario();
     }
 
     function mostrarMensaje(texto, esError = false) {
@@ -2179,7 +2283,7 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
             listaHorarios.replaceChildren();
             resultado.data.franjas.forEach((turno) => {
                 const franja = document.createElement('div');
-                franja.className = `item-franja-estado${turno.estado === 'ocupado' ? ' franja-ocupada' : ''}${turno.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${turno.extra ? ' franja-turno-extra' : ''}`;
+                franja.className = `item-franja-estado${turno.estado === 'ocupado' ? ' franja-ocupada' : ''}${turno.estado === 'bloqueado' ? ' franja-bloqueada' : ''}${turno.estado === 'pasado' ? ' franja-pasada' : ''}${turno.extra ? ' franja-turno-extra' : ''}`;
 
                 const hora = document.createElement('span');
                 hora.className = 'hora-franja';
@@ -2188,8 +2292,9 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
                 const estado = document.createElement('span');
                 const ocupado = turno.estado === 'ocupado';
                 const bloqueado = turno.estado === 'bloqueado';
-                estado.className = `badge-estado ${ocupado ? 'badge-ocupado' : bloqueado ? 'badge-bloqueado' : 'badge-disponible'}`;
-                estado.textContent = ocupado ? 'Ocupado' : bloqueado ? 'Bloqueado' : 'Disponible';
+                const pasado = turno.estado === 'pasado';
+                estado.className = `badge-estado ${ocupado ? 'badge-ocupado' : bloqueado ? 'badge-bloqueado' : pasado ? 'badge-pasado' : 'badge-disponible'}`;
+                estado.textContent = ocupado ? 'Ocupado' : bloqueado ? 'Bloqueado' : pasado ? 'No disponible' : 'Disponible';
 
                 const detalle = document.createElement('span');
                 detalle.className = 'detalle-estado';
@@ -2234,13 +2339,21 @@ const modalCancelarTurno = document.getElementById('modalCancelarTurno');
         );
         sessionStorage.setItem(claveFecha, fechaISO(fechaSeleccionada));
         renderizarCalendario();
+        cargarDiasConTurnos();
         cargarHorarios();
     }
 
     document.getElementById('mes-anterior').addEventListener('click', () => cambiarMes(-1));
     document.getElementById('mes-siguiente').addEventListener('click', () => cambiarMes(1));
-    selectorProfesional.addEventListener('change', cargarHorarios);
+    selectorProfesional.addEventListener('change', () => {
+        cargarDiasConTurnos();
+        cargarHorarios();
+    });
 
     renderizarCalendario();
+    cargarDiasConTurnos();
     cargarHorarios();
+    window.setInterval(() => {
+        if (document.visibilityState === 'visible') cargarHorarios();
+    }, 60000);
 })();

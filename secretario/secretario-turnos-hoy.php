@@ -282,7 +282,7 @@ try {
                         </div>
                     </div>
 
-                    <div class="lista-turnos-operativa" data-source="database">
+                    <div class="lista-turnos-operativa" data-source="database" data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_estado_turno'], ENT_QUOTES, 'UTF-8'); ?>">
                         <?php if (!empty($turnosHoy)): ?>
                             <?php foreach ($turnosHoy as $t): ?>
                                 <?php 

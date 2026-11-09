@@ -3414,6 +3414,12 @@ body > footer {
     outline-offset: 2px;
 }
 
+.panel-calendario-excepcion .grilla-dias button.dia-inactivo,
+.panel-calendario-excepcion .grilla-dias button.dia-inactivo:hover {
+    color: #cbd5e1 !important;
+    cursor: not-allowed !important;
+}
+
 .panel-calendario-excepcion .btn-nav-mes:focus-visible,
 .panel-calendario-excepcion .grilla-dias button:focus-visible,
 .btn-bloquear-dia-completo:focus-visible,
@@ -3550,6 +3556,11 @@ body > footer {
     color: #92400e;
 }
 
+.badge-pasado {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
 .detalle-estado {
     min-width: 0;
     color: #475569;
@@ -3572,6 +3583,11 @@ body > footer {
 .franja-bloqueada {
     border-color: #fde68a;
     background: #fffcf2;
+}
+
+.franja-pasada {
+    border-color: #e2e8f0;
+    background: #f8fafc;
 }
 
 .btn-accion-linea {
@@ -4092,6 +4108,12 @@ body > footer {
 .panel-calendario-agendas .dia-seleccionado {
     outline: 3px solid rgba(0, 82, 204, 0.16);
     outline-offset: 2px;
+}
+
+.panel-calendario-agendas .dia-seleccionado,
+.panel-calendario-agendas .dia-seleccionado:hover {
+    background-color: #0052cc !important;
+    color: #ffffff !important;
 }
 
 .panel-horarios-agendas .cabecera-horarios-dia {

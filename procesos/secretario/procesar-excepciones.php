@@ -28,6 +28,8 @@ if (
 }
 
 require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../config/turnos.php';
+actualizarTurnosPendientesVencidos($conexion);
 
 $profesionalIdRecibido = $_POST['profesional_id'] ?? null;
 $profesionalId = is_scalar($profesionalIdRecibido)
@@ -52,6 +54,21 @@ if (
     $responder(400, ['ok' => false, 'error' => 'datos_invalidos']);
 }
 
+$accionesConFechaFutura = [
+    'bloquear_franja',
+    'bloquear_dia',
+    'crear_extra',
+    'desbloquear_franja',
+    'desbloquear_dia',
+    'cancelar_turno'
+];
+if (
+    in_array($accion, $accionesConFechaFutura, true)
+    && $fechaValida < new DateTimeImmutable('today', $zonaHoraria)
+) {
+    $responder(400, ['ok' => false, 'error' => 'fecha_pasada']);
+}
+
 $bloqueoTurnoAdquirido = false;
 $nombreBloqueoTurno = null;
 
@@ -69,28 +86,6 @@ try {
 
     $inicioDia = $fecha . ' 00:00:00';
     $finDia = $fecha . ' 23:59:59';
-    if ($accion === 'cargar_mes') {
-        $inicioMes = $fecha . ' 00:00:00';
-        $finMes = $fechaValida->modify('+1 month')->format('Y-m-d') . ' 00:00:00';
-        $stmtDiasConTurnos = $conexion->prepare(
-            "SELECT DISTINCT DATE_FORMAT(fecha_hora, '%Y-%m-%d') AS fecha
-             FROM turnos
-             WHERE profesional_id = :profesional_id
-               AND fecha_hora >= :inicio
-               AND fecha_hora < :fin
-               AND fecha_hora >= :ahora
-               AND estado IN ('pendiente', 'confirmado')
-             ORDER BY fecha"
-        );
-        $stmtDiasConTurnos->execute([
-            ':profesional_id' => $profesionalId,
-            ':inicio' => $inicioMes,
-            ':fin' => $finMes,
-            ':ahora' => (new DateTimeImmutable('now', $zonaHoraria))->format('Y-m-d H:i:s')
-        ]);
-        $responder(200, ['ok' => true, 'data' => ['dias' => $stmtDiasConTurnos->fetchAll(PDO::FETCH_COLUMN)]]);
-    }
-
     $diasSemana = [
         'lunes' => 1, 'lun' => 1, 'monday' => 1,
         'martes' => 2, 'mar' => 2, 'tuesday' => 2,
@@ -110,6 +105,152 @@ try {
             ? (int) $dia
             : null;
     };
+
+    if ($accion === 'cargar_mes') {
+        $inicioMes = $fecha . ' 00:00:00';
+        $finMes = $fechaValida->modify('+1 month')->format('Y-m-d') . ' 00:00:00';
+
+        $stmtAgendas = $conexion->prepare(
+            'SELECT dia_semana, hora_inicio, hora_fin, duracion_turno
+             FROM agendas
+             WHERE profesional_id = :profesional_id'
+        );
+        $stmtAgendas->execute([':profesional_id' => $profesionalId]);
+        $agendas = $stmtAgendas->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmtTurnos = $conexion->prepare(
+            "SELECT DATE_FORMAT(fecha_hora, '%Y-%m-%d') AS fecha,
+                    TIME_FORMAT(fecha_hora, '%H:%i') AS hora
+             FROM turnos
+             WHERE profesional_id = :profesional_id
+               AND fecha_hora >= :inicio
+               AND fecha_hora < :fin
+               AND estado IN ('pendiente', 'confirmado')"
+        );
+        $stmtTurnos->execute([
+            ':profesional_id' => $profesionalId,
+            ':inicio' => $inicioMes,
+            ':fin' => $finMes
+        ]);
+        $turnosPorFecha = [];
+        foreach ($stmtTurnos->fetchAll(PDO::FETCH_ASSOC) as $turno) {
+            $turnosPorFecha[$turno['fecha']][$turno['hora']] = true;
+        }
+
+        $stmtExcepciones = $conexion->prepare(
+            'SELECT tipo, fecha_hora_inicio, fecha_hora_fin
+             FROM excepciones
+             WHERE profesional_id = :profesional_id
+               AND fecha_hora_inicio < :fin_mes
+               AND fecha_hora_fin >= :inicio_mes'
+        );
+        $stmtExcepciones->execute([
+            ':profesional_id' => $profesionalId,
+            ':inicio_mes' => $inicioMes,
+            ':fin_mes' => $finMes
+        ]);
+        $excepciones = $stmtExcepciones->fetchAll(PDO::FETCH_ASSOC);
+
+        $ahora = new DateTimeImmutable('now', $zonaHoraria);
+        $diasConTurnos = [];
+        $primerDiaMes = new DateTimeImmutable($inicioMes, $zonaHoraria);
+        $cantidadDias = (int) $primerDiaMes->format('t');
+        for ($numeroDiaMes = 1; $numeroDiaMes <= $cantidadDias; $numeroDiaMes++) {
+            $fechaDia = $primerDiaMes->setDate(
+                (int) $primerDiaMes->format('Y'),
+                (int) $primerDiaMes->format('n'),
+                $numeroDiaMes
+            );
+            $fechaTexto = $fechaDia->format('Y-m-d');
+            $numeroDiaSemana = (int) $fechaDia->format('N');
+            $excepcionesDia = array_values(array_filter(
+                $excepciones,
+                static fn(array $excepcion): bool =>
+                    substr($excepcion['fecha_hora_inicio'], 0, 10) <= $fechaTexto
+                    && substr($excepcion['fecha_hora_fin'], 0, 10) >= $fechaTexto
+            ));
+            $turnosDia = $turnosPorFecha[$fechaTexto] ?? [];
+            $hayTurnoDisponibleOTomado = !empty($turnosDia);
+
+            foreach ($agendas as $agenda) {
+                if ($hayTurnoDisponibleOTomado) {
+                    break;
+                }
+                if ($normalizarDia($agenda['dia_semana']) !== $numeroDiaSemana) {
+                    continue;
+                }
+
+                $inicio = DateTimeImmutable::createFromFormat('!H:i:s', (string) $agenda['hora_inicio'], $zonaHoraria)
+                    ?: DateTimeImmutable::createFromFormat('!H:i', (string) $agenda['hora_inicio'], $zonaHoraria);
+                $fin = DateTimeImmutable::createFromFormat('!H:i:s', (string) $agenda['hora_fin'], $zonaHoraria)
+                    ?: DateTimeImmutable::createFromFormat('!H:i', (string) $agenda['hora_fin'], $zonaHoraria);
+                $duracion = filter_var($agenda['duracion_turno'], FILTER_VALIDATE_INT);
+                if (!$inicio || !$fin || $duracion === false || $duracion < 1 || $duracion > 480) {
+                    continue;
+                }
+
+                $minutoInicio = ((int) $inicio->format('H') * 60) + (int) $inicio->format('i');
+                $minutoFin = ((int) $fin->format('H') * 60) + (int) $fin->format('i');
+                for ($minuto = $minutoInicio; $minuto + $duracion <= $minutoFin; $minuto += $duracion) {
+                    $horaInicio = sprintf('%02d:%02d', intdiv($minuto, 60), $minuto % 60);
+                    $inicioFranja = new DateTimeImmutable($fechaTexto . ' ' . $horaInicio . ':00', $zonaHoraria);
+                    $finFranja = $inicioFranja->modify('+' . $duracion . ' minutes');
+                    $bloqueada = false;
+
+                    foreach ($excepcionesDia as $excepcion) {
+                        if (
+                            $excepcion['tipo'] === 'bloqueo'
+                            && $inicioFranja < new DateTimeImmutable($excepcion['fecha_hora_fin'], $zonaHoraria)
+                            && $finFranja > new DateTimeImmutable($excepcion['fecha_hora_inicio'], $zonaHoraria)
+                        ) {
+                            $bloqueada = true;
+                            break;
+                        }
+                    }
+
+                    if (isset($turnosDia[$horaInicio]) || (!$bloqueada && $inicioFranja > $ahora)) {
+                        $hayTurnoDisponibleOTomado = true;
+                        break 2;
+                    }
+                }
+            }
+
+            if (!$hayTurnoDisponibleOTomado) {
+                foreach ($excepcionesDia as $excepcion) {
+                    if ($excepcion['tipo'] !== 'extra') {
+                        continue;
+                    }
+
+                    $horaInicio = substr($excepcion['fecha_hora_inicio'], 11, 5);
+                    $inicioExtra = new DateTimeImmutable($excepcion['fecha_hora_inicio'], $zonaHoraria);
+                    $finExtra = new DateTimeImmutable($excepcion['fecha_hora_fin'], $zonaHoraria);
+                    $bloqueada = false;
+
+                    foreach ($excepcionesDia as $otraExcepcion) {
+                        if (
+                            $otraExcepcion['tipo'] === 'bloqueo'
+                            && $inicioExtra < new DateTimeImmutable($otraExcepcion['fecha_hora_fin'], $zonaHoraria)
+                            && $finExtra > new DateTimeImmutable($otraExcepcion['fecha_hora_inicio'], $zonaHoraria)
+                        ) {
+                            $bloqueada = true;
+                            break;
+                        }
+                    }
+
+                    if (!$bloqueada && (isset($turnosDia[$horaInicio]) || $inicioExtra > $ahora)) {
+                        $hayTurnoDisponibleOTomado = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($hayTurnoDisponibleOTomado) {
+                $diasConTurnos[] = $fechaTexto;
+            }
+        }
+
+        $responder(200, ['ok' => true, 'data' => ['dias' => $diasConTurnos]]);
+    }
 
     if ($accion === 'cargar_dia') {
         $stmtAgendas = $conexion->prepare(
@@ -192,6 +333,7 @@ try {
         ]);
         $excepciones = $stmtExcepciones->fetchAll(PDO::FETCH_ASSOC);
         $bloqueadoDia = false;
+        $ahora = new DateTimeImmutable('now', $zonaHoraria);
 
         foreach ($franjas as &$franja) {
             $inicioFranja = new DateTimeImmutable($fecha . ' ' . $franja['inicio'] . ':00', $zonaHoraria);
@@ -215,6 +357,9 @@ try {
                 $franja['dni'] = (string) $turno['dni'];
                 $franja['telefono'] = (string) $turno['telefono'];
                 $franja['detalle'] = $franja['paciente'];
+            } elseif ($franja['estado'] !== 'bloqueado' && $inicioFranja <= $ahora) {
+                $franja['estado'] = 'pasado';
+                $franja['detalle'] = 'Horario no disponible';
             }
         }
         unset($franja);
@@ -234,7 +379,7 @@ try {
             $horaFin = substr($excepcion['fecha_hora_fin'], 11, 5);
             $inicioExtra = new DateTimeImmutable($excepcion['fecha_hora_inicio'], $zonaHoraria);
             $finExtra = new DateTimeImmutable($excepcion['fecha_hora_fin'], $zonaHoraria);
-            $solapado = false;
+            $bloqueoExtra = null;
             foreach ($excepciones as $otraExcepcion) {
                 if ($otraExcepcion['tipo'] !== 'bloqueo') {
                     continue;
@@ -242,28 +387,84 @@ try {
                 $inicioBloqueo = new DateTimeImmutable($otraExcepcion['fecha_hora_inicio'], $zonaHoraria);
                 $finBloqueo = new DateTimeImmutable($otraExcepcion['fecha_hora_fin'], $zonaHoraria);
                 if ($inicioExtra < $finBloqueo && $finExtra > $inicioBloqueo) {
-                    $solapado = true;
+                    $bloqueoExtra = $otraExcepcion;
                     break;
                 }
             }
-            if ($solapado) {
-                continue;
-            }
 
             $turno = $turnosPorHora[$horaInicio] ?? null;
+            $estadoExtra = $bloqueoExtra
+                ? 'bloqueado'
+                : ($turno ? 'ocupado' : ($inicioExtra <= $ahora ? 'pasado' : 'disponible'));
             $franjas[] = [
                 'inicio' => $horaInicio,
                 'fin' => $horaFin,
-                'estado' => $turno ? 'ocupado' : 'disponible',
-                'detalle' => $turno
-                    ? trim($turno['nombre'] . ' ' . $turno['apellido'])
-                    : ($excepcion['motivo'] ?: 'Turno agregado fuera del horario base'),
+                'estado' => $estadoExtra,
+                'detalle' => $bloqueoExtra
+                    ? ($bloqueoExtra['motivo'] ?: 'Por excepción manual')
+                    : ($turno
+                        ? trim($turno['nombre'] . ' ' . $turno['apellido'])
+                        : ($estadoExtra === 'pasado'
+                            ? 'Horario no disponible'
+                            : ($excepcion['motivo'] ?: 'Turno agregado fuera del horario base'))),
                 'extra' => true,
-                'excepcionId' => (int) $excepcion['id'],
+                'excepcionId' => (int) ($bloqueoExtra['id'] ?? $excepcion['id']),
                 'turnoId' => $turno ? (int) $turno['id'] : null,
                 'paciente' => $turno ? trim($turno['nombre'] . ' ' . $turno['apellido']) : '',
                 'dni' => $turno ? (string) $turno['dni'] : '',
                 'telefono' => $turno ? (string) $turno['telefono'] : ''
+            ];
+        }
+
+        foreach ($excepciones as $excepcion) {
+            if (
+                $excepcion['tipo'] !== 'bloqueo'
+                || $excepcion['motivo'] !== 'Turno cancelado y bloqueado por secretaría'
+            ) {
+                continue;
+            }
+
+            $extraConservado = false;
+            foreach ($excepciones as $otraExcepcion) {
+                if (
+                    $otraExcepcion['tipo'] === 'extra'
+                    && $otraExcepcion['fecha_hora_inicio'] === $excepcion['fecha_hora_inicio']
+                    && $otraExcepcion['fecha_hora_fin'] === $excepcion['fecha_hora_fin']
+                ) {
+                    $extraConservado = true;
+                    break;
+                }
+            }
+            if ($extraConservado) {
+                continue;
+            }
+
+            $franjaBaseExistente = false;
+            foreach ($franjas as $franjaExistente) {
+                if (
+                    $franjaExistente['inicio'] === substr($excepcion['fecha_hora_inicio'], 11, 5)
+                    && $franjaExistente['fin'] === substr($excepcion['fecha_hora_fin'], 11, 5)
+                    && empty($franjaExistente['extra'])
+                ) {
+                    $franjaBaseExistente = true;
+                    break;
+                }
+            }
+            if ($franjaBaseExistente) {
+                continue;
+            }
+
+            $franjas[] = [
+                'inicio' => substr($excepcion['fecha_hora_inicio'], 11, 5),
+                'fin' => substr($excepcion['fecha_hora_fin'], 11, 5),
+                'estado' => 'bloqueado',
+                'detalle' => $excepcion['motivo'],
+                'extra' => true,
+                'excepcionId' => (int) $excepcion['id'],
+                'turnoId' => null,
+                'paciente' => '',
+                'dni' => '',
+                'telefono' => ''
             ];
         }
 
@@ -321,6 +522,95 @@ try {
         if (!$excepcionId) {
             $responder(400, ['ok' => false, 'error' => 'datos_invalidos']);
         }
+        $stmtExcepcion = $conexion->prepare(
+            'SELECT tipo, motivo, fecha_hora_inicio, fecha_hora_fin
+             FROM excepciones
+             WHERE id = :id
+               AND profesional_id = :profesional_id
+               AND fecha_hora_inicio >= :inicio_dia
+               AND fecha_hora_fin <= :fin_dia'
+        );
+        $stmtExcepcion->execute([
+            ':id' => $excepcionId,
+            ':profesional_id' => $profesionalId,
+            ':inicio_dia' => $inicioDia,
+            ':fin_dia' => $finDia
+        ]);
+        $excepcion = $stmtExcepcion->fetch(PDO::FETCH_ASSOC);
+        if (!$excepcion || $excepcion['tipo'] !== 'bloqueo') {
+            $responder(404, ['ok' => false, 'error' => 'excepcion_no_encontrada']);
+        }
+
+        if ($excepcion['motivo'] === 'Turno cancelado y bloqueado por secretaría') {
+            $stmtExtra = $conexion->prepare(
+                "SELECT 1
+                 FROM excepciones
+                 WHERE profesional_id = :profesional_id
+                   AND tipo = 'extra'
+                   AND fecha_hora_inicio = :fecha_hora_inicio
+                   AND fecha_hora_fin = :fecha_hora_fin
+                 LIMIT 1"
+            );
+            $stmtExtra->execute([
+                ':profesional_id' => $profesionalId,
+                ':fecha_hora_inicio' => $excepcion['fecha_hora_inicio'],
+                ':fecha_hora_fin' => $excepcion['fecha_hora_fin']
+            ]);
+            $extraConservado = (bool) $stmtExtra->fetchColumn();
+            $esFranjaBase = false;
+            if (!$extraConservado) {
+                $inicioBloqueo = new DateTimeImmutable($excepcion['fecha_hora_inicio'], $zonaHoraria);
+                $minutoInicioBloqueo = ((int) $inicioBloqueo->format('H') * 60) + (int) $inicioBloqueo->format('i');
+                $duracionBloqueoSegundos =
+                    (new DateTimeImmutable($excepcion['fecha_hora_fin'], $zonaHoraria))->getTimestamp()
+                    - $inicioBloqueo->getTimestamp()
+                ;
+                $stmtAgendas = $conexion->prepare(
+                    'SELECT dia_semana, hora_inicio, hora_fin, duracion_turno
+                     FROM agendas
+                     WHERE profesional_id = :profesional_id'
+                );
+                $stmtAgendas->execute([':profesional_id' => $profesionalId]);
+                foreach ($stmtAgendas->fetchAll(PDO::FETCH_ASSOC) as $agenda) {
+                    if ($normalizarDia($agenda['dia_semana']) !== (int) $inicioBloqueo->format('N')) {
+                        continue;
+                    }
+                    $inicioAgenda = DateTimeImmutable::createFromFormat('!H:i:s', (string) $agenda['hora_inicio'], $zonaHoraria)
+                        ?: DateTimeImmutable::createFromFormat('!H:i', (string) $agenda['hora_inicio'], $zonaHoraria);
+                    $finAgenda = DateTimeImmutable::createFromFormat('!H:i:s', (string) $agenda['hora_fin'], $zonaHoraria)
+                        ?: DateTimeImmutable::createFromFormat('!H:i', (string) $agenda['hora_fin'], $zonaHoraria);
+                    $duracionAgenda = filter_var($agenda['duracion_turno'], FILTER_VALIDATE_INT);
+                    if (!$inicioAgenda || !$finAgenda || $duracionAgenda === false || $duracionAgenda < 1) {
+                        continue;
+                    }
+                    $minutoInicioAgenda = ((int) $inicioAgenda->format('H') * 60) + (int) $inicioAgenda->format('i');
+                    $minutoFinAgenda = ((int) $finAgenda->format('H') * 60) + (int) $finAgenda->format('i');
+                    if (
+                        $minutoInicioBloqueo >= $minutoInicioAgenda
+                        && $minutoInicioBloqueo + intdiv($duracionBloqueoSegundos, 60) <= $minutoFinAgenda
+                        && $minutoInicioBloqueo - $minutoInicioAgenda >= 0
+                        && ($minutoInicioBloqueo - $minutoInicioAgenda) % $duracionAgenda === 0
+                        && $duracionBloqueoSegundos === $duracionAgenda * 60
+                    ) {
+                        $esFranjaBase = true;
+                        break;
+                    }
+                }
+            }
+            if (!$extraConservado && !$esFranjaBase) {
+                $stmtRestaurarExtra = $conexion->prepare(
+                    "UPDATE excepciones
+                     SET tipo = 'extra', motivo = 'Turno agregado fuera del horario base'
+                     WHERE id = :id AND profesional_id = :profesional_id AND tipo = 'bloqueo'"
+                );
+                $stmtRestaurarExtra->execute([
+                    ':id' => $excepcionId,
+                    ':profesional_id' => $profesionalId
+                ]);
+                $responder(200, ['ok' => true]);
+            }
+        }
+
         $stmtEliminar = $conexion->prepare(
             "DELETE FROM excepciones
              WHERE id = :id
@@ -440,15 +730,35 @@ try {
 
         if ($turnoExtra) {
             $finBloqueo = (string) $turnoExtra['fecha_hora_fin'];
-            $stmtBloquearExtra = $conexion->prepare(
-                "UPDATE excepciones
-                 SET tipo = 'bloqueo', motivo = 'Turno cancelado y bloqueado por secretaría'
-                 WHERE id = :id AND profesional_id = :profesional_id AND tipo = 'extra'"
+            $stmtBloqueoExtraExistente = $conexion->prepare(
+                "SELECT id
+                 FROM excepciones
+                 WHERE profesional_id = :profesional_id
+                   AND tipo = 'bloqueo'
+                   AND fecha_hora_inicio = :fecha_hora_inicio
+                   AND fecha_hora_fin = :fecha_hora_fin
+                 LIMIT 1
+                 FOR UPDATE"
             );
-            $stmtBloquearExtra->execute([
-                ':id' => $turnoExtra['id'],
-                ':profesional_id' => $profesionalId
+            $stmtBloqueoExtraExistente->execute([
+                ':profesional_id' => $profesionalId,
+                ':fecha_hora_inicio' => $inicioBloqueo,
+                ':fecha_hora_fin' => $finBloqueo
             ]);
+            if (!$stmtBloqueoExtraExistente->fetchColumn()) {
+                $stmtBloquearExtra = $conexion->prepare(
+                    "INSERT INTO excepciones
+                        (profesional_id, tipo, fecha_hora_inicio, fecha_hora_fin, motivo)
+                     VALUES
+                        (:profesional_id, 'bloqueo', :fecha_hora_inicio, :fecha_hora_fin,
+                         'Turno cancelado y bloqueado por secretaría')"
+                );
+                $stmtBloquearExtra->execute([
+                    ':profesional_id' => $profesionalId,
+                    ':fecha_hora_inicio' => $inicioBloqueo,
+                    ':fecha_hora_fin' => $finBloqueo
+                ]);
+            }
         } else {
             $numeroDiaTurno = (int) $inicioTurno->format('N');
             $minutoTurno = ((int) $inicioTurno->format('H') * 60) + (int) $inicioTurno->format('i');
@@ -717,16 +1027,18 @@ try {
 
     if ($extraABloquear !== null) {
         $stmtBloquearExtra = $conexion->prepare(
-            "UPDATE excepciones
-             SET tipo = 'bloqueo', motivo = :motivo
-             WHERE id = :id AND profesional_id = :profesional_id AND tipo = 'extra'"
+            "INSERT INTO excepciones
+                (profesional_id, tipo, fecha_hora_inicio, fecha_hora_fin, motivo)
+             VALUES
+                (:profesional_id, 'bloqueo', :fecha_hora_inicio, :fecha_hora_fin, :motivo)"
         );
         $stmtBloquearExtra->execute([
-            ':id' => $extraABloquear,
             ':profesional_id' => $profesionalId,
+            ':fecha_hora_inicio' => $inicioFechaHora,
+            ':fecha_hora_fin' => $finFechaHora,
             ':motivo' => $motivo
         ]);
-        $excepcionId = (int) $extraABloquear;
+        $excepcionId = (int) $conexion->lastInsertId();
     } else {
         $stmtInsertar = $conexion->prepare(
             'INSERT INTO excepciones
