@@ -159,7 +159,7 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
                         <div class="cabecera-mes">
                             <div>
                                 <p class="sobrelinea-excepcion">CALENDARIO DE EXCEPCIONES</p>
-                                <h2>Diciembre 2026</h2>
+                                <h2>Cargando calendario...</h2>
                             </div>
                             <div class="nav-mes" aria-label="Navegar por meses">
                                 <button type="button" class="btn-nav-mes" aria-label="Mes anterior">&lt;</button>
@@ -177,46 +177,7 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
                             <span>Sáb</span>
                         </div>
 
-                        <div class="grilla-dias" aria-label="Diciembre de 2026">
-                            <span></span><span></span>
-                            <button type="button" class="dia-inactivo" disabled aria-label="1 de diciembre">1</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="2 de diciembre">2</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="3 de diciembre">3</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="4 de diciembre">4</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="5 de diciembre">5</button>
-                            
-                            <button type="button" class="dia-inactivo" disabled aria-label="6 de diciembre">6</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="7 de diciembre">7</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="8 de diciembre">8</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="9 de diciembre">9</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="10 de diciembre">10</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="11 de diciembre">11</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="12 de diciembre">12</button>
-                            
-                            <button type="button" class="dia-inactivo" disabled aria-label="13 de diciembre">13</button>
-                            <button type="button" class="dia-disponible" aria-label="14 de diciembre">14</button>
-                            <button type="button" class="dia-seleccionado" aria-label="15 de diciembre, seleccionado" aria-pressed="true">15</button>
-                            <button type="button" class="dia-disponible" aria-label="16 de diciembre">16</button>
-                            <button type="button" class="dia-disponible" aria-label="17 de diciembre">17</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="18 de diciembre">18</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="19 de diciembre">19</button>
-                            
-                            <button type="button" class="dia-disponible" aria-label="20 de diciembre">20</button>
-                            <button type="button" class="dia-disponible" aria-label="21 de diciembre">21</button>
-                            <button type="button" class="dia-disponible" aria-label="22 de diciembre">22</button>
-                            <button type="button" class="dia-disponible" aria-label="23 de diciembre">23</button>
-                            <button type="button" class="dia-disponible" aria-label="24 de diciembre">24</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="25 de diciembre">25</button>
-                            <button type="button" class="dia-inactivo" disabled aria-label="26 de diciembre">26</button>
-
-                            <button type="button" class="dia-disponible" aria-label="27 de diciembre">27</button>
-                            <button type="button" class="dia-disponible" aria-label="28 de diciembre">28</button>
-                            <button type="button" class="dia-disponible" aria-label="29 de diciembre">29</button>
-                            <button type="button" class="dia-disponible" aria-label="30 de diciembre">30</button>
-                            <button type="button" class="dia-disponible" aria-label="31 de diciembre">31</button>
-                            <span></span>
-                            <span></span>
-                        </div>
+                        <div class="grilla-dias" aria-label="Calendario de excepciones"></div>
 
                         <div class="footer-calendario-excepcion">
                             <button type="button" class="btn-bloquear-dia-completo">Bloquear día completo</button>
@@ -227,42 +188,14 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
                     <section class="tarjeta-blanca panel-horarios-excepcion">
                         <div class="cabecera-horarios-dia">
                             <div>
-                                <h2>Martes, 15 de diciembre</h2>
+                                <h2>Seleccioná una fecha</h2>
                             </div>
                             <button type="button" class="btn-dar-turno-mini">+ Agregar turno extra</button>
                         </div>
                         <p class="resumen-dia-excepcion">Revisá los turnos del profesional y aplicá cambios puntuales.</p>
 
-                        <div class="lista-franjas-excepcion">
-                            
-                            <div class="item-franja-estado" data-inicio="09:00" data-fin="10:00">
-                                <span class="hora-franja">09:00</span>
-                                <span class="badge-estado badge-disponible">Disponible</span>
-                                <span class="detalle-estado">Turno estándar</span>
-                                <button type="button" class="btn-accion-linea btn-bloquear-individual">Bloquear</button>
-                            </div>
-
-                            <div class="item-franja-estado franja-ocupada" data-inicio="10:00" data-fin="11:00">
-                                <span class="hora-franja">10:00</span>
-                                <span class="badge-estado badge-ocupado">Ocupado</span>
-                                <span class="detalle-estado">Enzo Murguía <small>DNI: 44.123.456</small></span>
-                                <button type="button" class="btn-accion-linea btn-cancelar-turno-excepcion" data-paciente="Enzo Murguía" data-telefono="5493431222111" data-fecha="martes 15 de diciembre" data-hora="10:00" data-fin="11:00">Cancelar turno</button>
-                            </div>
-
-                            <div class="item-franja-estado franja-bloqueada" data-inicio="11:00" data-fin="12:00">
-                                <span class="hora-franja">11:00</span>
-                                <span class="badge-estado badge-bloqueado">Bloqueado</span>
-                                <span class="detalle-estado">Por excepción manual </span>
-                                <button type="button" class="btn-accion-linea btn-desbloquear">Desbloquear</button>
-                            </div>
-
-                            <div class="item-franja-estado" data-inicio="12:00" data-fin="13:00">
-                                <span class="hora-franja">12:00</span>
-                                <span class="badge-estado badge-disponible">Disponible</span>
-                                <span class="detalle-estado">Turno estándar</span>
-                                <button type="button" class="btn-accion-linea btn-bloquear-individual">Bloquear</button>
-                            </div>
-
+                        <div class="lista-franjas-excepcion" aria-live="polite">
+                            <p class="mensaje-sin-franjas-excepcion">Seleccioná un día para consultar sus turnos.</p>
                         </div>
                     </section>
 

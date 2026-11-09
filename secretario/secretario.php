@@ -62,7 +62,7 @@ try {
     <title> Pausa - Secretario </title>
     <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
     <script src="../js/main.js?v=password-modal-20261102-3" defer></script>
-    <script src="../js/secretario.js?v=secretario-metricas-bd-20261106" defer></script>
+    <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">

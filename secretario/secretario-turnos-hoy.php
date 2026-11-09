@@ -155,7 +155,7 @@ try {
     <title> Pausa - Secretario </title>
     <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
     <script src="../js/main.js" defer></script>
-    <script src="../js/secretario.js?v=turnos-hoy-database-20261106-2" defer></script>
+    <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">
