@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. valido que el usuario haya iniciado sesión y sea específicamente profesional
+// 1. valido que el usuario haya iniciado sesión y sea profesional
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])

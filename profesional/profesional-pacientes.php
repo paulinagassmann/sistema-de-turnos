@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. Validamos sesión de profesional
+// 1. valido la sesión de profesional
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -26,7 +26,7 @@ $errorAlCargarPacientes = false;
 try {
     actualizarTurnosPendientesVencidos($conexion);
 
-    // 2. Buscamos la lista de pacientes únicos que se atienden con este profesional
+    // 2. busco la lista de pacientes que se atienden con este profesional
     $stmtPacientes = $conexion->prepare(
         "SELECT DISTINCT pac.id, u.nombre, u.apellido, u.dni, u.correo, u.telefono, pac.obra_social
          FROM pacientes pac
@@ -38,7 +38,7 @@ try {
     $stmtPacientes->execute([':profesional_id' => $profesional_id]);
     $listaPacientes = $stmtPacientes->fetchAll(PDO::FETCH_ASSOC);
 
-    // 3. Determinamos qué paciente mostrar en detalle (el de la URL o el primero de la lista por defecto)
+    // 3. determino qué paciente mostrar en detalle (el de la URL o el primero de la lista por defecto)
     $idRecibido = $_GET['id'] ?? null;
     $pacienteIdSolicitado = is_scalar($idRecibido)
         ? filter_var((string) $idRecibido, FILTER_VALIDATE_INT, [
@@ -48,7 +48,7 @@ try {
     $paciente_seleccionado_id = $pacienteIdSolicitado ?: ($listaPacientes[0]['id'] ?? null);
 
     if ($paciente_seleccionado_id) {
-        // Buscamos los datos específicos del paciente seleccionado
+        // busco los datos específicos del paciente seleccionado
         foreach ($listaPacientes as $pac) {
             if ((int) $pac['id'] === (int) $paciente_seleccionado_id) {
                 $pacienteSeleccionado = $pac;
@@ -56,14 +56,14 @@ try {
             }
         }
 
-        // Si no está en la lista del profesional (por seguridad), buscamos por DB si existe
+        // Si no está en la lista del profesional (por seguridad), buscamos por bd si existe
         if (!$pacienteSeleccionado && !empty($listaPacientes)) {
             $pacienteSeleccionado = $listaPacientes[0];
             $paciente_seleccionado_id = $pacienteSeleccionado['id'];
         }
 
         if ($pacienteSeleccionado) {
-            // 4. Buscamos todos los turnos pendientes que aún no comenzaron
+            // 4. busco todos los turnos pendientes que no empezaron todavia
             $stmtProx = $conexion->prepare(
                 "SELECT fecha_hora, estado
                  FROM turnos 
@@ -80,7 +80,7 @@ try {
             ]);
             $proximosTurnosPaciente = $stmtProx->fetchAll(PDO::FETCH_ASSOC);
 
-            // 5. Buscamos el historial de turnos pasados o cancelados/completados
+            // 5. busco el historial de turnos pasados o cancelados/completados
             $stmtHistorial = $conexion->prepare(
                 "SELECT fecha_hora, estado 
                  FROM turnos 

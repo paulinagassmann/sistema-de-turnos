@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. Validamos que sea un paciente con sesión activa
+// valido que sea un paciente con sesión activa
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -11,14 +11,14 @@ if (
     exit();
 }
 
-// 2. Conectamos a la base de datos
+// conecto a la bd
 require_once __DIR__ . '/../config/conexion.php';
 
 $profesionales = [];
 $errorAlCargarProfesionales = false;
 
 try {
-    // 3. Consultamos los profesionales reales de la base de datos
+    // consulto los profesionales de la bd porq en este paso se elige profesional
     $stmt = $conexion->prepare(
         'SELECT p.id, u.nombre, u.apellido, p.especialidad 
          FROM profesionales p 
@@ -88,7 +88,7 @@ try {
                 <h2> Seleccione un profesional </h2>
             </header>
 
-            <!-- Contenedor dinámico de profesionales -->
+            <!-- cajita de profesionales -->
             <div class="grilla-profesionales">
                 <?php if ($errorAlCargarProfesionales): ?>
                     <p style="grid-column: 1 / -1; text-align: center; color: #666;">
@@ -104,7 +104,7 @@ try {
                         >
                             <span class="avatar-profesional avatar-profesional-placeholder" aria-hidden="true">P</span>
                             <div class="info-profesional">
-                                <h3>Lic. <?php echo htmlspecialchars($prof['nombre'] . ' ' . $prof['apellido'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                                <h3><?php echo htmlspecialchars($prof['nombre'] . ' ' . $prof['apellido'], ENT_QUOTES, 'UTF-8'); ?></h3>
                                 <p>Especialidad: <?php echo htmlspecialchars($prof['especialidad'], ENT_QUOTES, 'UTF-8'); ?></p>
                             </div>
                         </button>

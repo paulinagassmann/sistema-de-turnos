@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. Validamos sesión de profesional
+// valido la sesion de profesional
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -28,7 +28,7 @@ $datosProfesional = null;
 try {
     actualizarTurnosPendientesVencidos($conexion);
 
-    // 2. Buscamos los datos de la cuenta profesional para mostrar su nombre
+    // busco los datos de la cuenta profesional para mostrar su nombre
     $stmtProf = $conexion->prepare(
         "SELECT u.nombre, u.apellido
          FROM usuarios u
@@ -43,7 +43,7 @@ try {
         exit();
     }
 
-    // 4. Buscamos todos los turnos de este profesional para marcar los días con actividad en el calendario
+    // busco todos los turnos de este profesional para marcar los días con actividad en el calendario
     $stmtTodosTurnos = $conexion->prepare(
         "SELECT DATE(fecha_hora) as fecha, COUNT(*) as total 
          FROM turnos 
@@ -59,7 +59,7 @@ try {
         $mapaTurnos[$row['fecha']] = $row['total'];
     }
 
-    // 5. Buscamos los turnos específicos del día seleccionado para mostrar en la tarjeta derecha
+    // busco los turnos específicos del día seleccionado para mostrar en la tarjeta derecha
     $stmtTurnosDia = $conexion->prepare(
         "SELECT t.fecha_hora, t.estado, u_pac.nombre AS pac_nombre, u_pac.apellido AS pac_apellido 
          FROM turnos t

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Validamos que sea un paciente logueado
+// valido que sea un paciente logueado
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -31,7 +31,8 @@ try {
 } catch (Throwable $e) {
     error_log("Error al cargar perfil del paciente: " . $e->getMessage());
     http_response_code(500);
-    ?>
+?>
+
     <!DOCTYPE html>
     <html lang="es">
     <head>

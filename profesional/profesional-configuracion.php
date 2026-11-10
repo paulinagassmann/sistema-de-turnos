@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 1. Validamos que sea un profesional logueado
+// valido que sea un profesional logueado
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])

@@ -143,28 +143,9 @@ try {
                         <p>Ocurrió un problema al consultar tus datos. Intentá nuevamente más tarde.</p>
                     </section>
                 <?php else: ?>
-                <!-- TARJETA 1: CAMBIAR CORREO / USUARIO -->
-                <section class="tarjeta-blanca">
-                    <h2>Usuario / Correo</h2>
-                    <p class="descripcion-tarjeta-config">Este es el correo que utilizás para iniciar sesión en el sistema.</p>
 
-                    <form class="form-perfil" action="../procesos/secretario/procesar-editar-perfil-secretario.php" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_secretario'], ENT_QUOTES, 'UTF-8'); ?>">
 
-                        <div class="grupo-campo">
-                            <label for="usuario-actual">Correo electrónico de acceso</label>
-                            <input type="email" id="usuario-actual" name="correo" value="<?php echo htmlspecialchars($secretario['correo'], ENT_QUOTES, 'UTF-8'); ?>" class="input-form" required>
-                        </div>
-
-                        <div class="footer-pasos">
-                            <button type="submit" class="btn-siguiente-paso">Actualizar correo</button>
-                        </div>
-
-                    </form>
-
-                </section>
-
-                <!-- TARJETA 2: CAMBIAR CONTRASEÑA -->
+                <!-- TARJETA: CAMBIAR CONTRASEÑA -->
                 <section class="tarjeta-blanca">
                     <h2>Seguridad y contraseña</h2>
                     <p class="descripcion-tarjeta-config">Actualizá tu contraseña periódicamente para mantener la seguridad.</p>

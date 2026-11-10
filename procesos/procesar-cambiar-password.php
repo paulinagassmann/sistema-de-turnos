@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
-    || !in_array($_SESSION['rol'], ['secretario', 'profesional', 'paciente'], true)
+    || !in_array($_SESSION['rol'], ['secretario', 'profesional', 'paciente', 'administrador'], true)
 ) {
     header("Location: ../index.html?error=sesion_requerida");
     exit();
@@ -24,7 +24,8 @@ if (
 $rutasPorRol = [
     'secretario' => '../secretario/secretario.php',
     'profesional' => '../profesional/profesional.php',
-    'paciente' => '../paciente/paciente.php'
+    'paciente' => '../paciente/paciente.php',
+    'administrador' => '../administrador/administrador.php'
 ];
 $destino = $rutasPorRol[$_SESSION['rol']];
 

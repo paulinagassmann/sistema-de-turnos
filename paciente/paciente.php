@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Validamos que el usuario haya iniciado sesión y sea específicamente 'paciente'
+// Validamos que el usuario haya iniciado sesión y sea 'paciente'
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -27,7 +27,7 @@ $turnosPendientes = [];
 try {
     actualizarTurnosPendientesVencidos($conexion);
 
-    // 1. Buscamos los datos del usuario y su extensión de paciente
+    // busco los datos del usuario y su extensión de paciente
     $stmtUsuario = $conexion->prepare(
         'SELECT u.nombre, u.apellido, u.correo, u.telefono, u.dni, p.obra_social 
         FROM usuarios u 
@@ -43,7 +43,7 @@ try {
         exit();
     }
 
-    // 2. Buscamos TODOS los turnos pendientes futuros
+    // busco TODOS los turnos pendientes futuros
     $stmtTurnos = $conexion->prepare(
         "SELECT t.id, t.fecha_hora, t.estado,
                 u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido, 
