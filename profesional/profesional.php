@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. valido que el usuario haya iniciado sesión y sea profesional
 if (
@@ -82,8 +83,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Profesional </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js?v=password-modal-20261102-3" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/profesional.js?v=readonly-turno-status-20261104-2" defer></script>
 </head>
 
@@ -116,9 +118,12 @@ try {
 
             <!-- Botón de cerrar sesión al pie del menú -->
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>

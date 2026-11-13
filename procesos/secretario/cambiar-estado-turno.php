@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 $rutaPagina = '../../secretario/secretario-turnos-hoy.php';
 if (
@@ -38,11 +39,8 @@ $filtroQuery = http_build_query([
 ]);
 $urlRetorno = $rutaPagina . '?' . $filtroQuery;
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_estado_turno'])
-    || !hash_equals($_SESSION['csrf_estado_turno'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: {$urlRetorno}&error=solicitud_invalida");
     exit();
@@ -117,7 +115,6 @@ try {
     }
 
     $conexion->commit();
-    unset($_SESSION['csrf_estado_turno']);
     header("Location: {$urlRetorno}");
     exit();
 } catch (Throwable $e) {

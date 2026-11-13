@@ -1,7 +1,8 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
-// Validamos que el usuario haya iniciado sesión y sea 'paciente'
+// valido que el usuario haya iniciado sesión y sea paciente
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -11,9 +12,6 @@ if (
     exit();
 }
 
-if (empty($_SESSION['csrf_cancelar_turno'])) {
-    $_SESSION['csrf_cancelar_turno'] = bin2hex(random_bytes(32));
-}
 
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../config/turnos.php';
@@ -27,7 +25,7 @@ $turnosPendientes = [];
 try {
     actualizarTurnosPendientesVencidos($conexion);
 
-    // busco los datos del usuario y su extensión de paciente
+    // busco los datos del usuario y hago un join con la tabla de pacientes
     $stmtUsuario = $conexion->prepare(
         'SELECT u.nombre, u.apellido, u.correo, u.telefono, u.dni, p.obra_social 
         FROM usuarios u 
@@ -43,7 +41,7 @@ try {
         exit();
     }
 
-    // busco TODOS los turnos pendientes futuros
+    // traigo TODOS los turnos pendientes y los ordeno del mas cercano al mas lejano
     $stmtTurnos = $conexion->prepare(
         "SELECT t.id, t.fecha_hora, t.estado,
                 u_prof.nombre AS prof_nombre, u_prof.apellido AS prof_apellido, 
@@ -75,13 +73,13 @@ try {
 
  <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Página principal de pacientes, organiza 
-    tus turnos en Pausa de manera sencilla.">
+    <meta name="description" content="Página principal de pacientes.">
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Paciente </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-     <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+     <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/paciente.js?v=booking-step-two-20261104-2" defer></script>
 </head>
 
@@ -92,7 +90,10 @@ try {
                 <span class="logo-texto">Pausa</span>
                 <span class="subtitulo-logo">Clínica de Salud Mental</span>
             </div>
-            <a href="../index.html" class="btn-logout">Cerrar sesión</a>
+            <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                <?php echo csrf_input(); ?>
+                <button type="submit" class="btn-logout">Cerrar sesión</button>
+            </form>
         </header>
 
         <main class="main-paciente">
@@ -170,7 +171,7 @@ try {
                                 <p>¿Estás seguro de que querés cancelar tu sesión del día <?php echo htmlspecialchars($fechaFormateada); ?> a las <?php echo htmlspecialchars($horaFormateada); ?> hs? Esta acción no se puede deshacer.</p>
                                 <form action="../procesos/paciente/procesar-cancelar-turno-paciente.php" method="POST" class="modal-acciones">
                                     <input type="hidden" name="turno_id" value="<?php echo htmlspecialchars((string) $turno['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_cancelar_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php echo csrf_input(); ?>
                                     <button type="button" class="btn-secundario-modal" data-modal-close="<?php echo htmlspecialchars($modalCancelarId, ENT_QUOTES, 'UTF-8'); ?>">No, mantener turno</button>
                                     <button type="submit" class="btn-peligro-modal">Sí, cancelar</button>
                                 </form>

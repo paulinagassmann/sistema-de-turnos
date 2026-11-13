@@ -829,15 +829,51 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             .trim();
     }
 
-    function inicializarModalExitoProfesional() {
+    // Registro de paciente: habilita el campo "Obra social" solo si se eligió "Sí" en cobertura
+    function inicializarCoberturaPaciente() {
+        const cobertura = document.getElementById('tiene-cobertura');
+        const obraSocial = document.getElementById('obra-social');
+        if (!cobertura || !obraSocial) return;
+
+        const actualizarCobertura = () => {
+            const tieneCobertura = cobertura.value === 'si';
+            obraSocial.disabled = !tieneCobertura;
+            obraSocial.required = tieneCobertura;
+            if (!tieneCobertura) obraSocial.value = '';
+        };
+        cobertura.addEventListener('change', actualizarCobertura);
+        actualizarCobertura();
+    }
+
+    async function inicializarModalExitoProfesional() {
         const modal = document.getElementById('modalExitoProfesional');
         const parametros = new URLSearchParams(window.location.search);
         if (!modal || !parametros.has('exito')) return;
 
+        // saco el ?exito de la URL para que al recargar no se vuelva a abrir el cartel
+        window.history.replaceState(null, '', window.location.pathname);
+
+        // las credenciales no viajan en la URL: se piden al servidor por POST (una sola vez)
+        let datos = null;
+        try {
+            const token = typeof window.obtenerTokenCsrf === 'function'
+                ? await window.obtenerTokenCsrf()
+                : '';
+            const respuesta = await fetch('../procesos/secretario/obtener-credenciales-registro.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: new URLSearchParams({ csrf_token: token })
+            });
+            if (respuesta.ok) datos = await respuesta.json();
+        } catch (error) {
+            datos = null;
+        }
+        if (!datos) return;
+
         const dni = document.getElementById('modal-prof-dni');
         const contrasena = document.getElementById('modal-prof-pass');
-        if (dni) dni.textContent = parametros.get('dni') || '';
-        if (contrasena) contrasena.textContent = parametros.get('pass') || '';
+        if (dni) dni.textContent = datos.dni || '';
+        if (contrasena) contrasena.textContent = datos.pass || '';
         modal.showModal();
     }
 
@@ -1032,6 +1068,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
     }
 
 
+    inicializarCoberturaPaciente();
     inicializarModalExitoProfesional();
     inicializarTurnosDelDia();
     inicializarPacientes();

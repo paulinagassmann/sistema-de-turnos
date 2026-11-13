@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -13,11 +14,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    empty($_SESSION['csrf_estado_turno'])
-    || !is_string($csrfToken)
-    || !hash_equals($_SESSION['csrf_estado_turno'], $csrfToken)
+    !csrf_es_valido()
 ) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'solicitud_invalida']);

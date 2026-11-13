@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // Valido que el usuario haya iniciado sesión y sea administrador
 if (
@@ -28,7 +29,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pausa - Panel de Administración</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
 </head>
 <body> 
 
@@ -37,7 +39,10 @@ try {
             <span class="logo-texto">Pausa</span>
             <span class="subtitulo-logo">Panel de Administración</span>
         </div>
-        <a href="../index.html" class="btn-logout">Cerrar sesión</a>
+        <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+            <?php echo csrf_input(); ?>
+            <button type="submit" class="btn-logout">Cerrar sesión</button>
+        </form>
     </header>
 
     <main class="main-administrador">
@@ -58,9 +63,12 @@ try {
             </a>
 
             <!-- Botón para generar el respaldo -->
-            <a href="generar-backup.php" class="btn-secundario-modal">
-                <span>Generar backup</span>
-            </a>
+            <form action="generar-backup.php" method="POST">
+                <?php echo csrf_input(); ?>
+                <button type="submit" class="btn-secundario-modal">
+                    <span>Generar backup</span>
+                </button>
+            </form>
 
         </section>
     </main>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 if (
     $_SERVER['REQUEST_METHOD'] !== 'POST'
@@ -11,11 +12,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_reservar_turno'])
-    || !hash_equals($_SESSION['csrf_reservar_turno'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: ../../paciente/paciente1.php?error=sesion_vencida");
     exit();
@@ -258,8 +256,7 @@ try {
     unset(
         $_SESSION['profesional_id'],
         $_SESSION['fecha_turno'],
-        $_SESSION['hora_turno'],
-        $_SESSION['csrf_reservar_turno']
+        $_SESSION['hora_turno']
     );
     header("Location: ../../paciente/paciente.php?turno_agendado=1");
     exit();

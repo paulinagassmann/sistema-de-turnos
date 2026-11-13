@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 if (
     empty($_SESSION['usuario_id'])
@@ -14,7 +15,9 @@ require_once __DIR__ . '/../config/conexion.php';
 
 $error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
+    $error = 'La página venció. Recargala e intentá nuevamente.';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dni = trim($_POST['dni'] ?? '');
     $nombre = trim($_POST['nombre'] ?? '');
     $apellido = trim($_POST['apellido'] ?? '');
@@ -59,7 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pausa - Registrar Secretario</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
 </head>
 <body class="body-dashboard-paciente">
 
@@ -81,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form action="alta-secretario.php" method="POST" class="formulario-registro">
+                <?php echo csrf_input(); ?>
                 <div class="campo-perfil">
                     <label for="dni">DNI:</label>
                     <input type="text" id="dni" name="dni" required>
@@ -113,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="campo-perfil">
                     <label for="password_temporal">Contraseña Temporal:</label>
-                    <input type="password" id="password_temporal" name="password_temporal" required>
+                    <input type="password" id="password_temporal" name="password_temporal" data-password-toggle required>
                 </div>
 
                 <button type="submit" class="btn-agendar">

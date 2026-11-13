@@ -1,6 +1,8 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
+//verifico si es paciente
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -10,6 +12,7 @@ if (
     exit();
 }
 
+//averiguo con que profesional se quiere atender
 $profesionalIdRecibido = $_GET['profesional_id'] ?? $_SESSION['profesional_id'] ?? null;
 $profesionalId = is_scalar($profesionalIdRecibido)
     ? filter_var((string) $profesionalIdRecibido, FILTER_VALIDATE_INT, [
@@ -118,6 +121,8 @@ $normalizarDia = static function ($dia) use ($diasSemana) {
         : null);
 };
 
+
+//genero los turnos disponibles según la agenda y los turnos ocupados
 if (empty($errorAlCargarAgenda)) {
     foreach ($agendas as $agenda) {
         $dia = $normalizarDia($agenda['dia_semana'] ?? '');
@@ -152,6 +157,8 @@ $fechaInicio = $ahora->setTime(0, 0);
 $fechaHoy = $ahora->format('Y-m-d');
 $horaActual = $ahora->format('H:i:s');
 
+
+//filtra los turnos a 90 días según la agenda, los turnos ocupados y las excepciones
 for ($diaOffset = 0; $diaOffset < 90; $diaOffset++) {
     $fecha = $fechaInicio->modify("+{$diaOffset} days");
     $fechaFormateada = $fecha->format('Y-m-d');
@@ -220,6 +227,7 @@ for ($diaOffset = 0; $diaOffset < 90; $diaOffset++) {
     }
 }
 
+//convierte los horarios por fecha a json para pasarlos al front-end (javascript)
 $datosHorarios = htmlspecialchars(
     json_encode($horariosPorFecha, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT),
     ENT_QUOTES,
@@ -246,8 +254,9 @@ if (isset($_GET['error']) && is_string($_GET['error']) && isset($mensajesError[$
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Agendar Turno </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/paciente.js?v=booking-step-two-20261104-2" defer></script>
 </head>
 
@@ -299,6 +308,7 @@ if (isset($_GET['error']) && is_string($_GET['error']) && isset($mensajesError[$
             </section>
         <?php else: ?>
         <form action="paciente3.php" method="POST">
+            <?php echo csrf_input(); ?>
             <section class="tarjeta-blanca">
                 <div class="grilla-seleccion-turno">
                     

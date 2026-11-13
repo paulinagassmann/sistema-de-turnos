@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 if (
     empty($_SESSION['usuario_id'])
@@ -15,11 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_cancelar_turno'])
-    || !hash_equals($_SESSION['csrf_cancelar_turno'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: ../../paciente/paciente.php?error=solicitud_invalida");
     exit();
@@ -86,7 +84,6 @@ try {
     }
 
     $conexion->commit();
-    unset($_SESSION['csrf_cancelar_turno']);
     header("Location: ../../paciente/paciente.php?turno_cancelado=1");
     exit();
 } catch (Throwable $e) {

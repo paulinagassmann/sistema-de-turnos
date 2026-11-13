@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 $rutaFormulario = '../../secretario/secretario-agendas-base.php';
 
@@ -19,12 +20,8 @@ $profesionalIdRecibido = $_POST['profesional_id'] ?? null;
 $profesionalId = is_scalar($profesionalIdRecibido)
     ? filter_var((string) $profesionalIdRecibido, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
     : false;
-$csrfToken = $_POST['csrf_token'] ?? null;
-
 if (
-    empty($_SESSION['csrf_agendas_base'])
-    || !is_string($csrfToken)
-    || !hash_equals($_SESSION['csrf_agendas_base'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: {$rutaFormulario}?error=solicitud_invalida");
     exit();
@@ -159,7 +156,6 @@ try {
     }
 
     $conexion->commit();
-    unset($_SESSION['csrf_agendas_base']);
     header("Location: {$rutaFormulario}?profesional_id={$profesionalId}&exito=1");
     exit();
 } catch (Throwable $e) {

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 function volverAlCambioPassword($error)
 {
@@ -28,6 +29,11 @@ $rutasPorRol = [
     'administrador' => '../administrador/administrador.php'
 ];
 $destino = $rutasPorRol[$_SESSION['rol']];
+
+// verifico el token CSRF (que el envío venga de un formulario de este sistema)
+if (!csrf_es_valido()) {
+    volverAlCambioPassword('solicitud_invalida');
+}
 
 $password_actual = $_POST['password_actual'] ?? null;
 $password_nueva = $_POST['password_nueva'] ?? null;

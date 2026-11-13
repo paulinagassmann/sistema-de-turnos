@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos que el usuario haya iniciado sesión y sea específicamente 'secretario'
 if (
@@ -11,9 +12,6 @@ if (
     exit();
 }
 
-if (empty($_SESSION['csrf_secretario'])) {
-    $_SESSION['csrf_secretario'] = bin2hex(random_bytes(32));
-}
 
 require_once __DIR__ . '/../config/conexion.php';
 $errorAlCargarSecretario = false;
@@ -53,8 +51,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js?v=password-toggle-20261102" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -94,9 +93,12 @@ try {
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -151,7 +153,7 @@ try {
                     <p class="descripcion-tarjeta-config">Actualizá tu contraseña periódicamente para mantener la seguridad.</p>
 
                     <form class="form-perfil" action="../procesos/secretario/procesar-cambiar-password-secretario.php" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_secretario'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo csrf_input(); ?>
 
                         <div class="grupo-campo">
                             <label for="contra-actual">Contraseña actual</label>

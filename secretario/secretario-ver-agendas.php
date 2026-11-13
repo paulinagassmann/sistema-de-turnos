@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos sesión de secretario
 if (
@@ -21,9 +22,6 @@ $profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)
 $profesionalIdSeleccionado = $profesionalIdSeleccionado === false ? null : $profesionalIdSeleccionado;
 $errorAlCargarProfesionales = false;
 
-if (empty($_SESSION['csrf_excepciones'])) {
-    $_SESSION['csrf_excepciones'] = bin2hex(random_bytes(32));
-}
 
 try {
     // 2. Obtenemos los profesionales reales de la base de datos
@@ -61,8 +59,9 @@ try {
     <meta name="description" content="Permite consultar las agendas filtrando por profesional.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver Agendas | Pausa - Secretario</title>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
-    <script src="../js/main.js" defer></script>
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -102,14 +101,17 @@ try {
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
 
-        <main class="main-secretario vista-agendas" data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_excepciones'], ENT_QUOTES, 'UTF-8'); ?>">
+        <main class="main-secretario vista-agendas" data-csrf-token="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
             <header class="header-dashboard">
                 <div class="texto-bienvenida-secretario">
                     <h1>Ver agendas</h1>

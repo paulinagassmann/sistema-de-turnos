@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos sesión de secretario
 if (
@@ -55,9 +56,6 @@ $erroresTurno = [
 $mensajeErrorTurno = isset($_GET['error']) && is_string($_GET['error'])
     ? ($erroresTurno[$_GET['error']] ?? null)
     : null;
-if (empty($_SESSION['csrf_estado_turno'])) {
-    $_SESSION['csrf_estado_turno'] = bin2hex(random_bytes(32));
-}
 
 try {
     actualizarTurnosPendientesVencidos($conexion);
@@ -153,8 +151,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -194,9 +193,12 @@ try {
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -282,7 +284,7 @@ try {
                         </div>
                     </div>
 
-                    <div class="lista-turnos-operativa" data-source="database" data-csrf-token="<?php echo htmlspecialchars($_SESSION['csrf_estado_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="lista-turnos-operativa" data-source="database" data-csrf-token="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                         <?php if (!empty($turnosHoy)): ?>
                             <?php foreach ($turnosHoy as $t): ?>
                                 <?php 
@@ -334,7 +336,7 @@ try {
                                     <div class="botones-accion-turno">
                                         <?php if ($estado === 'pendiente'): ?>
                                             <form action="../procesos/secretario/cambiar-estado-turno.php" method="POST" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_estado_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo csrf_input(); ?>
                                                 <input type="hidden" name="turno_id" value="<?php echo (int) $t['id']; ?>">
                                                 <input type="hidden" name="estado" value="cancelado">
                                                 <input type="hidden" name="filtro_estado" value="<?php echo htmlspecialchars($estadoFiltro, ENT_QUOTES, 'UTF-8'); ?>">
@@ -342,7 +344,7 @@ try {
                                                 <button type="submit" class="btn-accion-turno btn-cancelar-turno" title="Cancelar turno" aria-label="Cancelar turno">✕</button>
                                             </form>
                                             <form action="../procesos/secretario/cambiar-estado-turno.php" method="POST" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_estado_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo csrf_input(); ?>
                                                 <input type="hidden" name="turno_id" value="<?php echo (int) $t['id']; ?>">
                                                 <input type="hidden" name="estado" value="confirmado">
                                                 <input type="hidden" name="filtro_estado" value="<?php echo htmlspecialchars($estadoFiltro, ENT_QUOTES, 'UTF-8'); ?>">
@@ -351,7 +353,7 @@ try {
                                             </form>
                                         <?php elseif (in_array($estado, ['confirmado', 'cancelado'], true)): ?>
                                             <form action="../procesos/secretario/cambiar-estado-turno.php" method="POST" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_estado_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo csrf_input(); ?>
                                                 <input type="hidden" name="turno_id" value="<?php echo (int) $t['id']; ?>">
                                                 <input type="hidden" name="estado" value="pendiente">
                                                 <input type="hidden" name="filtro_estado" value="<?php echo htmlspecialchars($estadoFiltro, ENT_QUOTES, 'UTF-8'); ?>">

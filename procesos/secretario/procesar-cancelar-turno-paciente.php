@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 $pacienteId = filter_var($_POST['paciente_id'] ?? null, FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1]
@@ -17,11 +18,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_secretario_cancelar_turno'])
-    || !hash_equals($_SESSION['csrf_secretario_cancelar_turno'], $csrfToken)
+    !csrf_es_valido()
     || $pacienteId === false
     || $pacienteId === null
 ) {

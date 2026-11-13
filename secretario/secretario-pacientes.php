@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos sesión de secretario
 if (
@@ -23,10 +24,6 @@ $historialTurnos = [];
 $profesionales = [];
 $errorAlCargarPacientes = false;
 $pacienteNoEncontrado = false;
-if (empty($_SESSION['csrf_secretario_cancelar_turno'])) {
-    $_SESSION['csrf_secretario_cancelar_turno'] = bin2hex(random_bytes(32));
-}
-$csrfCancelarTurno = $_SESSION['csrf_secretario_cancelar_turno'];
 
 try {
     actualizarTurnosPendientesVencidos($conexion);
@@ -125,8 +122,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
-    <script src="../js/main.js" defer></script>
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -166,9 +164,12 @@ try {
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -338,7 +339,7 @@ try {
     <?php if ($pacienteSeleccionado): ?>
         <dialog id="modalCancelarTurnoPaciente" class="modal-dialog modal-cancelacion-turno" aria-labelledby="titulo-cancelar-turno-paciente" aria-describedby="texto-cancelar-turno-paciente">
             <form method="POST" action="../procesos/secretario/procesar-cancelar-turno-paciente.php" class="modal-card">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfCancelarTurno, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo csrf_input(); ?>
                 <input type="hidden" name="turno_id" id="turno-paciente-id">
                 <input type="hidden" name="paciente_id" value="<?php echo (int) $pacienteSeleccionado['id']; ?>">
                 <div class="modal-icono-alerta" aria-hidden="true">!</div>

@@ -4307,6 +4307,16 @@ body > footer {
     outline-offset: 2px;
 }
 
+.mensaje-error-login {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #b91c1c;
+    background-color: #fef2f2;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
 .mensaje-cambio-password {
     margin: 0;
     color: #b91c1c;
@@ -4557,4 +4567,70 @@ body > footer {
         width: 34px;
         height: 34px;
     }
+}
+
+/* =======================================
+   CERRAR SESIÓN (formulario POST con botón)
+   El botón se ve igual que el enlace que había antes.
+   ======================================= */
+.form-logout {
+    margin: 0;
+}
+
+/* "button.btn-logout" le gana a la regla general button[type="submit"]
+   (fondo azul, texto blanco, margen arriba), que si no se aplicaría al botón */
+button.btn-logout,
+button.btn-logout-simple {
+    margin-top: 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+}
+
+button.btn-logout {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: none;
+    color: #ef4444;
+    font-weight: 500;
+    text-align: left;
+}
+
+button.btn-logout:hover {
+    background-color: #fef2f2;
+}
+
+/* panel del paciente y del administrador: botón rosado arriba a la derecha */
+.header-paciente button.btn-logout {
+    width: auto;
+    padding: 8px 14px;
+    background-color: #ffe4e6;
+    color: #be123c;
+}
+
+.header-paciente button.btn-logout:hover {
+    background-color: #fecdd3;
+    color: #9f1239;
+}
+
+/* pantalla de cambio obligatorio de contraseña: se ve como un enlace gris */
+button.btn-logout-simple {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    color: #64748b;
+    font-weight: 400;
+}
+
+button.btn-logout-simple:hover {
+    background: none;
+    color: #0052cc;
+}
+
+/* Ojito de contraseña dentro de los formularios con .campo-perfil (ej: alta de secretario) */
+.campo-perfil .control-password > input {
+    width: 100%;
+    box-sizing: border-box;
 }

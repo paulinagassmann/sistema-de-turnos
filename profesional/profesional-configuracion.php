@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // valido que sea un profesional logueado
 if (
@@ -11,9 +12,6 @@ if (
     exit();
 }
 
-if (empty($_SESSION['csrf_profesional'])) {
-    $_SESSION['csrf_profesional'] = bin2hex(random_bytes(32));
-}
 
 require_once __DIR__ . '/../config/conexion.php';
 $errorAlCargarProfesional = false;
@@ -50,8 +48,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Profesional </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js?v=password-toggle-20261102" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/profesional.js?v=profesional-configuracion-20261105-1" defer></script>
 </head>
 
@@ -136,7 +135,7 @@ try {
                     <h2>Información de la cuenta</h2>
 
                     <form class="form-perfil" action="../procesos/profesional/procesar-editar-perfil-profesional.php" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_profesional'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo csrf_input(); ?>
 
                         <div class="grupo-campo">
                             <label for="nombre-profesional">Nombre y Apellido</label>
@@ -165,21 +164,21 @@ try {
                     <h2>Cambiar contraseña</h2>
 
                     <form class="form-perfil" action="../procesos/profesional/procesar-cambiar-password-profesional.php" method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_profesional'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo csrf_input(); ?>
 
                         <div class="grupo-campo">
                             <label for="contra-actual">Contraseña actual</label>
-                            <input type="password" id="contra-actual" name="password_actual" placeholder="••••••••" required>
+                            <input type="password" id="contra-actual" name="password_actual" placeholder="••••••••" data-password-toggle required>
                         </div>
 
                         <div class="grupo-campo">
                             <label for="contra-nueva">Nueva contraseña</label>
-                            <input type="password" id="contra-nueva" name="password_nueva" placeholder="Ingresá la nueva contraseña" minlength="8" required>
+                            <input type="password" id="contra-nueva" name="password_nueva" placeholder="Ingresá la nueva contraseña" minlength="8" data-password-toggle required>
                         </div>
 
                         <div class="grupo-campo">
                             <label for="contra-confirmar">Confirmar nueva contraseña</label>
-                            <input type="password" id="contra-confirmar" name="confirmar_password" placeholder="Repetí la nueva contraseña" minlength="8" required>
+                            <input type="password" id="contra-confirmar" name="confirmar_password" placeholder="Repetí la nueva contraseña" minlength="8" data-password-toggle required>
                         </div>
 
                         <div class="footer-pasos">

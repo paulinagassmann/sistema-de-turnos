@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 if (
     $_SERVER['REQUEST_METHOD'] !== 'POST'
@@ -23,11 +24,8 @@ if ($paciente_id === false) {
 }
 
 $urlEdicion = '../../secretario/secretario-editar-perfil-paciente.php?id=' . $paciente_id;
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_editar_paciente'])
-    || !hash_equals($_SESSION['csrf_editar_paciente'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: " . $urlEdicion . "&error=solicitud_invalida");
     exit();
@@ -75,7 +73,6 @@ try {
         ':id' => $paciente_id
     ]);
 
-    unset($_SESSION['csrf_editar_paciente']);
     header("Location: " . $urlEdicion . "&exito=1");
     exit();
 } catch (Throwable $e) {

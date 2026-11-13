@@ -1,12 +1,24 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // Conexión a la base de datos
 require_once __DIR__ . '/../config/conexion.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $dni = trim($_POST['dni']);
-    $password_ingresada = trim($_POST['password']);
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: ../index.html");
+    exit();
+}
+
+// verifico el token CSRF (evita que otra página haga iniciar sesión al usuario con otra cuenta)
+if (!csrf_es_valido()) {
+    header("Location: ../index.html?error=solicitud_invalida");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $dni = is_string($_POST['dni'] ?? null) ? trim($_POST['dni']) : '';
+    $password_ingresada = is_string($_POST['password'] ?? null) ? trim($_POST['password']) : '';
 
     try {
         // busco al usuario en la tabla 'usuarios' utilizando su DNI
@@ -17,7 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // valido si el usuario existe y si la contraseña coincide con el hash de la BD
         if ($usuario && password_verify($password_ingresada, $usuario['password'])) {
-            
+
+            // genero un id de sesión nuevo al iniciar sesión para evitar
+            // que alguien reutilice un id de sesión fijado de antemano
+            session_regenerate_id(true);
+            csrf_renovar();
+
             // guardo los datos esenciales en las variables de sesión
             $_SESSION['usuario_id'] = $usuario['id'];
             $_SESSION['nombre'] = $usuario['nombre'];
@@ -60,7 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
     } catch (Exception $e) {
-        die("Error en el sistema de login: " . $e->getMessage());
+        error_log("Error en el sistema de login: " . $e->getMessage());
+        http_response_code(500);
+        die("Error en el sistema de login. Intentá de nuevo más tarde.");
     }
 }
 ?>

@@ -378,6 +378,7 @@ function inicializarCambioPassword() {
         longitud: 'La nueva contraseña debe tener al menos 8 caracteres.',
         coincidencia: 'Las contraseñas nuevas no coinciden.',
         distinta: 'La nueva contraseña debe ser diferente de la actual.',
+        solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
         servidor: 'No se pudo actualizar la contraseña. Intentá nuevamente.'
     };
     const error = new URLSearchParams(window.location.search).get('error');

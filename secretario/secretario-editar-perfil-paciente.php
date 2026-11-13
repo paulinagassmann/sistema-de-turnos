@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos sesión de secretario
 if (
@@ -28,9 +29,6 @@ if ($paciente_id === false || ($paciente_id === null && $dni === '')) {
     exit();
 }
 
-if (empty($_SESSION['csrf_editar_paciente'])) {
-    $_SESSION['csrf_editar_paciente'] = bin2hex(random_bytes(32));
-}
 
 $paciente = null;
 
@@ -75,8 +73,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -116,9 +115,12 @@ try {
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -145,7 +147,7 @@ try {
                     
                     <form class="form-perfil" action="../procesos/secretario/procesar-editar-paciente.php" method="POST">
 
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_editar_paciente'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo csrf_input(); ?>
                         <input type="hidden" name="paciente_id" value="<?php echo (int) $paciente['id']; ?>">
 
                         <h2> Teléfono </h2>

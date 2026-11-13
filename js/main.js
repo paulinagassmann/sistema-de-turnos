@@ -130,3 +130,99 @@ if (document.readyState === 'loading') {
 } else {
     mostrarAvisoPasswordActualizada();
 }
+
+function mostrarErrorLogin() {
+    const mensaje = document.getElementById('mensajeErrorLogin');
+    if (!mensaje) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    if (!error) return;
+
+    const textos = {
+        credenciales_invalidas: 'El usuario o la contraseña son incorrectos. Verifique sus datos e intente nuevamente.',
+        rol_desconocido: 'Su cuenta no tiene un rol válido asignado. Contacte a la clínica.',
+        solicitud_invalida: 'La página venció. Intente iniciar sesión nuevamente.'
+    };
+
+    mensaje.textContent = textos[error] || 'No se pudo iniciar sesión. Intente nuevamente.';
+    mensaje.hidden = false;
+
+    // limpio el parámetro para que el aviso no reaparezca al recargar
+    urlParams.delete('error');
+    const query = urlParams.toString();
+    const urlLimpia = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`;
+    window.history.replaceState(window.history.state, document.title, urlLimpia);
+
+    // al volver a escribir, oculto el aviso
+    ['dni', 'password'].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.addEventListener('input', () => { mensaje.hidden = true; }, { once: true });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mostrarErrorLogin, { once: true });
+} else {
+    mostrarErrorLogin();
+}
+// ===== Token CSRF para páginas .html estáticas =====
+// Las páginas PHP escriben el token directamente en sus formularios. Las páginas
+// .html no pueden, así que sus formularios traen un campo vacío marcado con
+// data-csrf-dinamico y acá se completa pidiendo el token al servidor por POST.
+const rutaObtenerCsrf = (() => {
+    const scriptMain = document.querySelector('script[src*="js/main.js"]');
+    const base = scriptMain ? scriptMain.src : window.location.href;
+    return new URL('../procesos/obtener-csrf.php', base).toString();
+})();
+
+let promesaTokenCsrf = null;
+
+function obtenerTokenCsrf() {
+    if (!promesaTokenCsrf) {
+        promesaTokenCsrf = fetch(rutaObtenerCsrf, {
+            method: 'POST',
+            credentials: 'same-origin',
+            cache: 'no-store'
+        })
+            .then((respuesta) => {
+                if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+                return respuesta.json();
+            })
+            .then((datos) => datos.csrf_token || '')
+            .catch((error) => {
+                console.error('No se pudo obtener el token de seguridad.', error);
+                promesaTokenCsrf = null; // permito reintentar
+                return '';
+            });
+    }
+    return promesaTokenCsrf;
+}
+window.obtenerTokenCsrf = obtenerTokenCsrf;
+
+function inicializarTokensCsrfDinamicos() {
+    const campos = document.querySelectorAll('input[name="csrf_token"][data-csrf-dinamico]');
+    if (campos.length === 0) return;
+
+    obtenerTokenCsrf().then((token) => {
+        campos.forEach((campo) => { campo.value = token; });
+    });
+
+    // si el usuario envía el formulario antes de que llegue el token, espero y reenvío
+    campos.forEach((campo) => {
+        const formulario = campo.form;
+        if (!formulario) return;
+        formulario.addEventListener('submit', async (evento) => {
+            if (campo.value) return;
+            evento.preventDefault();
+            campo.value = await obtenerTokenCsrf();
+            if (campo.value) formulario.requestSubmit();
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarTokensCsrfDinamicos, { once: true });
+} else {
+    inicializarTokensCsrfDinamicos();
+}

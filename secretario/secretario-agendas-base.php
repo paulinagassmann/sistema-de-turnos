@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // valido sesión de secretario
 if (
@@ -19,9 +20,6 @@ $profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)
     : null;
 $profesionalIdSeleccionado = $profesionalIdSeleccionado === false ? null : $profesionalIdSeleccionado;
 
-if (empty($_SESSION['csrf_agendas_base'])) {
-    $_SESSION['csrf_agendas_base'] = bin2hex(random_bytes(32));
-}
 
 $profesionales = [];
 $agendasActuales = [];
@@ -113,8 +111,9 @@ $mensajeErrorAgenda = $mensajesErrorAgendas[$codigoErrorAgenda]
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
 </head>
 
@@ -154,9 +153,12 @@ $mensajeErrorAgenda = $mensajesErrorAgendas[$codigoErrorAgenda]
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -179,7 +181,7 @@ $mensajeErrorAgenda = $mensajesErrorAgendas[$codigoErrorAgenda]
             <?php endif; ?>
 
             <form action="../procesos/secretario/procesar-agendas-base.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_agendas_base'], ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo csrf_input(); ?>
                 <input type="hidden" name="profesional_id" value="<?php echo htmlspecialchars((string) ($profesionalIdSeleccionado ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
 
                 <div class="contenedor-config-agenda">

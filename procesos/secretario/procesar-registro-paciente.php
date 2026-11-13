@@ -1,4 +1,23 @@
 <?php
+session_start();
+require_once __DIR__ . '/../../config/csrf.php';
+
+// solo un secretario con sesión iniciada puede registrar cuentas, y solo por POST
+if (
+    $_SERVER['REQUEST_METHOD'] !== 'POST'
+    || empty($_SESSION['usuario_id'])
+    || !isset($_SESSION['rol'])
+    || $_SESSION['rol'] !== 'secretario'
+) {
+    header("Location: ../../index.html?error=sesion_requerida");
+    exit();
+}
+
+// verifico el token CSRF (que el envío venga de un formulario de este sistema)
+if (!csrf_es_valido()) {
+    header("Location: ../../secretario/secretario-registrar-paciente.html?error=solicitud_invalida");
+    exit();
+}
 
 require_once __DIR__ . '/../../config/conexion.php';
 
@@ -53,14 +72,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 5. Si todo salió bien, confirmamos los cambios en la base de datos
         $conexion->commit();
 
-        // Éxito: Redirigimos al formulario pasando el DNI y la contraseña (año) por la URL de manera limpia
-        header("Location: ../../secretario/secretario-registrar-paciente.html?exito=1&dni=" . urlencode($dni) . "&pass=" . urlencode($anio_nacimiento));
+        // Éxito: guardo las credenciales en la sesión (no en la URL, para que la
+        // contraseña no quede en el historial del navegador ni en los logs del servidor)
+        $_SESSION['credenciales_registro'] = ['dni' => $dni, 'pass' => $anio_nacimiento];
+        header("Location: ../../secretario/secretario-registrar-paciente.html?exito=1");
         exit();
 
     } catch (Exception $e) {
         // Si ocurre algún error (ej: DNI repetido), deshacemos todo lo que intentó guardar
-        $conexion->rollBack();
-        die("Error al registrar el paciente: " . $e->getMessage());
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+        error_log("Error al registrar el paciente: " . $e->getMessage());
+        die("No se pudo registrar el paciente. Verificá que el DNI o el correo no estén ya registrados.");
     }
 }
 

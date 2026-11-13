@@ -1,9 +1,15 @@
 <?php
 
+//función de automatización: revisa los turnos que quedaron como "pendientes" 
+//y los pasa automáticamente a "ausente" si la hora del turno ya pasó 
+// y el paciente no asistió
+
 function actualizarTurnosPendientesVencidos(PDO $conexion): int
 {
     $zonaHoraria = new DateTimeZone('America/Argentina/Buenos_Aires');
     $ahora = new DateTimeImmutable('now', $zonaHoraria);
+    // pasa el turno a estado ausente si cumple con las condiciones
+    // (el comentario va acá afuera: "//" no es un comentario válido dentro de SQL)
     $stmt = $conexion->prepare(
         "UPDATE turnos t
          SET t.estado = 'ausente'

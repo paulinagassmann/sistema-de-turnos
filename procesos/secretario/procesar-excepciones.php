@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -18,11 +19,8 @@ if (
     $responder(403, ['ok' => false, 'error' => 'sesion_requerida']);
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    empty($_SESSION['csrf_excepciones'])
-    || !is_string($csrfToken)
-    || !hash_equals($_SESSION['csrf_excepciones'], $csrfToken)
+    !csrf_es_valido()
 ) {
     $responder(400, ['ok' => false, 'error' => 'solicitud_invalida']);
 }

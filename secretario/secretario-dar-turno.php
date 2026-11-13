@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. Validamos sesión de secretario
 if (
@@ -11,9 +12,6 @@ if (
     exit();
 }
 
-if (empty($_SESSION['csrf_dar_turno'])) {
-    $_SESSION['csrf_dar_turno'] = bin2hex(random_bytes(32));
-}
 
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../config/turnos.php';
@@ -258,8 +256,9 @@ $errorTurno = is_string($_GET['error'] ?? null)
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Secretario </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
     <script src="../js/secretario-dar-turno.js" defer></script>
 </head>
@@ -300,9 +299,12 @@ $errorTurno = is_string($_GET['error'] ?? null)
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -325,7 +327,7 @@ $errorTurno = is_string($_GET['error'] ?? null)
             <?php endif; ?>
 
             <form action="../procesos/secretario/procesar-dar-turno.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_dar_turno'], ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo csrf_input(); ?>
                 <div class="grilla-dar-turno">
 
                     <!-- PASO 1: PACIENTE -->

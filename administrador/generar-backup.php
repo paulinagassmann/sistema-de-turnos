@@ -3,6 +3,7 @@
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // valido que el usuario sea administrador
 if (
@@ -14,14 +15,56 @@ if (
     exit();
 }
 
+// el backup solo se genera desde el botón del panel (POST), no abriendo la URL
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_es_valido()) {
+    header("Location: administrador.php");
+    exit();
+}
+
 require_once __DIR__ . '/../config/conexion.php';
 
 try {
-    // obtengo todas las tablas de la bd
-    $tablas = [];
+    // obtengo todas las tablas existentes en la bd
+    $tablasBd = [];
     $stmt = $conexion->query("SHOW TABLES");
     while ($fila = $stmt->fetch(PDO::FETCH_NUM)) {
-        $tablas[] = $fila[0];
+        $tablasBd[] = $fila[0];
+    }
+
+    // leo de la propia bd qué tabla depende de cuál (claves foráneas)
+    // ej: pacientes depende de usuarios, turnos depende de pacientes y profesionales
+    $dependencias = array_fill_keys($tablasBd, []);
+    $stmtFk = $conexion->query(
+        "SELECT TABLE_NAME, REFERENCED_TABLE_NAME
+         FROM information_schema.KEY_COLUMN_USAGE
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND REFERENCED_TABLE_SCHEMA = DATABASE()
+           AND REFERENCED_TABLE_NAME IS NOT NULL"
+    );
+    while ($fk = $stmtFk->fetch(PDO::FETCH_ASSOC)) {
+        if ($fk['TABLE_NAME'] !== $fk['REFERENCED_TABLE_NAME'] && isset($dependencias[$fk['TABLE_NAME']])) {
+            $dependencias[$fk['TABLE_NAME']][] = $fk['REFERENCED_TABLE_NAME'];
+        }
+    }
+
+    // ordeno las tablas de padres a hijas: una tabla va recién cuando ya están todas las que referencia
+    // (usuarios -> pacientes/profesionales -> agendas/excepciones/turnos)
+    $tablas = [];
+    $pendientes = $tablasBd;
+    while (!empty($pendientes)) {
+        $avance = false;
+        foreach ($pendientes as $i => $tabla) {
+            if (empty(array_diff($dependencias[$tabla], $tablas))) {
+                $tablas[] = $tabla;
+                unset($pendientes[$i]);
+                $avance = true;
+            }
+        }
+        if (!$avance) {
+            // dependencia circular: agrego las que quedan tal cual (FOREIGN_KEY_CHECKS = 0 las cubre)
+            $tablas = array_merge($tablas, array_values($pendientes));
+            break;
+        }
     }
 
     $contenidoSql = "-- ==========================================\n";
@@ -29,15 +72,22 @@ try {
     $contenidoSql .= "-- Fecha y Hora: " . date('Y-m-d H:i:s') . "\n";
     $contenidoSql .= "-- Generado por: Administrador ID " . $_SESSION['usuario_id'] . "\n";
     $contenidoSql .= "-- ==========================================\n\n";
-    
+
     $contenidoSql .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
 
-    // recorro tabla por tabla exportando estructura y registros
+    // primero borro todas las tablas de hijas a padres (turnos ... usuarios).
+    // así el DROP de usuarios nunca falla por la clave foránea (#1451), aunque el programa
+    // que importa el archivo (ej: phpMyAdmin) tenga la revisión de claves foráneas activada
+    foreach (array_reverse($tablas) as $tabla) {
+        $contenidoSql .= "DROP TABLE IF EXISTS `$tabla`;\n";
+    }
+    $contenidoSql .= "\n";
+
+    // después creo y cargo las tablas de padres a hijas
     foreach ($tablas as $tabla) {
         // estructura de la tabla (CREATE TABLE)
         $stmtCreacion = $conexion->query("SHOW CREATE TABLE `$tabla`");
         $rowCreacion = $stmtCreacion->fetch(PDO::FETCH_NUM);
-        $contenidoSql .= "DROP TABLE IF EXISTS `$tabla`;\n";
         $contenidoSql .= $rowCreacion[1] . ";\n\n";
 
         // datos de la tabla (INSERT INTO)
@@ -50,7 +100,10 @@ try {
                 $valores = array_values($fila);
 
                 // escapar valores de manera segura mediante PDO
-                $valoresEscapados = array_map([$conexion, 'quote'], $valores);
+                // (los NULL se exportan como NULL; si no, quote() los convertiría en '')
+                $valoresEscapados = array_map(function ($valor) use ($conexion) {
+                    return $valor === null ? 'NULL' : $conexion->quote($valor);
+                }, $valores);
 
                 $contenidoSql .= "INSERT INTO `$tabla` (`" . implode("`, `", $columnas) . "`) VALUES (" . implode(", ", $valoresEscapados) . ");\n";
             }
@@ -60,7 +113,7 @@ try {
 
     $contenidoSql .= "SET FOREIGN_KEY_CHECKS = 1;\n";
 
-    //defino el nombre del archivo descargable
+    // defino el nombre del archivo descargable
     $nombreArchivo = 'backup_pausa_' . date('Y-m-d_H-i-s') . '.sql';
 
     // fuerzo la descarga directa en el navegador del usuario

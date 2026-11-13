@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // valido que sea un paciente logueado
 if (
@@ -11,9 +12,11 @@ if (
     exit();
 }
 
+//conecto a la bd
 require_once __DIR__ . '/../config/conexion.php';
 
 try {
+    // obtengo los datos del paciente 
     $stmt = $conexion->prepare(
         'SELECT u.correo, u.telefono, p.obra_social 
          FROM usuarios u 
@@ -39,7 +42,8 @@ try {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Pausa - Error al cargar perfil</title>
-        <link rel="stylesheet" href="../css/styles.css">
+        <link rel="icon" type="image/png" href="../img/favicon.png">
+        <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
     </head>
     <body>
         <main class="main-perfil-paciente">
@@ -64,6 +68,7 @@ $mensajes = [
     'coincidencia' => 'Las contraseñas nuevas no coinciden.',
     'longitud' => 'La nueva contraseña debe tener al menos 8 caracteres.',
     'actual_incorrecta' => 'La contraseña actual es incorrecta.',
+    'solicitud_invalida' => 'La página venció. Recargala e intentá nuevamente.',
     'servidor' => 'No pudimos guardar los cambios. Intentá nuevamente.'
 ];
 $tipoMensaje = null;
@@ -94,8 +99,8 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Editar Perfil </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-     <script src="../js/main.js?v=password-toggle-20261102" defer></script>
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+     <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/paciente.js?v=perfil-db-20261103-1" defer></script>
 </head>
 
@@ -129,6 +134,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
                 <h2>Editar información personal</h2>
 
                 <form class="form-perfil" action="../procesos/paciente/procesar-editar-perfil-paciente.php" method="POST">
+                    <?php echo csrf_input(); ?>
                     <div class="grupo-campo">
                         <label for="email">Correo electrónico</label>
                         <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
@@ -155,6 +161,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
                 <h2>Cambiar contraseña</h2>
 
                 <form class="form-perfil" action="../procesos/paciente/procesar-cambiar-password-paciente.php" method="POST">
+                    <?php echo csrf_input(); ?>
 
                     <div class="grupo-campo">
                         <label for="contra-actual">Contraseña actual</label>

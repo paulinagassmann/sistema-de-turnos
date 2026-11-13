@@ -18,7 +18,7 @@ $profesionales = [];
 $errorAlCargarProfesionales = false;
 
 try {
-    // consulto los profesionales de la bd porq en este paso se elige profesional
+    // consulto los profesionales de la bd 
     $stmt = $conexion->prepare(
         'SELECT p.id, u.nombre, u.apellido, p.especialidad 
          FROM profesionales p 
@@ -44,8 +44,9 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Agendar Turno </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
-    <script src="../js/main.js" defer></script>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/paciente.js?v=booking-step-two-20261104-2" defer></script>
 </head>
 

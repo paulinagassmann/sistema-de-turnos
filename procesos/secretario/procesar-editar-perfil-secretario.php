@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 if (
     $_SERVER['REQUEST_METHOD'] !== 'POST'
@@ -11,11 +12,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_secretario'])
-    || !hash_equals($_SESSION['csrf_secretario'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: ../../secretario/secretario-configuracion.php?error=solicitud_invalida");
     exit();
@@ -53,7 +51,6 @@ try {
         ':id' => $_SESSION['usuario_id']
     ]);
 
-    unset($_SESSION['csrf_secretario']);
     header("Location: ../../secretario/secretario-configuracion.php?exito=1");
     exit();
 } catch (Throwable $e) {

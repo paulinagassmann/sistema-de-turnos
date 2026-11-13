@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 $rutaFormulario = '../../secretario/secretario-dar-turno.php';
 if (
@@ -12,11 +13,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_dar_turno'])
-    || !hash_equals($_SESSION['csrf_dar_turno'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: {$rutaFormulario}?error=solicitud_invalida");
     exit();
@@ -278,7 +276,6 @@ try {
     $conexion->commit();
 
     $liberarBloqueo();
-    unset($_SESSION['csrf_dar_turno']);
     header("Location: {$rutaFormulario}?profesional_id={$profesionalId}&exito=1");
     exit();
 } catch (Throwable $e) {

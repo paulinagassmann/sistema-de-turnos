@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
 // 1. valido la sesión de secretario
 if (
@@ -21,9 +22,6 @@ $profesionalIdSeleccionado = is_scalar($profesionalIdRecibido)
     : null;
 $profesionalIdSeleccionado = $profesionalIdSeleccionado === false ? null : $profesionalIdSeleccionado;
 
-if (empty($_SESSION['csrf_excepciones'])) {
-    $_SESSION['csrf_excepciones'] = bin2hex(random_bytes(32));
-}
 
 $profesionales = [];
 
@@ -72,10 +70,11 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
     <meta name="description" content="Gestiona excepciones en las agendas de los profesionales.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excepciones | Pausa - Secretario</title>
+    <link rel="icon" type="image/png" href="../img/favicon.png">
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
-    <script src="../js/main.js" defer></script>
+    <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
-    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_excepciones'], ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
 </head>
 
 <body class="body-dashboard">
@@ -114,9 +113,12 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <span>Cerrar sesión</span>
-                </a>
+                <form action="../procesos/cerrar-sesion.php" method="POST" class="form-logout">
+                    <?php echo csrf_input(); ?>
+                    <button type="submit" class="btn-logout">
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
 
         </aside>

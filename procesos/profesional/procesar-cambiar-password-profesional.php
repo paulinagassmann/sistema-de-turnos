@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/csrf.php';
 
 if (
     $_SERVER['REQUEST_METHOD'] !== 'POST'
@@ -11,11 +12,8 @@ if (
     exit();
 }
 
-$csrfToken = $_POST['csrf_token'] ?? null;
 if (
-    !is_string($csrfToken)
-    || empty($_SESSION['csrf_profesional'])
-    || !hash_equals($_SESSION['csrf_profesional'], $csrfToken)
+    !csrf_es_valido()
 ) {
     header("Location: ../../profesional/profesional-configuracion.php?error=solicitud_invalida");
     exit();
@@ -80,7 +78,6 @@ try {
         ':id' => $_SESSION['usuario_id']
     ]);
 
-    unset($_SESSION['csrf_profesional']);
     header("Location: ../../profesional/profesional-configuracion.php?password_exito=1");
     exit();
 } catch (Throwable $e) {

@@ -1,6 +1,8 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/csrf.php';
 
+//verifico si es paciente
 if (
     empty($_SESSION['usuario_id'])
     || !isset($_SESSION['rol'])
@@ -10,14 +12,23 @@ if (
     exit();
 }
 
+//exijo que los datos vengan por post
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: paciente1.php");
     exit();
 }
 
+// verifico el token CSRF (que el envío venga de un formulario de este sistema)
+if (!csrf_es_valido()) {
+    header("Location: paciente1.php?error=sesion_vencida");
+    exit();
+}
+
+//junto los datos que eligió el paciente antes: profesional, fecha y hora
 $profesionalIdPost = $_POST['profesional_id'] ?? null;
 $fechaPost = $_POST['fecha_seleccionada'] ?? null;
 $horaPost = $_POST['hora_turno'] ?? null;
+
 $profesionalId = filter_var($profesionalIdPost, FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1]
 ]);
@@ -43,14 +54,11 @@ $fecha = $fechaPost;
 $hora = $horaPost;
 $_SESSION['fecha_turno'] = $fecha;
 $_SESSION['hora_turno'] = $hora;
-if (empty($_SESSION['csrf_reservar_turno'])) {
-    $_SESSION['csrf_reservar_turno'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_reservar_turno'];
 
 require_once __DIR__ . '/../config/conexion.php';
 
 try {
+    //busco los datos del profesional para mostrarlos en el resumen
     $stmt = $conexion->prepare(
         'SELECT u.nombre, u.apellido, p.especialidad
          FROM profesionales p
@@ -81,7 +89,8 @@ try {
     <meta name="viewport" content="width=device-width, 
     initial-scale=1.0">
     <title> Pausa - Agendar Turno </title>
-    <link rel="stylesheet" href="../css/styles.css"> <!-- Enlaza el archivo styles.css para agregar estilos -->
+    <link rel="icon" type="image/png" href="../img/favicon.png">
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
 </head>
 
 <body>
@@ -126,7 +135,7 @@ try {
                 <a href="paciente1.php" class="btn-cancelar-paso">Volver a profesionales</a>
             <?php else: ?>
             <form action="../procesos/paciente/procesar-reservar-turno-paciente.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo csrf_input(); ?>
                 <input type="hidden" name="profesional_id" value="<?php echo $profesional_id; ?>">
                 <input type="hidden" name="fecha_seleccionada" value="<?php echo htmlspecialchars($fecha, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="hora_turno" value="<?php echo htmlspecialchars($hora, ENT_QUOTES, 'UTF-8'); ?>">
