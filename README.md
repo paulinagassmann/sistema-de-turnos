@@ -110,6 +110,7 @@ Desde este panel se gestionan los cimientos de la atención diaria:
   - Visualizar los turnos próximos programados en su historial y cancelarlos con un solo clic si no va a poder asistir, liberando automáticamente el espacio en la agenda del profesional.
 
 
-  ## 📐 Modelo de Base de Datos (DER)
-  Por útilo, se adjunta el DER para mejor comprensión del sistema.
-![Diagrama Entidad-Relación de Pausa](img/der-pausa.png)
+## 📐 Modelo de Base de Datos (DER)
+Por último, se adjunta el DER para mejor comprensión del sistema.
+
+![Diagrama Entidad-Relación de Pausa](img/DER-Pausa.png)
