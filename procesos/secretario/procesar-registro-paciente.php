@@ -20,20 +20,39 @@ if (!csrf_es_valido()) {
 }
 
 require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../config/validaciones.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Obtengo los datos del formulario
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellido'];
-    $dni = $_POST['dni'];
-    $fecha_nacimiento = $_POST['nacimiento']; 
-    $telefono = $_POST['telefono'];
-    $correo = $_POST['email'];
+    $nombre = capitalizar_nombre((string) ($_POST['nombre'] ?? ''));
+    $apellido = capitalizar_nombre((string) ($_POST['apellido'] ?? ''));
+    $dni = trim((string) ($_POST['dni'] ?? ''));
+    $fecha_nacimiento = trim((string) ($_POST['nacimiento'] ?? ''));
+    $telefono = normalizar_telefono(trim((string) ($_POST['telefono'] ?? '')));
+    $correo = trim((string) ($_POST['email'] ?? ''));
 
-    // Obra social
-    $tiene_cobertura = $_POST['tiene_cobertura'];
-    $obra_social = ($tiene_cobertura === 'si' && !empty($_POST['obra_social'])) ? trim($_POST['obra_social']) : null;
+    // Obra social: solo si tiene cobertura; letras, números y espacios.
+    $tiene_cobertura = (string) ($_POST['tiene_cobertura'] ?? 'no');
+    $obra_social = null;
+    $obra_social_valida = true;
+    if ($tiene_cobertura === 'si') {
+        $obra_social = preg_replace('/\s+/u', ' ', trim((string) ($_POST['obra_social'] ?? '')));
+        $obra_social_valida = es_alfanumerico_valido($obra_social) && mb_strlen($obra_social, 'UTF-8') <= 150;
+    }
+
+    if (
+        !es_dni_valido($dni)
+        || !es_nombre_valido($nombre)
+        || !es_nombre_valido($apellido)
+        || !es_fecha_valida($fecha_nacimiento, '1900-01-01', date('Y-m-d'))
+        || $telefono === null
+        || !es_correo_valido($correo)
+        || !$obra_social_valida
+    ) {
+        header("Location: ../../secretario/secretario-registrar-paciente.html?error=datos_invalidos");
+        exit();
+    }
 
     try {
         // extraigo el año de nacimiento para usarlo de contraseña inicial
@@ -84,7 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conexion->rollBack();
         }
         error_log("Error al registrar el paciente: " . $e->getMessage());
-        die("No se pudo registrar el paciente. Verificá que el DNI o el correo no estén ya registrados.");
+        header("Location: ../../secretario/secretario-registrar-paciente.html?error=duplicado");
+        exit();
     }
 }
 

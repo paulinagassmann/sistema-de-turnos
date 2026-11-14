@@ -74,6 +74,7 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>">
     <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
+    <script src="../js/validaciones-formulario.js?v=<?php echo filemtime(__DIR__ . '/../js/validaciones-formulario.js'); ?>" defer></script>
     <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
 </head>
 
@@ -278,11 +279,15 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
             <div id="datos-paciente-turno-extra" class="datos-paciente-turno-extra" hidden>
                 <div class="campo-turno-extra">
                     <label for="nombre-paciente-extra">Nombre y apellido</label>
-                    <input id="nombre-paciente-extra" name="nombrePaciente" type="text" autocomplete="name" maxlength="100">
+                    <input id="nombre-paciente-extra" name="nombrePaciente" type="text" autocomplete="off" maxlength="200"
+                           pattern="\p{L}+( \p{L}+)*" data-validar="letras"
+                           title="El nombre y apellido solo pueden contener letras.">
                 </div>
                 <div class="campo-turno-extra">
                     <label for="dni-paciente-extra">DNI </label>
-                    <input id="dni-paciente-extra" name="dniPaciente" type="text" inputmode="numeric" maxlength="20">
+                    <input id="dni-paciente-extra" name="dniPaciente" type="text" inputmode="numeric" autocomplete="off"
+                           minlength="8" maxlength="8" pattern="[0-9]{8}" data-validar="dni"
+                           title="El DNI debe tener exactamente 8 números.">
                 </div>
             </div>
 

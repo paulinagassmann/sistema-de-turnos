@@ -11,6 +11,7 @@
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/styles.css?v=ojitos-20261113"> <!-- Enlaza el archivo styles.css para agregar estilos -->
      <script src="js/main.js?v=ojitos-20261113" defer></script>
+     <script src="js/validaciones-formulario.js?v=login-20261114" defer></script>
 </head>
 
  <body>
@@ -36,7 +37,10 @@
                 <div> 
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                     <label for="dni"> Usuario </label>
-                    <input type="text" name="dni" id="dni" placeholder="Ingrese su DNI" required>
+                    <input type="text" name="dni" id="dni" placeholder="Ingrese su DNI" required
+                           inputmode="numeric" autocomplete="username" minlength="8" maxlength="8" pattern="[0-9]{8}"
+                           data-validar="dni" title="El DNI debe tener exactamente 8 números.">
+
                 </div>
 
                 <!--contraseña-->

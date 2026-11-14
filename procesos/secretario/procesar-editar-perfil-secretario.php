@@ -32,7 +32,9 @@ if ($correo === '') {
     exit();
 }
 
-if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
+require_once __DIR__ . '/../../config/validaciones.php';
+
+if (!es_correo_valido($correo)) {
     header("Location: ../../secretario/secretario-configuracion.php?error=correo_invalido");
     exit();
 }

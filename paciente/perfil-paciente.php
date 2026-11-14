@@ -63,7 +63,10 @@ $mensajes = [
     'exito' => 'Tus datos se actualizaron correctamente.',
     'password_exito' => 'Tu contraseña se actualizó correctamente.',
     'campos_vacios' => 'Completá el correo electrónico y el teléfono.',
-    'correo_invalido' => 'Ingresá un correo electrónico válido.',
+    'correo_invalido' => 'Ingresá un correo electrónico válido (ej: nombre@dominio.com).',
+    'correo_repetido' => 'Ese correo electrónico ya está registrado en otra cuenta.',
+    'obra_social_invalida' => 'La obra social solo puede contener letras y números, sin caracteres especiales.',
+    'telefono_invalido' => 'El teléfono solo puede contener números: entre 10 y 13 después del +54. Ej: +543436985148',
     'campos_password' => 'Completá todos los campos de contraseña.',
     'coincidencia' => 'Las contraseñas nuevas no coinciden.',
     'longitud' => 'La nueva contraseña debe tener al menos 8 caracteres.',
@@ -102,6 +105,7 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
      <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/paciente.js?v=perfil-db-20261103-1" defer></script>
+    <script src="../js/validaciones-formulario.js?v=<?php echo filemtime(__DIR__ . '/../js/validaciones-formulario.js'); ?>" defer></script>
 </head>
 
     <body>
@@ -137,17 +141,26 @@ if (isset($_GET['exito']) && $_GET['exito'] === '1') {
                     <?php echo csrf_input(); ?>
                     <div class="grupo-campo">
                         <label for="email">Correo electrónico</label>
-                        <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                        <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
+                               maxlength="150" autocomplete="email" data-validar="correo"
+                               pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                               title="Ingresá un correo válido, por ejemplo: nombre@dominio.com">
                     </div>
 
                     <div class="grupo-campo">
                         <label for="telefono">Teléfono de contacto</label>
-                        <input type="tel" id="telefono" name="telefono" value="<?php echo htmlspecialchars($paciente['telefono'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                        <input type="tel" id="telefono" name="telefono" value="<?php echo htmlspecialchars(($paciente['telefono'] ?? '') !== '' ? $paciente['telefono'] : '+54', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="+543436985148" inputmode="tel" autocomplete="tel" maxlength="16"
+                               data-validar="telefono" aria-describedby="ayuda-telefono" required>
+                        <small id="ayuda-telefono" class="ayuda-campo">Ej: +543436985148</small>
                     </div>
 
                     <div class="grupo-campo">
                         <label for="obra-social">Obra Social / Prepaga</label>
-                        <input type="text" id="obra-social" name="obra_social" value="<?php echo htmlspecialchars($paciente['obra_social'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="text" id="obra-social" name="obra_social" value="<?php echo htmlspecialchars($paciente['obra_social'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               maxlength="150" autocomplete="off" pattern="[\p{L}\d]+( [\p{L}\d]+)*" data-validar="alfanumerico"
+                               title="La obra social solo puede contener letras y números.">
+                        <small class="ayuda-campo">Solo letras y números. Dejalo vacío si no tenés cobertura.</small>
                     </div>
 
                     <div class="footer-pasos">

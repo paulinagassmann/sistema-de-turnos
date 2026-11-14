@@ -211,11 +211,6 @@ try {
                     <input type="email" id="email" value="<?php echo htmlspecialchars($datosPaciente['correo']); ?>" readonly>
                     </div>
 
-                    <div class="campo-perfil">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" value="********" readonly>
-                    </div>
-
                     <a href="perfil-paciente.php" class="btn-editar">
                         <span>Editar información</span>
                     </a>

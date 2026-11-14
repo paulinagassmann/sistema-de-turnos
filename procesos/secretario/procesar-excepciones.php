@@ -1074,8 +1074,12 @@ try {
         $dniRecibido = $_POST['dni_paciente'] ?? null;
         $dni = is_string($dniRecibido) ? preg_replace('/\D+/', '', $dniRecibido) : '';
         $nombreRecibido = $_POST['nombre_paciente'] ?? null;
-        $nombre = is_string($nombreRecibido) ? trim($nombreRecibido) : '';
-        if ($dni === '' || $nombre === '') {
+        $nombre = is_string($nombreRecibido) ? preg_replace('/\s+/u', ' ', trim($nombreRecibido)) : '';
+        if (
+            !preg_match('/^\d{8}$/', $dni)
+            || !preg_match('/^\p{L}+(?: \p{L}+)*$/u', $nombre)
+            || mb_strlen($nombre, 'UTF-8') > 200
+        ) {
             $conexion->rollBack();
             $responder(400, ['ok' => false, 'error' => 'paciente_invalido']);
         }

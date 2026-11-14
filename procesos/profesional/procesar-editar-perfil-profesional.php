@@ -31,7 +31,9 @@ if ($correo === '') {
     exit();
 }
 
-if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
+require_once __DIR__ . '/../../config/validaciones.php';
+
+if (!es_correo_valido($correo)) {
     header("Location: ../../profesional/profesional-configuracion.php?error=correo_invalido");
     exit();
 }
@@ -39,6 +41,14 @@ if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
 require_once __DIR__ . '/../../config/conexion.php';
 
 try {
+    // El correo es único: aviso claro si ya lo usa otra cuenta.
+    $stmtCorreo = $conexion->prepare("SELECT 1 FROM usuarios WHERE correo = :correo AND id <> :id LIMIT 1");
+    $stmtCorreo->execute([':correo' => $correo, ':id' => $_SESSION['usuario_id']]);
+    if ($stmtCorreo->fetchColumn()) {
+        header("Location: ../../profesional/profesional-configuracion.php?error=correo_repetido");
+        exit();
+    }
+
     $stmt = $conexion->prepare(
         "UPDATE usuarios
          SET correo = :correo

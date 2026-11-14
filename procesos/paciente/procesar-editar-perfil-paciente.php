@@ -19,6 +19,7 @@ if (!csrf_es_valido()) {
 }
 
 require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../config/validaciones.php';
 
 $correo = $_POST['correo'] ?? null;
 $telefono = $_POST['telefono'] ?? null;
@@ -31,6 +32,7 @@ if (
     || !is_string($obra_social)
     || trim($correo) === ''
     || trim($telefono) === ''
+    || trim($telefono) === '+54'
 ) {
     header("Location: ../../paciente/perfil-paciente.php?error=campos_vacios");
     exit();
@@ -40,8 +42,25 @@ $correo = trim($correo);
 $telefono = trim($telefono);
 $obra_social = trim($obra_social);
 
-if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
+if (!es_correo_valido($correo)) {
     header("Location: ../../paciente/perfil-paciente.php?error=correo_invalido");
+    exit();
+}
+
+// Obra social (opcional): letras, números y espacios, sin caracteres especiales.
+$obra_social = preg_replace('/\s+/u', ' ', $obra_social);
+if (
+    $obra_social !== ''
+    && (!es_alfanumerico_valido($obra_social) || mb_strlen($obra_social, 'UTF-8') > 150)
+) {
+    header("Location: ../../paciente/perfil-paciente.php?error=obra_social_invalida");
+    exit();
+}
+
+// Teléfono: solo números (10 a 13 después del +54), en el formato único del sistema.
+$telefono = normalizar_telefono($telefono);
+if ($telefono === null) {
+    header("Location: ../../paciente/perfil-paciente.php?error=telefono_invalido");
     exit();
 }
 
@@ -52,6 +71,15 @@ try {
     $stmtPaciente->execute([':id' => $id_usuario]);
     if (!$stmtPaciente->fetchColumn()) {
         throw new RuntimeException('No se encontró el registro del paciente.');
+    }
+
+    // El correo es único: aviso claro si ya lo usa otra cuenta.
+    $stmtCorreo = $conexion->prepare('SELECT 1 FROM usuarios WHERE correo = :correo AND id <> :id LIMIT 1');
+    $stmtCorreo->execute([':correo' => $correo, ':id' => $id_usuario]);
+    if ($stmtCorreo->fetchColumn()) {
+        $conexion->rollBack();
+        header("Location: ../../paciente/perfil-paciente.php?error=correo_repetido");
+        exit();
     }
 
     $stmtUsuario = $conexion->prepare(

@@ -315,6 +315,11 @@ body > footer {
     margin-bottom: 12px;
 }
 
+.ayuda-campo {
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
 .campo-perfil label {
     font-size: 0.8rem;
     font-weight: 600;
@@ -2311,6 +2316,10 @@ body > footer {
     gap: 4px;
 }
 
+.grupo-input[hidden] {
+    display: none;
+}
+
 .grupo-input label {
     font-size: 0.75rem;
     font-weight: 700;
@@ -2483,6 +2492,30 @@ body > footer {
     color: #0052cc;
 }
 
+/* Contraseña temporal oculta con ojito dentro del modal de credenciales */
+.valor-cred-password {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.valor-cred-password .valor-cred {
+    min-width: 6ch;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.valor-cred-password .boton-ver-password {
+    position: static;
+    transform: none;
+}
+
+.valor-cred-password .boton-ver-password svg {
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+}
+
 .divisor-cred {
     height: 1px;
     background-color: #e2e8f0;
@@ -2494,27 +2527,6 @@ body > footer {
     display: flex;
     gap: 12px;
     width: 100%;
-}
-
-.btn-imprimir-cred {
-    flex: 1;
-    background-color: #f1f5f9;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background-color 0.2s;
-}
-
-.btn-imprimir-cred:hover {
-    background-color: #e2e8f0;
 }
 
 .btn-finalizar-modal {

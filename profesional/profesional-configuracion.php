@@ -52,6 +52,7 @@ try {
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
     <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/profesional.js?v=profesional-configuracion-20261105-1" defer></script>
+    <script src="../js/validaciones-formulario.js?v=<?php echo filemtime(__DIR__ . '/../js/validaciones-formulario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">
@@ -101,7 +102,8 @@ try {
             <?php
             $mensajesError = [
                 'campos_vacios' => 'Ingresá un correo electrónico.',
-                'correo_invalido' => 'Ingresá un correo electrónico válido.',
+                'correo_invalido' => 'Ingresá un correo electrónico válido (ej: nombre@dominio.com).',
+                'correo_repetido' => 'Ese correo electrónico ya está registrado en otra cuenta.',
                 'coincidencia' => 'Las contraseñas nuevas no coinciden.',
                 'longitud' => 'La nueva contraseña debe tener al menos 8 caracteres.',
                 'actual_incorrecta' => 'La contraseña actual no es correcta.',
@@ -149,7 +151,10 @@ try {
 
                         <div class="grupo-campo">
                             <label for="email">Correo electrónico de acceso</label>
-                            <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($profesional['correo']); ?>" required>
+                            <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($profesional['correo']); ?>" required
+                                   maxlength="150" autocomplete="email" data-validar="correo"
+                                   pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                                   title="Ingresá un correo válido, por ejemplo: nombre@dominio.com">
                         </div>
 
                         <div class="footer-pasos">

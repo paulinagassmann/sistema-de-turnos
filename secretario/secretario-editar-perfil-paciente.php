@@ -77,6 +77,7 @@ try {
     <link rel="stylesheet" href="../css/styles.css?v=<?php echo filemtime(__DIR__ . '/../css/styles.css'); ?>"> <!-- Enlaza el archivo styles.css para agregar estilos -->
     <script src="../js/main.js?v=<?php echo filemtime(__DIR__ . '/../js/main.js'); ?>" defer></script>
     <script src="../js/secretario.js?v=<?php echo filemtime(__DIR__ . '/../js/secretario.js'); ?>" defer></script>
+    <script src="../js/validaciones-formulario.js?v=<?php echo filemtime(__DIR__ . '/../js/validaciones-formulario.js'); ?>" defer></script>
 </head>
 
 <body class="body-dashboard">
@@ -136,8 +137,18 @@ try {
             <?php if (isset($_GET['exito']) && $_GET['exito'] === '1'): ?>
                 <p style="background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 20px;">Datos del paciente actualizados con éxito.</p>
             <?php endif; ?>
-            <?php if (isset($_GET['error'])): ?>
-                <p style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px;">Ocurrió un error al actualizar los datos.</p>
+            <?php
+            $mensajesError = [
+                'campos_vacios' => 'Completá el teléfono y el correo electrónico.',
+                'telefono_invalido' => 'El teléfono solo puede contener números: entre 10 y 13 después del +54. Ej: +543436985148',
+                'correo_invalido' => 'Ingresá un correo electrónico válido (ej: nombre@dominio.com).',
+                'correo_repetido' => 'Ese correo electrónico ya está registrado en otra cuenta.',
+                'solicitud_invalida' => 'La página venció. Recargala e intentá nuevamente.',
+            ];
+            $codigoError = isset($_GET['error']) && is_string($_GET['error']) ? $_GET['error'] : null;
+            ?>
+            <?php if ($codigoError !== null): ?>
+                <p style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px;" role="alert"><?php echo htmlspecialchars($mensajesError[$codigoError] ?? 'Ocurrió un error al actualizar los datos.', ENT_QUOTES, 'UTF-8'); ?></p>
             <?php endif; ?>
 
             <div class="grilla-perfil">
@@ -153,13 +164,19 @@ try {
                         <h2> Teléfono </h2>
                         <div class="grupo-campo">
                             <label for="telefono-actual">Teléfono actual</label>
-                            <input type="tel" id="telefono-actual" name="telefono" value="<?php echo htmlspecialchars($paciente['telefono'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="input-form" required>
+                            <input type="tel" id="telefono-actual" name="telefono" value="<?php echo htmlspecialchars(($paciente['telefono'] ?? '') !== '' ? $paciente['telefono'] : '+54', ENT_QUOTES, 'UTF-8'); ?>" class="input-form"
+                                   placeholder="+543436985148" inputmode="tel" autocomplete="off" maxlength="16"
+                                   data-validar="telefono" aria-describedby="ayuda-telefono" required>
+                            <small id="ayuda-telefono" class="ayuda-campo">Ej: +543436985148</small>
                         </div>
 
                         <h2> Correo electrónico </h2>
                         <div class="grupo-campo">
                             <label for="correo-actual">Correo actual</label>
-                            <input type="email" id="correo-actual" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="input-form" required>
+                            <input type="email" id="correo-actual" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="input-form"
+                                   placeholder="correo@ejemplo.com" maxlength="150" autocomplete="off" data-validar="correo"
+                                   pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                                   title="Ingresá un correo válido, por ejemplo: nombre@dominio.com" required>
                         </div>
 
                         <div class="footer-pasos" style="display: flex; gap: 10px; align-items: center; margin-top: 20px;">

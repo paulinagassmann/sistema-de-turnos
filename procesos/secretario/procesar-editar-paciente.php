@@ -38,13 +38,24 @@ if (!is_string($telefonoRecibido) || !is_string($correoRecibido)) {
     exit();
 }
 
+require_once __DIR__ . '/../../config/validaciones.php';
+
 $telefono = trim($telefonoRecibido);
 $correo = trim($correoRecibido);
-if ($telefono === '' || $correo === '') {
+if ($telefono === '' || $telefono === '+54' || $correo === '') {
     header("Location: " . $urlEdicion . "&error=campos_vacios");
     exit();
 }
-if (filter_var($correo, FILTER_VALIDATE_EMAIL) === false) {
+
+// Teléfono: solo números (10 a 13 después del +54), en el formato único del sistema.
+$telefono = normalizar_telefono($telefono);
+if ($telefono === null) {
+    header("Location: " . $urlEdicion . "&error=telefono_invalido");
+    exit();
+}
+
+// Correo: sin espacios, con @ y un dominio con punto (ej: .com, .com.ar).
+if (!es_correo_valido($correo)) {
     header("Location: " . $urlEdicion . "&error=correo_invalido");
     exit();
 }
@@ -61,6 +72,14 @@ try {
     $stmtPaciente->execute([':id' => $paciente_id]);
     if (!$stmtPaciente->fetchColumn()) {
         header("Location: ../../secretario/secretario-pacientes.php?error=no_encontrado");
+        exit();
+    }
+
+    // El correo es único: aviso claro si ya lo usa otra cuenta.
+    $stmtCorreo = $conexion->prepare("SELECT 1 FROM usuarios WHERE correo = :correo AND id <> :id LIMIT 1");
+    $stmtCorreo->execute([':correo' => $correo, ':id' => $paciente_id]);
+    if ($stmtCorreo->fetchColumn()) {
+        header("Location: " . $urlEdicion . "&error=correo_repetido");
         exit();
     }
 

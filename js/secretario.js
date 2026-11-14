@@ -139,6 +139,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             selectorEstadoTurnoExtra.value = 'disponible';
             datosPacienteTurnoExtra.hidden = true;
             document.getElementById('nombre-paciente-extra').required = false;
+            document.getElementById('dni-paciente-extra').required = false;
             document.getElementById('fecha-turno-extra').textContent =
                 panelHorariosExcepcion.querySelector('.cabecera-horarios-dia h2').textContent;
             errorTurnoExtra.hidden = true;
@@ -152,6 +153,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
             const asignado = selectorEstadoTurnoExtra.value === 'asignado';
             datosPacienteTurnoExtra.hidden = !asignado;
             document.getElementById('nombre-paciente-extra').required = asignado;
+            document.getElementById('dni-paciente-extra').required = asignado;
         });
 
         document.getElementById('cerrar-modal-turno-extra').addEventListener('click', () => {
@@ -845,8 +847,61 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         actualizarCobertura();
     }
 
-    async function inicializarModalExitoProfesional() {
-        const modal = document.getElementById('modalExitoProfesional');
+    // Alta de profesional: si se elige "Otro" en especialidad, se pide escribir cuál.
+    function inicializarEspecialidadOtra() {
+        const especialidad = document.getElementById('especialidad');
+        const grupoOtra = document.getElementById('grupo-especialidad-otra');
+        const especialidadOtra = document.getElementById('especialidad_otra');
+        if (!especialidad || !grupoOtra || !especialidadOtra) return;
+
+        const actualizar = () => {
+            const esOtra = especialidad.value === 'otro';
+            grupoOtra.hidden = !esOtra;
+            especialidadOtra.disabled = !esOtra;
+            especialidadOtra.required = esOtra;
+            if (!esOtra) especialidadOtra.value = '';
+        };
+        especialidad.addEventListener('change', actualizar);
+        actualizar();
+    }
+
+    // Alta de profesional: muestra el error que devolvió el servidor (?error=...).
+    function inicializarErrorRegistroProfesional() {
+        const aviso = document.getElementById('error-registro-profesional');
+        const parametros = new URLSearchParams(window.location.search);
+        if (!aviso || !parametros.has('error')) return;
+
+        const mensajes = {
+            solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
+            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (8 números), nombre y apellido (solo letras), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo, la especialidad y la matrícula (4 a 6 números).',
+            matricula_repetida: 'Ya hay un profesional registrado con ese número de matrícula.',
+            duplicado: 'No se pudo registrar el profesional. Verificá que el DNI, el correo o la matrícula no estén ya registrados.',
+        };
+        aviso.textContent = mensajes[parametros.get('error')] || 'No se pudo registrar el profesional.';
+        aviso.hidden = false;
+        window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    // Alta de paciente: muestra el error que devolvió el servidor (?error=...).
+    function inicializarErrorRegistroPaciente() {
+        const aviso = document.getElementById('error-registro-paciente');
+        const parametros = new URLSearchParams(window.location.search);
+        if (!aviso || !parametros.has('error')) return;
+
+        const mensajes = {
+            solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
+            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (8 números), nombre y apellido (solo letras), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo y la obra social (solo letras y números).',
+            duplicado: 'No se pudo registrar el paciente. Verificá que el DNI o el correo no estén ya registrados.',
+        };
+        aviso.textContent = mensajes[parametros.get('error')] || 'No se pudo registrar el paciente.';
+        aviso.hidden = false;
+        window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    // Cartel de éxito al registrar un profesional o un paciente: muestra el usuario
+    // y la contraseña temporal (oculta, con ojito para verla).
+    async function inicializarModalCredenciales({ modalId, dniId, passId, botonId }) {
+        const modal = document.getElementById(modalId);
         const parametros = new URLSearchParams(window.location.search);
         if (!modal || !parametros.has('exito')) return;
 
@@ -870,11 +925,38 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
         }
         if (!datos) return;
 
-        const dni = document.getElementById('modal-prof-dni');
-        const contrasena = document.getElementById('modal-prof-pass');
+        const dni = document.getElementById(dniId);
+        const contrasena = document.getElementById(passId);
         if (dni) dni.textContent = datos.dni || '';
-        if (contrasena) contrasena.textContent = datos.pass || '';
+        if (contrasena) inicializarContrasenaOculta(contrasena, datos.pass || '', document.getElementById(botonId));
         modal.showModal();
+    }
+
+    // Muestra la contraseña temporal como "********" con un ojito para verla,
+    // igual que los campos de contraseña del resto del sistema.
+    function inicializarContrasenaOculta(elemento, contrasena, boton) {
+        const OCULTA = '********';
+        const icono = (mostrar) => typeof crearIconoPasswordVisible === 'function'
+            ? crearIconoPasswordVisible(mostrar)
+            : document.createTextNode(mostrar ? 'Ocultar' : 'Ver');
+
+        let visible = false;
+        const actualizar = () => {
+            elemento.textContent = visible ? contrasena : OCULTA;
+            if (!boton) return;
+            const texto = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+            boton.setAttribute('aria-label', texto);
+            boton.title = texto;
+            boton.replaceChildren(icono(visible));
+        };
+
+        if (boton) {
+            boton.addEventListener('click', () => {
+                visible = !visible;
+                actualizar();
+            });
+        }
+        actualizar();
     }
 
     function inicializarTurnosDelDia() {
@@ -1069,7 +1151,21 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
 
     inicializarCoberturaPaciente();
-    inicializarModalExitoProfesional();
+    inicializarEspecialidadOtra();
+    inicializarErrorRegistroProfesional();
+    inicializarErrorRegistroPaciente();
+    inicializarModalCredenciales({
+        modalId: 'modalExitoProfesional',
+        dniId: 'modal-prof-dni',
+        passId: 'modal-prof-pass',
+        botonId: 'modal-prof-ver-pass',
+    });
+    inicializarModalCredenciales({
+        modalId: 'modalExito',
+        dniId: 'modal-dni',
+        passId: 'modal-pass',
+        botonId: 'modal-ver-pass',
+    });
     inicializarTurnosDelDia();
     inicializarPacientes();
     inicializarHorariosBase();
