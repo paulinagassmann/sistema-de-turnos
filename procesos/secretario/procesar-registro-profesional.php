@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $matricula = trim((string) ($_POST['matricula'] ?? ''));
 
     // Especialidades del desplegable; con "otro" se usa la que escribió el secretario.
-    $especialidades_validas = ['psicologia', 'psiquiatria', 'familiar', 'infantil'];
+    $especialidades_validas = ['psicologia', 'familiar', 'infantil'];
     $especialidad_valida = in_array($especialidad, $especialidades_validas, true);
     if ($especialidad === 'otro') {
         $especialidad = capitalizar_nombre((string) ($_POST['especialidad_otra'] ?? ''));
