@@ -153,7 +153,7 @@ try {
                             <label for="email">Correo electrónico de acceso</label>
                             <input type="email" id="email" name="correo" value="<?php echo htmlspecialchars($profesional['correo']); ?>" required
                                    maxlength="150" autocomplete="email" data-validar="correo"
-                                   pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                                   pattern="[A-Za-z0-9_%+\-]+(\.[A-Za-z0-9_%+\-]+)*@[A-Za-z0-9][A-Za-z0-9\-]+[A-Za-z0-9](\.[A-Za-z0-9]([A-Za-z0-9\-]*[A-Za-z0-9])?)*\.(com\.ar|org\.ar|com|org|net|edu|mil|gov|ar)"
                                    title="Ingresá un correo válido, por ejemplo: nombre@dominio.com">
                         </div>
 

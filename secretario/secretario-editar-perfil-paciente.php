@@ -175,7 +175,7 @@ try {
                             <label for="correo-actual">Correo actual</label>
                             <input type="email" id="correo-actual" name="correo" value="<?php echo htmlspecialchars($paciente['correo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="input-form"
                                    placeholder="correo@ejemplo.com" maxlength="150" autocomplete="off" data-validar="correo"
-                                   pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                                   pattern="[A-Za-z0-9_%+\-]+(\.[A-Za-z0-9_%+\-]+)*@[A-Za-z0-9][A-Za-z0-9\-]+[A-Za-z0-9](\.[A-Za-z0-9]([A-Za-z0-9\-]*[A-Za-z0-9])?)*\.(com\.ar|org\.ar|com|org|net|edu|mil|gov|ar)"
                                    title="Ingresá un correo válido, por ejemplo: nombre@dominio.com" required>
                         </div>
 

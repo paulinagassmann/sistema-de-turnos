@@ -286,8 +286,8 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
                 <div class="campo-turno-extra">
                     <label for="dni-paciente-extra">DNI </label>
                     <input id="dni-paciente-extra" name="dniPaciente" type="text" inputmode="numeric" autocomplete="off"
-                           minlength="8" maxlength="8" pattern="[0-9]{8}" data-validar="dni"
-                           title="El DNI debe tener exactamente 8 números.">
+                           minlength="7" maxlength="8" pattern="[0-9]{7,8}" data-validar="dni"
+                           title="El DNI debe tener 7 u 8 números.">
                 </div>
             </div>
 

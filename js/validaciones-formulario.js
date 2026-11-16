@@ -1,6 +1,6 @@
 // Validaciones en vivo para formularios de alta. Se activan con el atributo data-validar:
-//   data-validar="dni"       -> solo números, máximo 8
-//   data-validar="matricula" -> solo números, entre 4 y 6
+//   data-validar="dni"       -> solo números, 7 u 8 dígitos
+//   data-validar="matricula" -> solo números, entre 2 y 7
 //   data-validar="alfanumerico" -> letras, números y espacios (sin caracteres especiales)
 //   data-validar="letras"  -> solo letras y espacios, con mayúscula inicial en cada palabra
 //   data-validar="telefono"  -> +54 precargado (borrable) y luego solo números (10 a 13),
@@ -34,7 +34,7 @@
 
     const inicializarMatricula = (input) => {
         input.addEventListener('input', () => {
-            actualizarValor(input, input.value.replace(/\D/g, '').slice(0, 6));
+            actualizarValor(input, input.value.replace(/\D/g, '').slice(0, 7));
         });
     };
 
@@ -98,7 +98,8 @@
 
     const inicializarCorreo = (input) => {
         input.addEventListener('input', () => {
-            actualizarValor(input, input.value.replace(/\s/g, ''));
+            // Sin espacios y en minúsculas (las extensiones permitidas del pattern están en minúscula).
+            actualizarValor(input, input.value.replace(/\s/g, '').toLowerCase());
         });
     };
 

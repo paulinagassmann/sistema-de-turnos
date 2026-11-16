@@ -329,10 +329,8 @@ function inicializarConfiguracionProfesional() {
     const cuenta = leerDatoProfesional(CLAVES_PROFESIONAL.cuenta, {});
     const formularioDatos = formularios[0];
     const correo = formularioDatos.querySelector('#email');
-    if (correo) {
-        correo.required = true;
-        if (cuenta.email) correo.value = cuenta.email;
-    }
+    // El valor del correo viene de la base de datos (lo carga el PHP); no se pisa con datos locales.
+    if (correo) correo.required = true;
 
     formularioDatos.querySelector('button[type="button"]')?.addEventListener('click', () => {
         if (!formularioDatos.reportValidity()) return;

@@ -10,16 +10,16 @@ function capitalizar_nombre(string $texto): string
     return mb_convert_case(mb_strtolower($texto, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
 }
 
-// DNI: exactamente 8 dígitos.
+// DNI: 7 u 8 dígitos (sin puntos ni espacios).
 function es_dni_valido(string $dni): bool
 {
-    return preg_match('/^\d{8}$/', $dni) === 1;
+    return preg_match('/^\d{7,8}$/', $dni) === 1;
 }
 
-// Matrícula profesional: solo números, entre 4 y 6 dígitos.
+// Matrícula profesional: solo números, entre 2 y 7 dígitos.
 function es_matricula_valida(string $matricula): bool
 {
-    return preg_match('/^\d{4,6}$/', $matricula) === 1;
+    return preg_match('/^\d{2,7}$/', $matricula) === 1;
 }
 
 // Solo letras (con tildes y ñ), permitiendo un espacio entre palabras.
@@ -57,9 +57,22 @@ function normalizar_telefono(string $telefono): ?string
     return null;
 }
 
-// Correo sin espacios, con @ y un dominio con punto (ej: .com, .com.ar).
+// Correo: usuario + @ + dominio + extensión final permitida.
+// - Usuario: letras, números y . _ % + - (sin punto al inicio, al final ni dos seguidos).
+// - Dominio: el nombre tras el @ tiene al menos 3 caracteres (ej: gmail; no "m.com").
+//   Cada parte empieza y termina con letra o número (no "-gmail" ni "gmail-").
+//   Puede tener partes intermedias (ej: uader.edu.ar, mail.uner.edu.ar).
+// - Extensión final: solo com, org, net, edu, mil, gov, ar, com.ar u org.ar
+//   (rechaza cosas como "pablo@gmail.com.ar.pablo").
+// - Máximo 150 caracteres (tamaño de la columna en la base de datos).
+// Este mismo patrón está copiado en el atributo pattern de todos los inputs de correo
+// (allí en minúsculas: el JS pasa el correo a minúsculas mientras se escribe).
+const PATRON_CORREO = '[A-Za-z0-9_%+\-]+(\.[A-Za-z0-9_%+\-]+)*@[A-Za-z0-9][A-Za-z0-9\-]+[A-Za-z0-9](\.[A-Za-z0-9]([A-Za-z0-9\-]*[A-Za-z0-9])?)*\.(com\.ar|org\.ar|com|org|net|edu|mil|gov|ar)';
+
 function es_correo_valido(string $correo): bool
 {
-    return filter_var($correo, FILTER_VALIDATE_EMAIL) !== false
-        && preg_match('/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}$/', $correo) === 1;
+    // La "i" final ignora mayúsculas: "Juan@Gmail.COM" también es válido.
+    return mb_strlen($correo, 'UTF-8') <= 150
+        && filter_var($correo, FILTER_VALIDATE_EMAIL) !== false
+        && preg_match('/^' . PATRON_CORREO . '$/i', $correo) === 1;
 }

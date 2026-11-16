@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
     $correo = trim((string) ($_POST['correo'] ?? ''));
     $password_temporal = trim((string) ($_POST['password_temporal'] ?? ''));
 
-    // 1. DNI: exactamente 8 dígitos.
+    // 1. DNI: 7 u 8 dígitos.
     if (!es_dni_valido($dni)) {
-        $errores[] = 'El DNI debe tener exactamente 8 números, sin puntos, letras ni espacios.';
+        $errores[] = 'El DNI debe tener 7 u 8 números, sin puntos, letras ni espacios.';
     }
 
     // 2 y 3. Nombre y apellido: solo letras (se permiten espacios entre palabras).
@@ -145,8 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
                 <div class="campo-perfil">
                     <label for="dni">DNI:</label>
                     <input type="text" id="dni" name="dni" inputmode="numeric" autocomplete="off"
-                           minlength="8" maxlength="8" pattern="[0-9]{8}" data-validar="dni"
-                           title="El DNI debe tener exactamente 8 números."
+                           minlength="7" maxlength="8" pattern="[0-9]{7,8}" data-validar="dni"
+                           title="El DNI debe tener 7 u 8 números."
                            value="<?php echo htmlspecialchars($dni, ENT_QUOTES, 'UTF-8'); ?>" required>
                 </div>
 
@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
                 <div class="campo-perfil">
                     <label for="correo">Correo Electrónico:</label>
                     <input type="email" id="correo" name="correo" maxlength="150" data-validar="correo" autocomplete="off"
-                           pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}"
+                           pattern="[A-Za-z0-9_%+\-]+(\.[A-Za-z0-9_%+\-]+)*@[A-Za-z0-9][A-Za-z0-9\-]+[A-Za-z0-9](\.[A-Za-z0-9]([A-Za-z0-9\-]*[A-Za-z0-9])?)*\.(com\.ar|org\.ar|com|org|net|edu|mil|gov|ar)"
                            title="Ingresá un correo válido, por ejemplo: nombre@dominio.com"
                            value="<?php echo htmlspecialchars($correo, ENT_QUOTES, 'UTF-8'); ?>" required>
                 </div>
