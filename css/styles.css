@@ -336,6 +336,17 @@ body > footer {
     outline: none;
 }
 
+/* Campos bloqueados (solo para ver, ej: tarjeta "Mi perfil" del paciente):
+   no se pueden seleccionar ni enfocar, pero el texto se sigue leyendo bien. */
+.campo-perfil input:disabled {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    -webkit-text-fill-color: #1e293b; /* Chrome/Safari aclaran el texto deshabilitado */
+    opacity: 1;                       /* Firefox baja la opacidad del campo deshabilitado */
+    cursor: not-allowed;
+    user-select: none;
+}
+
 /* Botón Editar Información */
 .btn-editar {
     text-decoration: none; /* Elimina la línea de subrayado */

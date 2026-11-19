@@ -198,17 +198,18 @@ try {
 
                     <div class="campo-perfil">
                     <label for="obra-social">Obra social:</label>
-                    <input type="text" id="obra-social" value="<?php echo htmlspecialchars($datosPaciente['obra_social'] ?? 'No especificada'); ?>" readonly>
+                    <!-- Campos solo de lectura: "disabled" impide seleccionarlos o enfocarlos (se editan en "Editar información") -->
+                    <input type="text" id="obra-social" value="<?php echo htmlspecialchars($datosPaciente['obra_social'] ?? 'No especificada'); ?>" disabled>
                     </div>
 
                     <div class="campo-perfil">
                     <label for="telefono">Teléfono:</label>
-                    <input type="tel" id="telefono" value="<?php echo htmlspecialchars($datosPaciente['telefono']); ?>" readonly>
+                    <input type="tel" id="telefono" value="<?php echo htmlspecialchars($datosPaciente['telefono']); ?>" disabled>
                     </div>
 
                     <div class="campo-perfil">
                     <label for="email">Correo electrónico:</label>
-                    <input type="email" id="email" value="<?php echo htmlspecialchars($datosPaciente['correo']); ?>" readonly>
+                    <input type="email" id="email" value="<?php echo htmlspecialchars($datosPaciente['correo']); ?>" disabled>
                     </div>
 
                     <a href="perfil-paciente.php" class="btn-editar">

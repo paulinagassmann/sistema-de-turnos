@@ -102,7 +102,7 @@ function inicializarControlesPassword() {
 
 function mostrarAvisoPasswordActualizada() {
     const urlParams = new URLSearchParams(window.location.search);
-    const esPanelAutorizado = document.querySelector('.layout-secretario, .layout-profesional, .body-dashboard-paciente');
+    const esPanelAutorizado = document.querySelector('.layout-secretario, .layout-profesional, .body-dashboard-paciente, .main-administrador');
 
     if (urlParams.get('password_actualizada') !== '1' || !esPanelAutorizado) return;
 
@@ -129,6 +129,57 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mostrarAvisoPasswordActualizada, { once: true });
 } else {
     mostrarAvisoPasswordActualizada();
+}
+
+// Carteles de éxito que el PHP ya trae armados (ej: alta de secretario en el panel
+// del administrador). Se abren solos al cargar la página y, si muestran una
+// contraseña temporal, la dejan oculta ("********") con un ojito para verla.
+function abrirCartelesAlCargar() {
+    const modales = document.querySelectorAll('dialog[data-abrir-al-cargar]');
+    if (modales.length === 0) return;
+
+    modales.forEach((modal) => {
+        modal.querySelectorAll('[data-password-oculta]').forEach((valor) => {
+            const contrasena = valor.dataset.passwordOculta;
+            valor.removeAttribute('data-password-oculta');
+            const boton = valor.parentElement.querySelector('.boton-ver-password');
+
+            let visible = false;
+            const actualizar = () => {
+                valor.textContent = visible ? contrasena : '********';
+                if (!boton) return;
+                const texto = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+                boton.setAttribute('aria-label', texto);
+                boton.title = texto;
+                boton.replaceChildren(crearIconoPasswordVisible(visible));
+            };
+
+            if (boton) {
+                boton.addEventListener('click', () => {
+                    visible = !visible;
+                    actualizar();
+                });
+            }
+            actualizar();
+        });
+
+        abrirModal(modal);
+    });
+
+    // saco el ?exito de la URL para que al recargar no vuelva a aparecer el aviso
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('exito')) {
+        urlParams.delete('exito');
+        const query = urlParams.toString();
+        const urlLimpia = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`;
+        window.history.replaceState(window.history.state, document.title, urlLimpia);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', abrirCartelesAlCargar, { once: true });
+} else {
+    abrirCartelesAlCargar();
 }
 
 function mostrarErrorLogin() {

@@ -12,7 +12,7 @@ require_once __DIR__ . '/../config/conexion.php';
 $dni = '45758272';
 $nombre = 'Administrador';
 $apellido = 'General';
-$fecha_nacimiento = '1990-01-01'; // fecha generica pq no es relevante
+$fecha_nacimiento = '1990-01-01'; // datos genéricos pq no es relevante
 $telefono = '3430000000';
 $correo = 'admin@pausa.com';
 $password_temporal = 'admin123456'; // contra temporal (se obliga a cambiarla al primer ingreso)

@@ -100,6 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
                 ':password' => $password_hash
             ]);
 
+            // Credenciales para el cartel de éxito del panel: se guardan en la sesión
+            // (no en la URL) y el panel las borra apenas las muestra.
+            $_SESSION['credenciales_secretario'] = ['dni' => $dni, 'pass' => $password_temporal];
+
             header("Location: administrador.php?exito=secretario_creado");
             exit();
 

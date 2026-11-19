@@ -178,5 +178,25 @@ try {
         <small>&copy; 2026 Pausa. Todos los derechos reservados.</small>
     </footer>
 
+    <!-- Cartel de éxito tras cambiar la contraseña temporal en el primer ingreso (lo abre js/main.js) -->
+    <dialog id="modalPasswordActualizada" class="modal-dialog modal-confirmacion-password"
+        aria-labelledby="titulo-password-actualizada" aria-describedby="texto-password-actualizada">
+        <div class="modal-card">
+            <div class="modal-icono-exito" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12l5 5l10 -10" />
+                </svg>
+            </div>
+            <h2 class="modal-titulo" id="titulo-password-actualizada">¡Contraseña actualizada con éxito!</h2>
+            <p class="modal-subtitulo" id="texto-password-actualizada">
+                Ya podés continuar usando tu cuenta con tu nueva contraseña.
+            </p>
+            <form class="modal-acciones" method="dialog">
+                <button class="btn-finalizar-modal" type="submit">Continuar</button>
+            </form>
+        </div>
+    </dialog>
+
 </body>
 </html>
