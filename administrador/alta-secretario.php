@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
     }
 
     // 5. Teléfono (opcional): +54 opcional y luego entre 10 y 13 números.
+    //saqué esta idea de whatsapp, quien mejor que ellos para validar un teléfono 
     if ($telefono === '+54') {
         $telefono = '';
     }
