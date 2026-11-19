@@ -1077,7 +1077,7 @@ try {
         $nombre = is_string($nombreRecibido) ? preg_replace('/\s+/u', ' ', trim($nombreRecibido)) : '';
         if (
             !preg_match('/^\d{7,8}$/', $dni)
-            || !preg_match('/^\p{L}+(?: \p{L}+)*$/u', $nombre)
+            || !preg_match('/^\p{L}{2,}(?: \p{L}{2,})*$/u', $nombre)
             || mb_strlen($nombre, 'UTF-8') > 200
         ) {
             $conexion->rollBack();

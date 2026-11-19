@@ -378,7 +378,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
                 ocupado: 'Ese horario tiene un turno reservado y no se puede modificar.',
                 superpuesto: 'Ese horario se superpone con otra excepción existente.',
                 dentro_horario_base: 'El turno extra debe quedar completamente fuera del horario base.',
-                paciente_invalido: 'No se encontró un paciente con ese nombre y DNI.',
+                paciente_invalido: 'No se encontró un paciente con ese nombre y DNI. Recordá que el nombre y apellido deben tener al menos 2 letras por palabra.',
                 excepcion_no_encontrada: 'La excepción ya no existe o no puede modificarse.',
                 turno_no_encontrado: 'El turno ya fue cancelado o no pertenece a esta agenda.',
                 horario_invalido: 'No se pudo determinar la duración del turno para bloquearlo.',
@@ -873,7 +873,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
         const mensajes = {
             solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
-            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (7 u 8 números), nombre y apellido (solo letras), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo, la especialidad y la matrícula (2 a 7 números).',
+            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (7 u 8 números), nombre y apellido (solo letras, al menos 2 por palabra), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo, la especialidad y la matrícula (2 a 7 números).',
             matricula_repetida: 'Ya hay un profesional registrado con ese número de matrícula.',
             duplicado: 'No se pudo registrar el profesional. Verificá que el DNI, el correo o la matrícula no estén ya registrados.',
         };
@@ -890,7 +890,7 @@ const modalCancelarTurnoExcepcion = document.getElementById('modalCancelarTurnoE
 
         const mensajes = {
             solicitud_invalida: 'La página venció. Recargala e intentá nuevamente.',
-            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (7 u 8 números), nombre y apellido (solo letras), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo y la obra social (solo letras y números).',
+            datos_invalidos: 'Algunos datos no son válidos. Revisá el DNI (7 u 8 números), nombre y apellido (solo letras, al menos 2 por palabra), la fecha de nacimiento, el teléfono (10 a 13 números después del +54), el correo y la obra social (solo letras y números).',
             duplicado: 'No se pudo registrar el paciente. Verificá que el DNI o el correo no estén ya registrados.',
         };
         aviso.textContent = mensajes[parametros.get('error')] || 'No se pudo registrar el paciente.';

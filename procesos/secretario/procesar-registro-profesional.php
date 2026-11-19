@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $especialidad_valida = in_array($especialidad, $especialidades_validas, true);
     if ($especialidad === 'otro') {
         $especialidad = capitalizar_nombre((string) ($_POST['especialidad_otra'] ?? ''));
-        $especialidad_valida = es_nombre_valido($especialidad) && mb_strlen($especialidad, 'UTF-8') <= 150;
+        $especialidad_valida = es_letras_valido($especialidad) && mb_strlen($especialidad, 'UTF-8') <= 150;
     }
 
     if (

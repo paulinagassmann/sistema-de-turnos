@@ -280,8 +280,8 @@ $mensajeErrorExcepcion = $mensajesErrorExcepciones[$codigoErrorExcepcion] ?? nul
                 <div class="campo-turno-extra">
                     <label for="nombre-paciente-extra">Nombre y apellido</label>
                     <input id="nombre-paciente-extra" name="nombrePaciente" type="text" autocomplete="off" maxlength="200"
-                           pattern="\p{L}+( \p{L}+)*" data-validar="letras"
-                           title="El nombre y apellido solo pueden contener letras.">
+                           pattern="\p{L}{2,}( \p{L}{2,})*" data-validar="letras"
+                           title="El nombre y apellido solo pueden contener letras, con al menos 2 letras por palabra.">
                 </div>
                 <div class="campo-turno-extra">
                     <label for="dni-paciente-extra">DNI </label>

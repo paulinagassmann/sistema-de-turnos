@@ -44,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
         $errores[] = 'El DNI debe tener 7 u 8 números, sin puntos, letras ni espacios.';
     }
 
-    // 2 y 3. Nombre y apellido: solo letras (se permiten espacios entre palabras).
+    // 2 y 3. Nombre y apellido: solo letras, con al menos 2 letras por palabra.
     if (!es_nombre_valido($nombre)) {
-        $errores[] = 'El nombre solo puede contener letras.';
+        $errores[] = 'El nombre solo puede contener letras, con al menos 2 letras por palabra.';
     }
     if (!es_nombre_valido($apellido)) {
-        $errores[] = 'El apellido solo puede contener letras.';
+        $errores[] = 'El apellido solo puede contener letras, con al menos 2 letras por palabra.';
     }
 
     // 4. Fecha de nacimiento (opcional): formato AAAA-MM-DD real, año de 4 dígitos y no futura.
@@ -158,16 +158,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_es_valido()) {
                 <div class="campo-perfil">
                     <label for="nombre">Nombre:</label>
                     <input type="text" id="nombre" name="nombre" maxlength="100" autocomplete="off"
-                           pattern="\p{L}+( \p{L}+)*" data-validar="letras"
-                           title="El nombre solo puede contener letras."
+                           pattern="\p{L}{2,}( \p{L}{2,})*" data-validar="letras"
+                           title="El nombre solo puede contener letras, con al menos 2 letras por palabra."
                            value="<?php echo htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>" required>
                 </div>
 
                 <div class="campo-perfil">
                     <label for="apellido">Apellido:</label>
                     <input type="text" id="apellido" name="apellido" maxlength="100" autocomplete="off"
-                           pattern="\p{L}+( \p{L}+)*" data-validar="letras"
-                           title="El apellido solo puede contener letras."
+                           pattern="\p{L}{2,}( \p{L}{2,})*" data-validar="letras"
+                           title="El apellido solo puede contener letras, con al menos 2 letras por palabra."
                            value="<?php echo htmlspecialchars($apellido, ENT_QUOTES, 'UTF-8'); ?>" required>
                 </div>
 

@@ -22,8 +22,16 @@ function es_matricula_valida(string $matricula): bool
     return preg_match('/^\d{2,7}$/', $matricula) === 1;
 }
 
-// Solo letras (con tildes y ñ), permitiendo un espacio entre palabras.
+// Nombre o apellido: solo letras (con tildes y ñ), un espacio entre palabras
+// y al menos 2 letras en CADA palabra (ej: "Li" o "Ana María" sí; "Juan P" no).
 function es_nombre_valido(string $texto): bool
+{
+    return preg_match('/^\p{L}{2,}(?: \p{L}{2,})*$/u', $texto) === 1;
+}
+
+// Solo letras (con tildes y ñ), permitiendo un espacio entre palabras, sin largo mínimo
+// por palabra. Se usa para textos como la especialidad ("Psicología y Neurociencia").
+function es_letras_valido(string $texto): bool
 {
     return preg_match('/^\p{L}+(?: \p{L}+)*$/u', $texto) === 1;
 }
