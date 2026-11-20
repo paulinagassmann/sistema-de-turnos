@@ -51,6 +51,8 @@ $errorAlCargarTurnos = false;
 $erroresTurno = [
     'solicitud_invalida' => 'La solicitud no es válida. Actualizá la página e intentá nuevamente.',
     'turno_no_actualizable' => 'El turno ya no se puede actualizar; la lista puede haber cambiado.',
+    'horario_ocupado' => 'No se puede deshacer la cancelación: ese horario ya fue reservado por otro turno.',
+    'horario_bloqueado' => 'No se puede deshacer la cancelación: el horario está bloqueado por una excepción del profesional.',
     'servidor' => 'No se pudo actualizar el estado del turno. Intentá nuevamente.'
 ];
 $mensajeErrorTurno = isset($_GET['error']) && is_string($_GET['error'])

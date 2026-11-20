@@ -67,12 +67,48 @@ $finDia = $hoy->modify('+1 day')->format('Y-m-d H:i:s');
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../config/turnos.php';
 
+$nombreBloqueo = null;
+$bloqueoAdquirido = false;
+
 try {
     actualizarTurnosPendientesVencidos($conexion);
 
+    // Si se va a reactivar un turno, se toma el mismo bloqueo que usan las
+    // reservas para ese profesional, día y hora, evitando que otro turno
+    // ocupe el horario mientras se valida.
+    if ($nuevoEstado === 'pendiente') {
+        $stmtDatosTurno = $conexion->prepare(
+            "SELECT profesional_id, fecha_hora
+             FROM turnos
+             WHERE id = :id
+               AND fecha_hora >= :inicio
+               AND fecha_hora < :fin"
+        );
+        $stmtDatosTurno->execute([
+            ':id' => $turnoId,
+            ':inicio' => $inicioDia,
+            ':fin' => $finDia
+        ]);
+        $datosTurno = $stmtDatosTurno->fetch(PDO::FETCH_ASSOC);
+        if ($datosTurno) {
+            $fechaHoraTurno = new DateTimeImmutable($datosTurno['fecha_hora'], $zonaHoraria);
+            $nombreBloqueo = hash(
+                'sha256',
+                (int) $datosTurno['profesional_id'] . '|' . $fechaHoraTurno->format('Y-m-d') . '|' . $fechaHoraTurno->format('H:i')
+            );
+            $stmtBloqueo = $conexion->prepare('SELECT GET_LOCK(:nombre, 5)');
+            $stmtBloqueo->execute([':nombre' => $nombreBloqueo]);
+            $bloqueoAdquirido = (int) $stmtBloqueo->fetchColumn() === 1;
+            if (!$bloqueoAdquirido) {
+                header("Location: {$urlRetorno}&error=turno_no_actualizable");
+                exit();
+            }
+        }
+    }
+
     $conexion->beginTransaction();
     $stmtTurno = $conexion->prepare(
-        "SELECT estado
+        "SELECT estado, profesional_id, fecha_hora
          FROM turnos
          WHERE id = :id
            AND fecha_hora >= :inicio
@@ -84,7 +120,8 @@ try {
         ':inicio' => $inicioDia,
         ':fin' => $finDia
     ]);
-    $estadoActual = $stmtTurno->fetchColumn();
+    $turnoActual = $stmtTurno->fetch(PDO::FETCH_ASSOC);
+    $estadoActual = $turnoActual ? $turnoActual['estado'] : false;
 
     $transicionValida = $nuevoEstado === 'pendiente'
         ? in_array($estadoActual, ['confirmado', 'cancelado'], true)
@@ -93,6 +130,52 @@ try {
         $conexion->rollBack();
         header("Location: {$urlRetorno}&error=turno_no_actualizable");
         exit();
+    }
+
+    // Al deshacer una cancelación, el horario pudo haber sido reservado
+    // nuevamente (o bloqueado por una excepción). En ese caso no se permite
+    // reactivar el turno para no duplicar turnos en el mismo horario.
+    if ($nuevoEstado === 'pendiente' && $estadoActual === 'cancelado') {
+        $stmtOcupado = $conexion->prepare(
+            "SELECT id
+             FROM turnos
+             WHERE profesional_id = :profesional_id
+               AND fecha_hora = :fecha_hora
+               AND id <> :id
+               AND estado IN ('pendiente', 'confirmado')
+             LIMIT 1
+             FOR UPDATE"
+        );
+        $stmtOcupado->execute([
+            ':profesional_id' => $turnoActual['profesional_id'],
+            ':fecha_hora' => $turnoActual['fecha_hora'],
+            ':id' => $turnoId
+        ]);
+        if ($stmtOcupado->fetchColumn()) {
+            $conexion->rollBack();
+            header("Location: {$urlRetorno}&error=horario_ocupado");
+            exit();
+        }
+
+        $stmtExcepcion = $conexion->prepare(
+            "SELECT id
+             FROM excepciones
+             WHERE profesional_id = :profesional_id
+               AND tipo = 'bloqueo'
+               AND fecha_hora_inicio <= :fecha_hora_desde
+               AND fecha_hora_fin > :fecha_hora_hasta
+             LIMIT 1"
+        );
+        $stmtExcepcion->execute([
+            ':profesional_id' => $turnoActual['profesional_id'],
+            ':fecha_hora_desde' => $turnoActual['fecha_hora'],
+            ':fecha_hora_hasta' => $turnoActual['fecha_hora']
+        ]);
+        if ($stmtExcepcion->fetchColumn()) {
+            $conexion->rollBack();
+            header("Location: {$urlRetorno}&error=horario_bloqueado");
+            exit();
+        }
     }
 
     $stmtActualizar = $conexion->prepare(
@@ -124,4 +207,12 @@ try {
     error_log("Error al cambiar estado del turno desde secretaría: " . $e->getMessage());
     header("Location: {$urlRetorno}&error=servidor");
     exit();
+} finally {
+    if ($bloqueoAdquirido) {
+        try {
+            $conexion->prepare('SELECT RELEASE_LOCK(:nombre)')->execute([':nombre' => $nombreBloqueo]);
+        } catch (Throwable $e) {
+            error_log("No se pudo liberar el bloqueo del turno: " . $e->getMessage());
+        }
+    }
 }
